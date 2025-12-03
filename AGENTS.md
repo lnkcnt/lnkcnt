@@ -3,7 +3,7 @@
 ## About project
 
 1. This project is a url shortener.
-2. but it includes url click counter feature.
+2. but it includes a url click counter feature.
 3. This project uses Next.js.
 
 ## Code writing rules
