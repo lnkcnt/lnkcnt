@@ -1,0 +1,29 @@
+networks:
+  lincnt:
+volumes:
+  dbvol:
+
+
+services:
+  dbms:
+    image: mariadb:latest
+    container_name: mariadb
+    ports:
+      - 3306:3306
+    env_file:
+      - .env
+    volumes:
+      - dbvol:/var/lib/mysql
+    networks:
+      lincnt:
+        ipv4_address: 10.89.0.1
+  next:
+    container_name: next
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      lincnt:
+    ports:
+      - 8080:3000
+      - 44300:3000

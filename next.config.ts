@@ -5,4 +5,8 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
 };
 
+module.exports = {
+  output: "standalone",
+};
+
 export default nextConfig;
