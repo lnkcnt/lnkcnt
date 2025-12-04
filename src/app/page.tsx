@@ -1,3 +1,7 @@
+/**
+ * Main Page.
+ * @returns JSX.Element containing NavBar & Content.
+ */
 export default function Home() {
   return (
     <>
@@ -7,6 +11,10 @@ export default function Home() {
   );
 }
 
+/**
+ * Navigation bar for mainpage.
+ * @returns JSX.Element containing div.
+ */
 function NavBar() {
   return (
     <div className="navbar bg-base-100 shadow-sm">
@@ -16,6 +24,10 @@ function NavBar() {
 }
 
 // TO-DO: Implement URL Generation Feature
+/**
+ * Mainpage's content.
+ * @returns JSX.Element containing div.
+ */
 function Content() {
   return (
     <div className="m-1% flex flex-col items-center justify-start p-10">
