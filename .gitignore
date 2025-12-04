@@ -41,6 +41,3 @@ yarn-error.log*
 next-env.d.ts
 
 /generated/prisma
-
-# Database credential files
-db-user.json
