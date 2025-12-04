@@ -1,4 +1,4 @@
--- lnkcnt.links definition
+# lnkcnt.links definition
 
 mariadb -u root -p"${MARIADB_ROOT_PASSWORD}" -e \
 	"CREATE TABLE \`${DATABASE_NAME}\`.links (
