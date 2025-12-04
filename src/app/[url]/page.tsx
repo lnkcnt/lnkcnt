@@ -9,8 +9,9 @@ export default async function Redirection({
   params: Promise<{ url: string }>;
 }) {
   const { url } = await params;
+  let finalURL: string;
   try {
-    const finalUrl = await prisma.links.findUnique({
+    const query = await prisma.links.findUnique({
       where: {
         id: url,
       },
@@ -18,16 +19,16 @@ export default async function Redirection({
         redirect_url: true,
       },
     });
-    if (finalUrl?.redirect_url) {
-      redirect(finalUrl.redirect_url!);
-    } else {
-      notFound();
-    }
+
+    finalURL = query?.redirect_url!;
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       throw new Error();
-    } else {
-      notFound();
     }
+  }
+  if (finalURL!) {
+    redirect(finalURL);
+  } else {
+    notFound();
   }
 }
