@@ -15,6 +15,7 @@ function NavBar() {
   );
 }
 
+// TO-DO: Implement URL Generation Feature
 function Content() {
   return (
     <div className="m-1% flex flex-col items-center justify-start p-10">
