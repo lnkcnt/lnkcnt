@@ -1,0 +1,8 @@
+-- Rename this file to 01-user-init.sql to use
+-- Don't forget to change password
+
+CREATE USER 'wa-sans'@'%' IDENTIFIED BY 'YourPassword';
+GRANT FILE ON *.* TO 'wa-sans'@'%';
+GRANT RELOAD ON *.* TO 'wa-sans'@'%';
+GRANT SHOW DATABASES ON *.* TO 'wa-sans'@'%';
+GRANT CREATE TABLESPACE ON *.* TO 'wa-sans'@'%';

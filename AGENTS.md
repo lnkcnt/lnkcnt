@@ -12,6 +12,7 @@
 2. If possible, use DaisyUI or TailwindCSS.
 3. This project is intended to host on podman(docker).
 4. Write JSDoc on functions, and variables.
+5. DO NOT USE PLAIN SQL. instead, use Prisma ORM.
 
 ## File operation rules
 
@@ -27,3 +28,4 @@
 - [DaisyUI](https://daisyui.com/llms.txt)
 - [Next.js](https://nextjs.org/docs/llms.txt)
 - [TailwindCSS](https://context7.com/websites/tailwindcss/llms.txt?tokens=10000)
+- [Prisma](https://www.prisma.io/docs/llms.txt)

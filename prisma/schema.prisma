@@ -1,0 +1,13 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model links {
+  id           String @id @db.VarChar(32)
+  redirect_url String @db.VarChar(128)
+}

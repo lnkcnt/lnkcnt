@@ -5,7 +5,7 @@ volumes:
 
 
 services:
-  dbms:
+  maria:
     image: mariadb:latest
     container_name: mariadb
     ports:
@@ -13,6 +13,7 @@ services:
     env_file:
       - .env
     volumes:
+      - ./sql_init:/docker-entrypoint-initdb.d
       - dbvol:/var/lib/mysql
     networks:
       lincnt:
