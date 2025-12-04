@@ -11,13 +11,3 @@ GRANT REFERENCES ON lnkcnt.* TO 'wa-sans'@'%';
 GRANT SELECT ON lnkcnt.* TO 'wa-sans'@'%';
 GRANT SHOW VIEW ON lnkcnt.* TO 'wa-sans'@'%';
 GRANT UPDATE ON lnkcnt.* TO 'wa-sans'@'%';
-
--- lnkcnt.links definition
-
-CREATE TABLE lnkcnt.links (
-	id varchar(32) NOT NULL,
-	redirect_url varchar(128) NOT NULL,
-	CONSTRAINT links_pk PRIMARY KEY (id)
-)
-ENGINE=InnoDB
-DEFAULT CHARSET=utf8mb4;
