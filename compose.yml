@@ -14,7 +14,6 @@ services:
       - .env
     volumes:
       - ./sql_init:/docker-entrypoint-initdb.d
-      - ./.env:/docker-entrypoint-initdb.d/.env
       - dbvol:/var/lib/mysql
     networks:
       lincnt:
