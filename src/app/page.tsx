@@ -34,6 +34,15 @@ function Content() {
       <div>
         <h1 className="text-6xl font-black">URL Shortener + Click Checker</h1>
       </div>
+      <div className="h-20" />
+      <div>
+        <input
+          type="text"
+          placeholder="Enter your URL here..."
+          className="input input-xl"
+        />
+        <button className="btn btn-xl m-5">Shorten!</button>
+      </div>
     </div>
   );
 }
