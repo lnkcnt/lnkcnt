@@ -26,14 +26,13 @@ services:
       lnkcnt:
     environment:
       - PMA_HOST=10.89.0.2
-  # Currently not used
-  # next:
-  #   container_name: next
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   networks:
-  #     lnkcnt:
-  #   ports:
-  #     - 8080:3000
-  #     - 44300:3000
+  next:
+    container_name: next
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      lnkcnt:
+    ports:
+      - 8080:3000
+      - 44300:3000
