@@ -11,3 +11,8 @@ model links {
   id           String @id @db.VarChar(32)
   redirect_url String @db.VarChar(128)
 }
+
+model urlManagePage {
+  id         String @id @db.VarChar(32)
+  managePage String @unique(map: "managePage") @db.VarChar(32)
+}

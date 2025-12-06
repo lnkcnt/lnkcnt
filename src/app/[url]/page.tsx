@@ -2,7 +2,6 @@ import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "../../../generated/prisma/client";
 
-// TODO: Implement database counter increasement
 export default async function Redirection({
   params,
 }: {

@@ -29,3 +29,4 @@
 - [Next.js](https://nextjs.org/docs/llms.txt)
 - [TailwindCSS](https://context7.com/websites/tailwindcss/llms.txt?tokens=10000)
 - [Prisma](https://www.prisma.io/docs/llms.txt)
+- [Zod](https://zod.dev/llms.txt)
