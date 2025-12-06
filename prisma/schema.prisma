@@ -16,3 +16,12 @@ model urlManagePage {
   id         String @id @db.VarChar(32)
   managePage String @unique(map: "managePage") @db.VarChar(32)
 }
+
+model linkClickCount {
+  clickId Int      @id @default(autoincrement())
+  id      String   @db.VarChar(32)
+  ip      String   @db.VarChar(38)
+  date    DateTime @db.DateTime(0)
+
+  @@index([id], map: "idx_id")
+}

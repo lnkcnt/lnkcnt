@@ -12,4 +12,12 @@ mariadb -u root -p"${MARIADB_ROOT_PASSWORD}" -e \
   		managePage varchar(32) NOT NULL,
  		PRIMARY KEY (id),
   		UNIQUE KEY managePage (managePage)
-	) ENGINE=InnoDB CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;"
+	) ENGINE=InnoDB CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+	CREATE TABLE linkClickCount (
+		clickId INT AUTO_INCREMENT NOT NULL,
+		id VARCHAR(32) NOT NULL,
+		ip VARCHAR(38) NOT NULL,
+		date DATETIME NOT NULL,
+		PRIMARY KEY (clickId),
+		KEY idx_id (id)
+	) ENGINE = InnoDB;"

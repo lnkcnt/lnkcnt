@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import randomstring from "randomstring";
 import * as z from "zod";
 import Content from "./components/Content";
+import { readFileSync } from "fs";
+import { join } from "path";
 
 /**
  * Main Page.
@@ -18,6 +20,34 @@ export default function Home() {
         <a className="btn btn-ghost text-xl">LnkCnt</a>
       </div>
     );
+  }
+
+  /**
+   * Check if URL is in blacklist
+   * @param url - URL to check against blacklist
+   * @returns true if URL is blacklisted, false otherwise
+   */
+  async function isBlacklisted(url: string): Promise<boolean> {
+    "use server";
+    try {
+      const blacklistPath = join(process.cwd(), "url-blacklist.txt");
+      const blacklistContent = readFileSync(blacklistPath, "utf-8");
+      const blacklistedItems = blacklistContent
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line && !line.startsWith("#"));
+
+      const urlObj = new URL(url);
+      const domain = urlObj.hostname;
+
+      return blacklistedItems.some((item) => {
+        // 정확한 도메인 매칭 또는 URL 패턴 매칭
+        return domain.includes(item) || url.includes(item);
+      });
+    } catch {
+      // 블랙리스트 파일이 없으면 체크하지 않음
+      return false;
+    }
   }
 
   /**
@@ -47,6 +77,17 @@ export default function Home() {
               errors: string[];
             };
           },
+        },
+      };
+    }
+
+    // 블랙리스트 체크
+    if (await isBlacklisted(validatedFields.data.url)) {
+      return {
+        message: "This URL is not allowed (blacklisted)",
+        errors: {
+          errors: ["URL이 차단 목록에 포함되어 있습니다"],
+          properties: {},
         },
       };
     }
