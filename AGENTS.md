@@ -17,7 +17,6 @@
 ## File operation rules
 
 1. **YOU SHOULDN'T DELETE A FILE WITHOUT USER'S EXPLICIT PERMISSION!**
-2. If possible, use bun as package manager.
 
 ## Git operation rules
 
