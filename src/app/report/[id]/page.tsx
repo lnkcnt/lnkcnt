@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 
@@ -60,9 +61,9 @@ export default function ReportPage() {
     return (
       <div className="navbar bg-base-100 shadow-sm">
         <div className="flex-1">
-          <a href="/" className="btn btn-ghost text-xl">
+          <Link href="/" className="btn btn-ghost text-xl">
             LnkCnt
-          </a>
+          </Link>
         </div>
       </div>
     );
@@ -150,9 +151,9 @@ export default function ReportPage() {
 
                   {/* Submit Button */}
                   <div className="card-actions justify-between">
-                    <a href="/" className="btn btn-outline">
+                    <Link href="/" className="btn btn-outline">
                       취소
-                    </a>
+                    </Link>
                     <button
                       type="submit"
                       className={`btn btn-primary ${loading ? "btn-disabled loading" : ""}`}

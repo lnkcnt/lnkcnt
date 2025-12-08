@@ -30,4 +30,12 @@ mariadb -u root -p"${MARIADB_ROOT_PASSWORD}" -e \
 		createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		PRIMARY KEY (reportId),
 		KEY idx_report_id (id)
+	) ENGINE = InnoDB;
+	CREATE TABLE urlBlacklist (
+		blacklistId INT AUTO_INCREMENT NOT NULL,
+		pattern VARCHAR(255) NOT NULL,
+		note VARCHAR(255) DEFAULT NULL,
+		createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (blacklistId),
+		UNIQUE KEY uniq_pattern (pattern)
 	) ENGINE = InnoDB;"

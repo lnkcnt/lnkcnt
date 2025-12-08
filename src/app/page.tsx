@@ -2,8 +2,6 @@ import { prisma } from "@/lib/prisma";
 import randomstring from "randomstring";
 import * as z from "zod";
 import Content from "./components/Content";
-import { readFileSync } from "fs";
-import { join } from "path";
 
 /**
  * Main Page.
@@ -29,25 +27,21 @@ export default function Home() {
    */
   async function isBlacklisted(url: string): Promise<boolean> {
     "use server";
-    try {
-      const blacklistPath = join(process.cwd(), "url-blacklist.txt");
-      const blacklistContent = readFileSync(blacklistPath, "utf-8");
-      const blacklistedItems = blacklistContent
-        .split("\n")
-        .map((line) => line.trim())
-        .filter((line) => line && !line.startsWith("#"));
+    const entries = await prisma.urlBlacklist.findMany({
+      select: { pattern: true },
+    });
 
-      const urlObj = new URL(url);
-      const domain = urlObj.hostname;
+    if (!entries.length) return false;
 
-      return blacklistedItems.some((item) => {
-        // 정확한 도메인 매칭 또는 URL 패턴 매칭
-        return domain.includes(item) || url.includes(item);
-      });
-    } catch {
-      // 블랙리스트 파일이 없으면 체크하지 않음
-      return false;
-    }
+    const urlObj = new URL(url);
+    const domain = urlObj.hostname.toLowerCase();
+    const targetUrl = url.toLowerCase();
+
+    return entries.some(({ pattern }) => {
+      const p = pattern.trim().toLowerCase();
+      if (!p) return false;
+      return domain.includes(p) || targetUrl.includes(p);
+    });
   }
 
   /**
@@ -96,7 +90,7 @@ export default function Home() {
       length: 16,
       charset: "alphanumeric",
     });
-    const newLinksEntry = await prisma.links.create({
+    prisma.links.create({
       data: {
         id: generatedId,
         redirect_url: validatedFields.data.url,
@@ -106,7 +100,7 @@ export default function Home() {
       length: 30,
       charset: "alphanumeric",
     });
-    const newManagePage = await prisma.urlManagePage.create({
+    await prisma.urlManagePage.create({
       data: {
         id: generatedId,
         managePage,

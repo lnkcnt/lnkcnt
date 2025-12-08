@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 
 interface ClickRecord {
   ip: string;
@@ -108,9 +109,9 @@ export default function ManageLink() {
     return (
       <div className="navbar bg-base-100 shadow-sm">
         <div className="flex-1">
-          <a href="/" className="btn btn-ghost text-xl">
+          <Link href="/" className="btn btn-ghost text-xl">
             LnkCnt
-          </a>
+          </Link>
         </div>
       </div>
     );
@@ -139,9 +140,9 @@ export default function ManageLink() {
                 The management page ID you provided does not exist or has
                 expired.
               </p>
-              <a href="/" className="btn btn-primary">
+              <Link href="/" className="btn btn-primary">
                 Create a New Link
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -254,9 +255,9 @@ export default function ManageLink() {
               {/* Actions */}
               <div className="divider"></div>
               <div className="card-actions justify-between">
-                <a href="/" className="btn btn-outline">
+                <Link href="/" className="btn btn-outline">
                   Back
-                </a>
+                </Link>
                 <button
                   onClick={handleDelete}
                   className={`btn btn-error ${deleting ? "btn-disabled loading" : ""}`}

@@ -189,7 +189,7 @@ export default function Content({ genURL }: { genURL: GenURLFunc }) {
               IF LOST, YOU CANNOT ACCESS THE MANAGEMENT PAGE
               <br /> AND YOU WILL NOT ABLE TO DELETE OR MODIFY YOUR SHORTENED
               URL.
-              <br /> IT CAN'T BE RETRIEVED LATER!
+              <br /> IT CAN&apos;T BE RETRIEVED LATER!
             </h3>
             <div className="h-1" />
             <div>

@@ -36,3 +36,10 @@ model urlReport {
 
   @@index([id], map: "idx_report_id")
 }
+
+model urlBlacklist {
+  blacklistId Int      @id @default(autoincrement())
+  pattern     String   @unique(map: "uniq_pattern") @db.VarChar(255)
+  note        String?  @db.VarChar(255)
+  createdAt   DateTime @default(now()) @db.DateTime(0)
+}
