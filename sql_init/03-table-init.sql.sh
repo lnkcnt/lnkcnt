@@ -20,4 +20,14 @@ mariadb -u root -p"${MARIADB_ROOT_PASSWORD}" -e \
 		date DATETIME NOT NULL,
 		PRIMARY KEY (clickId),
 		KEY idx_id (id)
+	) ENGINE = InnoDB;
+	CREATE TABLE urlReport (
+		reportId INT AUTO_INCREMENT NOT NULL,
+		id VARCHAR(32) NOT NULL,
+		reason VARCHAR(50) NOT NULL,
+		message LONGTEXT NOT NULL,
+		ip VARCHAR(38) NOT NULL,
+		createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (reportId),
+		KEY idx_report_id (id)
 	) ENGINE = InnoDB;"

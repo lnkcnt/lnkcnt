@@ -25,3 +25,14 @@ model linkClickCount {
 
   @@index([id], map: "idx_id")
 }
+
+model urlReport {
+  reportId  Int      @id @default(autoincrement())
+  id        String   @db.VarChar(32)
+  reason    String   @db.VarChar(50)
+  message   String   @db.LongText
+  ip        String   @db.VarChar(38)
+  createdAt DateTime @default(now()) @db.DateTime(0)
+
+  @@index([id], map: "idx_report_id")
+}
