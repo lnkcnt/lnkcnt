@@ -186,8 +186,9 @@ export default function Content({ genURL }: { genURL: GenURLFunc }) {
             <h3 className="font-extrabold">
               MAKE SURE TO BACK UP THE Management Page URL!
               <br />
-              IF LOST, YOU CANNOT ACCESS THE MANAGEMENT PAGE!
-              <br /> YOU CANNOT DELETE OR MODIFY YOUR SHORTENED URL WITHOUT IT!
+              IF LOST, YOU CANNOT ACCESS THE MANAGEMENT PAGE
+              <br /> AND YOU WILL NOT ABLE TO DELETE OR MODIFY YOUR SHORTENED
+              URL.
               <br /> IT CAN'T BE RETRIEVED LATER!
             </h3>
             <div className="h-1" />
