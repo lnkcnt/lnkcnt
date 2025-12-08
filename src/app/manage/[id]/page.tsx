@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 
+import NavBar from "@/app/components/NavBar";
+
 interface ClickRecord {
   ip: string;
   date: string;
@@ -101,21 +103,6 @@ export default function ManageLink() {
       setTimeout(() => setCopied(false), 2000);
     }
   };
-
-  /**
-   * Navigation bar component
-   */
-  function NavBar() {
-    return (
-      <div className="navbar bg-base-100 shadow-sm">
-        <div className="flex-1">
-          <Link href="/" className="btn btn-ghost text-xl">
-            LnkCnt
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   if (loading) {
     return (

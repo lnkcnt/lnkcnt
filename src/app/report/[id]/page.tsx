@@ -1,5 +1,6 @@
 "use client";
 
+import NavBar from "@/app/components/NavBar";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
@@ -53,21 +54,6 @@ export default function ReportPage() {
       setLoading(false);
     }
   };
-
-  /**
-   * Navigation bar component
-   */
-  function NavBar() {
-    return (
-      <div className="navbar bg-base-100 shadow-sm">
-        <div className="flex-1">
-          <Link href="/" className="btn btn-ghost text-xl">
-            LnkCnt
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <>

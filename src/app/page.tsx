@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import randomstring from "randomstring";
 import * as z from "zod";
 import Content from "./components/Content";
+import NavBar from "./components/NavBar";
 
 /**
  * Main Page.
@@ -12,13 +13,6 @@ export default function Home() {
    * Navigation bar for mainpage.
    * @returns JSX.Element containing div.
    */
-  function NavBar() {
-    return (
-      <div className="navbar bg-base-100 shadow-sm">
-        <a className="btn btn-ghost text-xl">LnkCnt</a>
-      </div>
-    );
-  }
 
   /**
    * Check if URL is in blacklist
@@ -90,15 +84,15 @@ export default function Home() {
       length: 16,
       charset: "alphanumeric",
     });
-    prisma.links.create({
+    const managePage = randomstring.generate({
+      length: 30,
+      charset: "alphanumeric",
+    });
+    await prisma.links.create({
       data: {
         id: generatedId,
         redirect_url: validatedFields.data.url,
       },
-    });
-    const managePage = randomstring.generate({
-      length: 30,
-      charset: "alphanumeric",
     });
     await prisma.urlManagePage.create({
       data: {

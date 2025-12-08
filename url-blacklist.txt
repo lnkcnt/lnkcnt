@@ -1,6 +1,0 @@
-# URL Blacklist
-# 한 줄에 하나의 금지 URL 또는 도메인 입력
-# 예시:
-# example.com
-# badsite.net
-# http://malicious.com
