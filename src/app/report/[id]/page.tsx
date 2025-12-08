@@ -4,6 +4,17 @@ import NavBar from "@/app/components/NavBar";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, ArrowLeft, Send } from "lucide-react";
 
 /**
  * URL Report Page Component
@@ -58,45 +69,39 @@ export default function ReportPage() {
   return (
     <>
       {NavBar()}
-      <div className="bg-base-200 min-h-screen p-4">
+      <div className="min-h-screen bg-gray-50 p-4">
         <div className="mx-auto max-w-2xl">
-          <div className="card bg-base-100 shadow-xl">
-            <div className="card-body">
-              <h2 className="card-title">Report URL</h2>
-              <p className="text-sm text-gray-600">
+          <Card>
+            <CardHeader>
+              <CardTitle>Report URL</CardTitle>
+              <CardDescription>
                 이 URL이 부적절하거나 해롭다고 생각하신다면 신고해 주세요.
-              </p>
-
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
               {submitted ? (
-                <div className="alert alert-success">
-                  <span>신고가 정상적으로 접수되었습니다. 감사합니다!</span>
-                </div>
+                <Alert className="border-green-500 bg-green-50">
+                  <AlertDescription className="text-green-800">
+                    신고가 정상적으로 접수되었습니다. 감사합니다!
+                  </AlertDescription>
+                </Alert>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-6">
                   {/* URL Display */}
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text font-semibold">URL</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={id}
-                      readOnly
-                      className="input input-bordered"
-                    />
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold">URL</label>
+                    <Input type="text" value={id} readOnly />
                   </div>
 
                   {/* Reason Selection */}
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text font-semibold">
-                        신고 사유 *
-                      </span>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold">
+                      신고 사유 *
                     </label>
                     <select
                       value={reason}
                       onChange={(e) => setReason(e.target.value)}
-                      className="select select-bordered"
+                      className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
                       required
                     >
                       <option value="">신고 사유를 선택해 주세요</option>
@@ -112,16 +117,14 @@ export default function ReportPage() {
                   </div>
 
                   {/* Message */}
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text font-semibold">
-                        상세 설명
-                      </span>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold">
+                      상세 설명
                     </label>
                     <textarea
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
-                      className="textarea textarea-bordered"
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
                       placeholder="신고 사유에 대해 상세히 설명해 주세요."
                       rows={5}
                       required
@@ -130,28 +133,37 @@ export default function ReportPage() {
 
                   {/* Error Message */}
                   {error && (
-                    <div className="alert alert-error">
-                      <span>{error}</span>
-                    </div>
+                    <Alert variant="destructive">
+                      <AlertDescription>{error}</AlertDescription>
+                    </Alert>
                   )}
 
                   {/* Submit Button */}
-                  <div className="card-actions justify-between">
-                    <Link href="/" className="btn btn-outline">
-                      취소
+                  <div className="flex justify-between border-t pt-6">
+                    <Link href="/">
+                      <Button variant="outline">
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        취소
+                      </Button>
                     </Link>
-                    <button
-                      type="submit"
-                      className={`btn btn-primary ${loading ? "btn-disabled loading" : ""}`}
-                      disabled={loading}
-                    >
-                      {loading ? "제출 중..." : "신고하기"}
-                    </button>
+                    <Button type="submit" disabled={loading}>
+                      {loading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          제출 중...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="mr-2 h-4 w-4" />
+                          신고하기
+                        </>
+                      )}
+                    </Button>
                   </div>
                 </form>
               )}
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </>

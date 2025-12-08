@@ -1,8 +1,12 @@
 "use client";
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import Form from "next/form";
 import React, { useActionState } from "react";
 import { useFormStatus } from "react-dom";
+import { AlertCircle, CheckCircle } from "lucide-react";
 
 /**
  * Submit button component with pending state
@@ -12,9 +16,9 @@ function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <button type="submit" className="btn btn-xl" disabled={pending}>
+    <Button type="submit" size="lg" disabled={pending}>
       {pending ? "Shortening..." : "Shorten!"}
-    </button>
+    </Button>
   );
 }
 
@@ -33,10 +37,11 @@ function CopyButton({ text }: { text: string }) {
   };
 
   return (
-    <button
+    <Button
       type="button"
       onClick={handleCopy}
-      className="btn btn-sm btn-outline"
+      variant="outline"
+      size="sm"
       title="Copy to clipboard"
     >
       {copied ? (
@@ -69,7 +74,7 @@ function CopyButton({ text }: { text: string }) {
           Copy
         </>
       )}
-    </button>
+    </Button>
   );
 }
 
@@ -114,89 +119,65 @@ export default function Content({ genURL }: { genURL: GenURLFunc }) {
     <div className="m-1% flex flex-col items-center justify-start p-10">
       <h1 className="text-6xl font-black">URL Shortener + Click Checker</h1>
       <div className="h-20" />
-      <Form
-        action={formAction}
-        className="flex flex-row justify-center align-middle"
-      >
-        <input
-          name="url"
-          type="text"
-          placeholder="Enter your URL here..."
-          className="input input-xl"
-          required
-        />
-        <div className="w-5"></div>
-        <SubmitButton />
+      <Form action={formAction} className="w-150">
+        <div className="flex flex-row justify-center gap-4 align-middle">
+          <Input
+            name="url"
+            type="url"
+            placeholder="Enter your URL here..."
+            className="h-10"
+            required
+          />
+          <Button type="submit" size="lg" className="cursor-pointer">
+            Shorten!
+          </Button>
+        </div>
       </Form>
 
       {/* Error Messages */}
       {state.errors && (
-        <div className="alert alert-error mt-5 max-w-md">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 shrink-0 stroke-current"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <div>
-            <h3 className="font-bold">{state.message}</h3>
-            {state.errors.errors.length > 0 && (
-              <ul className="list-inside list-disc">
-                {state.errors.errors.map((error, index) => (
-                  <li key={index}>{error}</li>
-                ))}
-              </ul>
-            )}
-            {state.errors.properties.url && (
-              <ul className="list-inside list-disc">
-                {state.errors.properties.url.errors?.map((error, index) => (
-                  <li key={index}>{error}</li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </div>
+        <Alert variant="destructive" className="mt-5 max-w-md">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>{state.message}</AlertTitle>
+          <AlertDescription>
+            <div className="mt-2 space-y-2">
+              {state.errors.errors.length > 0 && (
+                <ul className="list-inside list-disc space-y-1 text-sm">
+                  {state.errors.errors.map((error, index) => (
+                    <li key={index}>{error}</li>
+                  ))}
+                </ul>
+              )}
+              {state.errors.properties.url && (
+                <ul className="list-inside list-disc space-y-1 text-sm">
+                  {state.errors.properties.url.errors?.map((error, index) => (
+                    <li key={index}>{error}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </AlertDescription>
+        </Alert>
       )}
 
       {/* Success Message */}
       {state.success && state.generatedId && (
-        <div className="alert alert-success mt-5 max-w-2xl">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 shrink-0 stroke-current"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <div className="flex flex-col gap-2">
-            <h3 className="font-bold">{state.message}</h3>
-            <h3 className="font-extrabold">
+        <Alert className="mt-5 max-w-2xl border-green-500 bg-green-50">
+          <CheckCircle className="h-4 w-4 text-green-600" />
+          <AlertTitle className="text-green-800">{state.message}</AlertTitle>
+          <AlertDescription className="space-y-4">
+            <div className="font-semibold text-green-900">
               MAKE SURE TO BACK UP THE Management Page URL!
               <br />
               IF LOST, YOU CANNOT ACCESS THE MANAGEMENT PAGE
               <br /> AND YOU WILL NOT ABLE TO DELETE OR MODIFY YOUR SHORTENED
               URL.
               <br /> IT CAN&apos;T BE RETRIEVED LATER!
-            </h3>
-            <div className="h-1" />
+            </div>
             <div>
-              <p className="font-semibold">Shortened URL:</p>
-              <div className="h-2" />
-              <div className="flex gap-2">
-                <code className="bg-base-200 flex-1 rounded p-2 text-sm">
+              <p className="font-semibold text-green-900">Shortened URL:</p>
+              <div className="mt-2 flex gap-2">
+                <code className="flex-1 rounded border border-gray-300 bg-gray-100 p-2 text-sm">
                   {`${typeof window !== "undefined" ? window.location.origin : ""}/${state.generatedId}`}
                 </code>
                 <CopyButton
@@ -204,13 +185,11 @@ export default function Content({ genURL }: { genURL: GenURLFunc }) {
                 />
               </div>
             </div>
-            <div className="h-1" />
             {state.managePage && (
               <div>
-                <p className="font-semibold">Management Page:</p>
-                <div className="h-2" />
-                <div className="flex gap-2">
-                  <code className="bg-base-200 flex-1 rounded p-2 text-sm">
+                <p className="font-semibold text-green-900">Management Page:</p>
+                <div className="mt-2 flex gap-2">
+                  <code className="flex-1 rounded border border-gray-300 bg-gray-100 p-2 text-sm">
                     {`${typeof window !== "undefined" ? window.location.origin : ""}/manage/${state.managePage}`}
                   </code>
                   <CopyButton
@@ -219,8 +198,8 @@ export default function Content({ genURL }: { genURL: GenURLFunc }) {
                 </div>
               </div>
             )}
-          </div>
-        </div>
+          </AlertDescription>
+        </Alert>
       )}
     </div>
   );

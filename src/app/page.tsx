@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "../../lib/prisma";
 import randomstring from "randomstring";
 import * as z from "zod";
 import Content from "./components/Content";
@@ -110,7 +110,7 @@ export default function Home() {
 
   return (
     <>
-      {NavBar()}
+      <NavBar />
       <Content genURL={genURL} />
     </>
   );
