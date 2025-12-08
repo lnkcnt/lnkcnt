@@ -34,5 +34,4 @@ services:
     networks:
       lnkcnt:
     ports:
-      - 8080:3000
-      - 44300:3000
+      - 3000:3000
