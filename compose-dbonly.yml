@@ -5,9 +5,9 @@ volumes:
 
 
 services:
-  postgres:
-    image: postgres:latest
-    container_name: postgresql
+  maria:
+    image: mariadb:latest
+    container_name: mariadb
     ports:
       - 3306:3306
     env_file:
