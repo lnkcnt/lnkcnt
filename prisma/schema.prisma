@@ -7,16 +7,6 @@ datasource db {
   provider = "mysql"
 }
 
-model links {
-  id           String @id @db.VarChar(32)
-  redirect_url String @db.VarChar(128)
-}
-
-model urlManagePage {
-  id         String @id @db.VarChar(32)
-  managePage String @unique(map: "managePage") @db.VarChar(32)
-}
-
 model linkClickCount {
   clickId Int      @id @default(autoincrement())
   id      String   @db.VarChar(32)
@@ -24,6 +14,23 @@ model linkClickCount {
   date    DateTime @db.DateTime(0)
 
   @@index([id], map: "idx_id")
+}
+
+model links {
+  id           String @id @db.VarChar(32)
+  redirect_url String @db.VarChar(128)
+}
+
+model urlBlacklist {
+  blacklistId Int      @id @default(autoincrement())
+  pattern     String   @unique(map: "uniq_pattern") @db.VarChar(255)
+  note        String?  @db.VarChar(255)
+  createdAt   DateTime @default(now()) @db.DateTime(0)
+}
+
+model urlManagePage {
+  id         String @id @db.VarChar(32)
+  managePage String @unique(map: "managePage") @db.VarChar(32)
 }
 
 model urlReport {
@@ -35,11 +42,4 @@ model urlReport {
   createdAt DateTime @default(now()) @db.DateTime(0)
 
   @@index([id], map: "idx_report_id")
-}
-
-model urlBlacklist {
-  blacklistId Int      @id @default(autoincrement())
-  pattern     String   @unique(map: "uniq_pattern") @db.VarChar(255)
-  note        String?  @db.VarChar(255)
-  createdAt   DateTime @default(now()) @db.DateTime(0)
 }

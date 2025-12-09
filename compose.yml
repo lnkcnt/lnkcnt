@@ -1,31 +1,11 @@
 networks:
   lnkcnt:
-volumes:
-  dbvol:
 
+
+include:
+  - ./compose.db.yml
 
 services:
-  maria:
-    image: mariadb:latest
-    container_name: mariadb
-    ports:
-      - 3306:3306
-    env_file:
-      - .env
-    volumes:
-      - ./sql_init:/docker-entrypoint-initdb.d
-      - dbvol:/var/lib/mysql
-    networks:
-      lnkcnt:
-        ipv4_address: 10.89.0.2
-  phpmyadmin:
-    image: phpmyadmin:latest
-    ports:
-      - 8080:80
-    networks:
-      lnkcnt:
-    environment:
-      - PMA_HOST=10.89.0.2
   next:
     container_name: next
     build:
