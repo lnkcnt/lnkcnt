@@ -1,3 +1,6 @@
+import { prisma } from "../../../../../lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
+
 /**
  * DELETE handler for removing a link and its click records by management page ID
  * @param request - NextRequest object
@@ -44,8 +47,6 @@ export async function DELETE(
     );
   }
 }
-import { prisma } from "../../../../../lib/prisma";
-import { NextRequest, NextResponse } from "next/server";
 
 /**
  * GET handler for fetching link data by management page ID
