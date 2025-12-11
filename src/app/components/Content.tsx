@@ -5,22 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Form from "next/form";
 import React, { useActionState } from "react";
-import { useFormStatus } from "react-dom";
 import { AlertCircle, CheckCircle } from "lucide-react";
-
-/**
- * Submit button component with pending state
- * @returns JSX.Element containing button
- */
-function SubmitButton() {
-  const { pending } = useFormStatus();
-
-  return (
-    <Button type="submit" size="lg" disabled={pending}>
-      {pending ? "Shortening..." : "Shorten!"}
-    </Button>
-  );
-}
 
 /**
  * Copy button component for copying text to clipboard
