@@ -1,8 +1,13 @@
 import { prisma } from "../../lib/prisma";
 import randomstring from "randomstring";
 import * as z from "zod";
-import Content from "./components/Content";
+import Content from "./components/MainPageContent";
 import NavBar from "./components/NavBar";
+
+type URLBanData = {
+  banned: boolean;
+  note?: string | null | undefined;
+};
 
 /**
  * Main Page.
@@ -10,32 +15,42 @@ import NavBar from "./components/NavBar";
  */
 export default function Home() {
   /**
-   * Navigation bar for mainpage.
-   * @returns JSX.Element containing div.
-   */
-
-  /**
    * Check if URL is in blacklist
    * @param url - URL to check against blacklist
    * @returns true if URL is blacklisted, false otherwise
    */
-  async function isBlacklisted(url: string): Promise<boolean> {
+  async function isBlacklisted(url: string): Promise<URLBanData> {
     "use server";
+    let banNote: string | null | undefined = "";
     const entries = await prisma.urlBlacklist.findMany({
-      select: { pattern: true },
+      select: { pattern: true, note: true },
     });
 
-    if (!entries.length) return false;
+    if (!entries.length) return { banned: false };
 
     const urlObj = new URL(url);
     const domain = urlObj.hostname.toLowerCase();
     const targetUrl = url.toLowerCase();
 
-    return entries.some(({ pattern }) => {
-      const p = pattern.trim().toLowerCase();
-      if (!p) return false;
-      return domain.includes(p) || targetUrl.includes(p);
-    });
+    if (
+      entries.some(({ pattern, note }) => {
+        const p = pattern.trim().toLowerCase();
+        if (!p) return false;
+        if (domain.includes(p) || targetUrl.includes(p)) {
+          banNote = note;
+          return true;
+        } else {
+          return false;
+        }
+      })
+    ) {
+      return {
+        banned: true,
+        note: banNote,
+      };
+    } else {
+      return { banned: false };
+    }
   }
 
   /**
@@ -69,12 +84,14 @@ export default function Home() {
       };
     }
 
+    let banData = await isBlacklisted(validatedFields.data.url);
     // 블랙리스트 체크
-    if (await isBlacklisted(validatedFields.data.url)) {
+    if (banData.banned) {
       return {
+        success: false,
         message: "This URL is not allowed (blacklisted)",
         errors: {
-          errors: ["URL이 차단 목록에 포함되어 있습니다"],
+          errors: [banData.note ?? "URL이 차단 목록에 포함되어 있습니다"],
           properties: {},
         },
       };
