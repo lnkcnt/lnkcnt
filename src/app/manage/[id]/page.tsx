@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 
 import NavBar from "@/app/components/NavBar";
+import { DeleteURL } from "./delete";
 
 interface ClickRecord {
   ip: string;
@@ -68,10 +69,8 @@ export default function ManageLink() {
     if (!managePage || deleting) return;
     setDeleting(true);
     try {
-      const response = await fetch(`/api/links/${managePage}`, {
-        method: "DELETE",
-      });
-      if (!response.ok) {
+      const response = await DeleteURL(managePage);
+      if (!response) {
         throw new Error("Failed to delete link");
       }
       window.location.href = "/";

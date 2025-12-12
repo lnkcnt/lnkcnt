@@ -2,53 +2,6 @@ import { prisma } from "../../../../../lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
- * DELETE handler for removing a link and its click records by management page ID
- * @param request - NextRequest object
- * @param context - Route context containing params (Promise<{ id: string }>)
- * @returns JSON response with result or error
- */
-export async function DELETE(
-  request: NextRequest,
-  context: { params: Promise<{ id: string }> },
-) {
-  try {
-    const { id } = await context.params;
-
-    // 관리 페이지에서 실제 링크 id 찾기
-    const managePage = await prisma.urlManagePage.findFirst({
-      where: { managePage: id },
-    });
-
-    if (!managePage) {
-      return NextResponse.json({ error: "Link not found" }, { status: 404 });
-    }
-
-    // 클릭 기록 먼저 삭제
-    await prisma.linkClickCount.deleteMany({
-      where: { id: managePage.id },
-    });
-
-    // 링크 삭제
-    await prisma.links.delete({
-      where: { id: managePage.id },
-    });
-
-    // 관리 페이지 엔트리 삭제
-    await prisma.urlManagePage.delete({
-      where: { id: managePage.id },
-    });
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Error deleting link:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
-  }
-}
-
-/**
  * GET handler for fetching link data by management page ID
  * @param request - NextRequest object
  * @param params - Route parameters containing the management page ID
