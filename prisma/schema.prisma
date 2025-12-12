@@ -43,3 +43,7 @@ model urlReport {
 
   @@index([id], map: "idx_report_id")
 }
+
+model tester {
+  flag Boolean @id @default(true)
+}
