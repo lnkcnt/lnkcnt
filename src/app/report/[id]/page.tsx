@@ -105,9 +105,12 @@ export default function ReportPage() {
                       required
                     >
                       <option value="">신고 사유를 선택해 주세요</option>
-                      <option value="spam">스팸</option>
-                      <option value="malware">악성 소프트웨어/바이러스</option>
                       <option value="phishing">피싱</option>
+                      <option value="malware">악성 소프트웨어/바이러스</option>
+                      <option value="spam">스팸</option>
+                      <option value="redirectloop">
+                        이미 단축된 URL(다중 리다이렉트)
+                      </option>
                       <option value="adult">성인 콘텐츠</option>
                       <option value="harassment">괴롭힘/학대</option>
                       <option value="violence">폭력 콘텐츠</option>
