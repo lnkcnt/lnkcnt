@@ -101,19 +101,25 @@ export default function Content({ genURL }: { genURL: GenURLFunc }) {
   const [state, formAction] = useActionState(genURL, initialState);
 
   return (
-    <div className="m-1% flex flex-col items-center justify-start p-10">
-      <h1 className="text-6xl font-black">URL Shortener + Click Checker</h1>
-      <div className="h-20" />
-      <Form action={formAction} className="w-150">
-        <div className="flex flex-row justify-center gap-4 align-middle">
+    <div className="mx-auto flex max-w-4xl flex-col items-center justify-start px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
+      <h1 className="text-center text-3xl font-black sm:text-4xl md:text-5xl lg:text-6xl">
+        URL Shortener + Click Checker
+      </h1>
+      <div className="h-10 sm:h-20" />
+      <Form action={formAction} className="w-full max-w-2xl">
+        <div className="flex flex-col gap-3 sm:flex-row sm:justify-center sm:gap-4 sm:align-middle">
           <Input
             name="url"
             type="url"
             placeholder="Enter your URL here..."
-            className="h-10"
+            className="h-10 w-full sm:flex-1"
             required
           />
-          <Button type="submit" size="lg" className="cursor-pointer">
+          <Button
+            type="submit"
+            size="lg"
+            className="w-full cursor-pointer sm:w-auto"
+          >
             Shorten!
           </Button>
         </div>
@@ -121,7 +127,7 @@ export default function Content({ genURL }: { genURL: GenURLFunc }) {
 
       {/* Error Messages */}
       {state.errors && (
-        <Alert variant="destructive" className="mt-5 max-w-md">
+        <Alert variant="destructive" className="mt-5 w-full max-w-md">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>{state.message}</AlertTitle>
           <AlertDescription>
@@ -147,11 +153,11 @@ export default function Content({ genURL }: { genURL: GenURLFunc }) {
 
       {/* Success Message */}
       {state.success && state.generatedId && (
-        <Alert className="mt-5 max-w-2xl border-green-500 bg-green-50">
+        <Alert className="mt-5 w-full max-w-2xl border-green-500 bg-green-50">
           <CheckCircle className="h-4 w-4 text-green-600" />
           <AlertTitle className="text-green-800">{state.message}</AlertTitle>
           <AlertDescription className="space-y-4">
-            <div className="font-semibold text-green-900">
+            <div className="text-sm font-semibold text-green-900 sm:text-base">
               MAKE SURE TO BACK UP THE Management Page URL!
               <br />
               IF LOST, YOU CANNOT ACCESS THE MANAGEMENT PAGE
@@ -161,8 +167,8 @@ export default function Content({ genURL }: { genURL: GenURLFunc }) {
             </div>
             <div>
               <p className="font-semibold text-green-900">Shortened URL:</p>
-              <div className="mt-2 flex gap-2">
-                <code className="flex-1 rounded border border-gray-300 bg-gray-100 p-2 text-sm">
+              <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                <code className="flex-1 overflow-x-auto rounded border border-gray-300 bg-gray-100 p-2 text-xs sm:text-sm">
                   {`${typeof window !== "undefined" ? window.location.origin : ""}/${state.generatedId}`}
                 </code>
                 <CopyButton
@@ -173,8 +179,8 @@ export default function Content({ genURL }: { genURL: GenURLFunc }) {
             {state.managePage && (
               <div>
                 <p className="font-semibold text-green-900">Management Page:</p>
-                <div className="mt-2 flex gap-2">
-                  <code className="flex-1 rounded border border-gray-300 bg-gray-100 p-2 text-sm">
+                <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                  <code className="flex-1 overflow-x-auto rounded border border-gray-300 bg-gray-100 p-2 text-xs sm:text-sm">
                     {`${typeof window !== "undefined" ? window.location.origin : ""}/manage/${state.managePage}`}
                   </code>
                   <CopyButton

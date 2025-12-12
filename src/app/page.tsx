@@ -125,10 +125,5 @@ export default function Home() {
     };
   }
 
-  return (
-    <>
-      <NavBar />
-      <Content genURL={genURL} />
-    </>
-  );
+  return <Content genURL={genURL} />;
 }

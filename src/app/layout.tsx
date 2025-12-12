@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Footer from "./components/Footer";
+import NavBar from "./components/NavBar";
 
 export const metadata: Metadata = {
   title: "LnkCnt",
@@ -12,8 +14,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html>
-      <body className={`antialiased`}>{children}</body>
+    <html lang="ko">
+      <head>
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=5.0"
+        />
+      </head>
+      <body className={`antialiased`}>
+        <div className="flex min-h-screen flex-col">
+          <header className="flex-shrink-0">
+            <NavBar />
+          </header>
+          <main className="flex-1 pb-20">{children}</main>
+          <footer className="flex-shrink-0 bg-gray-200 py-3">
+            <Footer />
+          </footer>
+        </div>
+      </body>
     </html>
   );
 }
