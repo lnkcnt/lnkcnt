@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # table definition
 
 mariadb -u root -p"${MARIADB_ROOT_PASSWORD}" -e \

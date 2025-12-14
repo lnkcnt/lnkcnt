@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+# database definition and permission assignment
 
 mariadb -u root -p"${MARIADB_ROOT_PASSWORD}" -e \
     "CREATE DATABASE \`${DATABASE_NAME}\`;
