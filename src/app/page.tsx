@@ -2,7 +2,6 @@ import { prisma } from "../../lib/prisma";
 import randomstring from "randomstring";
 import * as z from "zod";
 import Content from "./components/MainPageContent";
-import NavBar from "./components/NavBar";
 
 type URLBanData = {
   banned: boolean;
@@ -84,7 +83,7 @@ export default function Home() {
       };
     }
 
-    let banData = await isBlacklisted(validatedFields.data.url);
+    const banData = await isBlacklisted(validatedFields.data.url);
     // 블랙리스트 체크
     if (banData.banned) {
       return {

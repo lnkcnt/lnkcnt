@@ -11,7 +11,7 @@ test("Can write data on DB", async () => {
       flag: true,
     },
   });
-  let data = await prisma.tester.findMany({
+  const data = await prisma.tester.findMany({
     where: {
       flag: true,
     },
