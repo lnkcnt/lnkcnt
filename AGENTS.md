@@ -29,7 +29,6 @@
 # References
 
 - [Next.js](https://nextjs.org/docs/llms.txt)
-- [DaisyUI (being migrated)](https://daisyui.com/llms.txt)
 - [shadcn](https://ui.shadcn.com/llms.txt)
 - [TailwindCSS](https://context7.com/websites/tailwindcss/llms.txt?tokens=10000)
 - [Prisma](https://www.prisma.io/docs/llms.txt)
