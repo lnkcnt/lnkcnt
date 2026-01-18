@@ -23,11 +23,11 @@ export default function RootLayout({
       </head>
       <body className={`antialiased`}>
         <div className="flex min-h-screen flex-col">
-          <header className="flex-shrink-0">
+          <header className="shrink-0">
             <NavBar />
           </header>
           <main className="flex-1 pb-20">{children}</main>
-          <footer className="flex-shrink-0 bg-gray-200 py-3">
+          <footer className="shrink-0 bg-gray-200 py-3">
             <Footer />
           </footer>
         </div>

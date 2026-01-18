@@ -132,7 +132,6 @@ export default function ManageLink() {
   if (loading) {
     return (
       <>
-        {NavBar()}
         <div className="flex min-h-screen items-center justify-center">
           <Loader2 className="h-12 w-12 animate-spin" />
         </div>
@@ -143,7 +142,6 @@ export default function ManageLink() {
   if (error || !linkData) {
     return (
       <>
-        {NavBar()}
         <div className="flex min-h-screen items-center justify-center bg-gray-50">
           <div className="text-center">
             <h1 className="text-5xl font-bold">Invalid Link</h1>
@@ -165,7 +163,6 @@ export default function ManageLink() {
 
   return (
     <>
-      {NavBar()}
       <div className="min-h-screen bg-gray-50 p-4">
         <div className="mx-auto max-w-4xl">
           <Card>
