@@ -5,7 +5,9 @@
 psql -v ON_ERROR_STOP=1 --username "$DATABASE_USER" --dbname "$DATABASE_NAME" <<-EOSQL
 	SET search_path TO $DATABASE_NAME;
 	CREATE TABLE tester (
-		flag bool DEFAULT true NOT NULL
+		flag bool DEFAULT true NOT NULL,
+		id varchar(8) DEFAULT SUBSTRING(md5(random()::text) FROM 1 FOR 8) NOT NULL,
+		CONSTRAINT tester_pk PRIMARY KEY (id)
 	);
 	INSERT INTO tester (flag) VALUES (true);
 	CREATE TABLE links (

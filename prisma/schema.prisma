@@ -19,11 +19,9 @@ model links {
   redirect_url String @db.VarChar(128)
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model tester {
   flag Boolean @default(true)
-
-  @@ignore
+  id   String  @id(map: "tester_pk") @default(dbgenerated("SUBSTRING(md5((random())::text) FROM 1 FOR 8)")) @db.VarChar(8)
 }
 
 model urlblacklist {

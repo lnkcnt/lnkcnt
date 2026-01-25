@@ -2,7 +2,14 @@ import { prisma } from "../lib/prisma";
 import { test, expect } from "bun:test";
 
 test("Is DB connected", async () => {
-  expect(await prisma.tester.findFirst()).toStrictEqual({ flag: true });
+  expect(
+    await prisma.tester.findFirst({
+      select: {
+        flag: true,
+        id: false,
+      },
+    }),
+  ).toEqual({ flag: true });
 });
 
 test("Can write data on DB", async () => {
