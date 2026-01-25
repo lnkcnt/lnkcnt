@@ -2,46 +2,47 @@
 
 # table definition
 
-mariadb -u root -p"${MARIADB_ROOT_PASSWORD}" -e \
-	"USE \`${DATABASE_NAME}\`;
+psql -v ON_ERROR_STOP=1 --username "$DATABASE_USER" --dbname "$DATABASE_NAME" <<-EOSQL
+	SET search_path TO $DATABASE_NAME;
 	CREATE TABLE tester (
-  		flag boolean NOT NULL DEFAULT TRUE
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
-	INSERT INTO tester (\`flag\`) VALUES (TRUE);
+		flag bool DEFAULT true NOT NULL
+	);
+	INSERT INTO tester (flag) VALUES (true);
 	CREATE TABLE links (
-  		id varchar(32) NOT NULL,
-  		redirect_url varchar(128) NOT NULL,
-  		PRIMARY KEY (id)
-	) ENGINE=InnoDB CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
-	CREATE TABLE urlManagePage (
-  		id varchar(32) NOT NULL,
-  		managePage varchar(32) NOT NULL,
- 		PRIMARY KEY (id),
-  		UNIQUE KEY managePage (managePage)
-	) ENGINE=InnoDB CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
-	CREATE TABLE linkClickCount (
-		clickId INT AUTO_INCREMENT NOT NULL,
-		id VARCHAR(32) NOT NULL,
-		ip VARCHAR(38) NOT NULL,
-		date DATETIME NOT NULL,
-		PRIMARY KEY (clickId),
-		KEY idx_id (id)
-	) ENGINE = InnoDB;
-	CREATE TABLE urlReport (
-		reportId INT AUTO_INCREMENT NOT NULL,
-		id VARCHAR(32) NOT NULL,
-		reason VARCHAR(50) NOT NULL,
-		message LONGTEXT NOT NULL,
-		ip VARCHAR(38) NOT NULL,
-		createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-		PRIMARY KEY (reportId),
-		KEY idx_report_id (id)
-	) ENGINE = InnoDB;
-	CREATE TABLE urlBlacklist (
-		blacklistId INT AUTO_INCREMENT NOT NULL,
-		pattern VARCHAR(255) NOT NULL,
-		note VARCHAR(255) DEFAULT NULL,
-		createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-		PRIMARY KEY (blacklistId),
-		UNIQUE KEY uniq_pattern (pattern)
-	) ENGINE = InnoDB;"
+		id varchar(32) NOT NULL,
+		redirect_url varchar(128) NOT NULL,
+		CONSTRAINT links_pk PRIMARY KEY (id)
+	);
+	CREATE TABLE urlmanagepage (
+		id varchar(32) NOT NULL,
+		managepage varchar(32) NOT NULL,
+		CONSTRAINT urlmanagepage_pk PRIMARY KEY (id),
+		CONSTRAINT urlmanagepage_unique UNIQUE (managepage)
+	);
+	CREATE TABLE linkclickcount (
+		clickid serial NOT NULL,
+		id varchar(32) NOT NULL,
+		ip varchar(38) NOT NULL,
+		"date" timestamp NOT NULL,
+		CONSTRAINT linkclickcount_pk PRIMARY KEY (clickid),
+		CONSTRAINT linkclickcount_unique UNIQUE (id)
+	);
+	CREATE TABLE urlreport (
+		reportid serial NOT NULL,
+		id varchar(32) NOT NULL,
+		reason varchar(50) NOT NULL,
+		message text NOT NULL,
+		ip varchar(38) NOT NULL,
+		createdat timestamp DEFAULT NOW() NOT NULL,
+		CONSTRAINT urlreport_pk PRIMARY KEY (reportid),
+		CONSTRAINT urlreport_unique UNIQUE (id)
+	);
+	CREATE TABLE urlblacklist (
+		blacklistid serial NOT NULL,
+		pattern varchar(255) NOT NULL,
+		note varchar(255) NULL,
+		createdat timestamp DEFAULT NOW() NOT NULL,
+		CONSTRAINT urlblacklist_pk PRIMARY KEY (blacklistid),
+		CONSTRAINT urlblacklist_unique UNIQUE (pattern)
+	);
+EOSQL

@@ -4,46 +4,45 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
 }
 
-model linkClickCount {
-  clickId Int      @id @default(autoincrement())
-  id      String   @db.VarChar(32)
+model linkclickcount {
+  clickid Int      @id(map: "linkclickcount_pk") @default(autoincrement())
+  id      String   @unique(map: "linkclickcount_unique") @db.VarChar(32)
   ip      String   @db.VarChar(38)
-  date    DateTime @db.DateTime(0)
-
-  @@index([id], map: "idx_id")
+  date    DateTime @db.Timestamp(6)
 }
 
 model links {
-  id           String @id @db.VarChar(32)
+  id           String @id(map: "links_pk") @db.VarChar(32)
   redirect_url String @db.VarChar(128)
 }
 
-model urlBlacklist {
-  blacklistId Int      @id @default(autoincrement())
-  pattern     String   @unique(map: "uniq_pattern") @db.VarChar(255)
-  note        String?  @db.VarChar(255)
-  createdAt   DateTime @default(now()) @db.DateTime(0)
-}
-
-model urlManagePage {
-  id         String @id @db.VarChar(32)
-  managePage String @unique(map: "managePage") @db.VarChar(32)
-}
-
-model urlReport {
-  reportId  Int      @id @default(autoincrement())
-  id        String   @db.VarChar(32)
-  reason    String   @db.VarChar(50)
-  message   String   @db.LongText
-  ip        String   @db.VarChar(38)
-  createdAt DateTime @default(now()) @db.DateTime(0)
-
-  @@index([id], map: "idx_report_id")
-}
-
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model tester {
-  flag Boolean @id @default(true)
+  flag Boolean @default(true)
+
+  @@ignore
+}
+
+model urlblacklist {
+  blacklistid Int      @id(map: "urlblacklist_pk") @default(autoincrement())
+  pattern     String   @unique(map: "urlblacklist_unique") @db.VarChar(255)
+  note        String?  @db.VarChar(255)
+  createdat   DateTime @default(now()) @db.Timestamp(6)
+}
+
+model urlmanagepage {
+  id         String @id(map: "urlmanagepage_pk") @db.VarChar(32)
+  managepage String @unique(map: "urlmanagepage_unique") @db.VarChar(32)
+}
+
+model urlreport {
+  reportid  Int      @id(map: "urlreport_pk") @default(autoincrement())
+  id        String   @unique(map: "urlreport_unique") @db.VarChar(32)
+  reason    String   @db.VarChar(50)
+  message   String
+  ip        String   @db.VarChar(38)
+  createdat DateTime @default(now()) @db.Timestamp(6)
 }

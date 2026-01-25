@@ -5,24 +5,15 @@ volumes:
 
 
 services:
-  mariadb:
-    image: mariadb:latest
-    container_name: mariadb
+  postgres:
+    image: postgres:18
+    container_name: postgres
     ports:
-      - 3306:3306
+      - 5432:5432
     env_file:
       - .env
     volumes:
       - ./sql_init:/docker-entrypoint-initdb.d
-      - dbvol:/var/lib/mysql
+      - dbvol:/var/lib/postgresql/18/docker
     networks:
-      lnkcnt:
-  phpmyadmin:
-    image: phpmyadmin:latest
-    container_name: phpmyadmin
-    ports:
-      - 8080:80
-    networks:
-      lnkcnt:
-    environment:
-      - PMA_HOST=mariadb
+      - lnkcnt

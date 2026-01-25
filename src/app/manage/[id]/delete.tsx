@@ -10,8 +10,8 @@ import { prisma } from "../../../../lib/prisma";
 export async function DeleteURL(id: string): Promise<boolean> {
   try {
     // 관리 페이지에서 실제 링크 id 찾기
-    const managePage = await prisma.urlManagePage.findFirst({
-      where: { managePage: id },
+    const managePage = await prisma.urlmanagepage.findFirst({
+      where: { managepage: id },
     });
 
     if (!managePage) {
@@ -19,7 +19,7 @@ export async function DeleteURL(id: string): Promise<boolean> {
     }
 
     // 클릭 기록 먼저 삭제
-    await prisma.linkClickCount.deleteMany({
+    await prisma.linkclickcount.deleteMany({
       where: { id: managePage.id },
     });
 
@@ -29,7 +29,7 @@ export async function DeleteURL(id: string): Promise<boolean> {
     });
 
     // 관리 페이지 엔트리 삭제
-    await prisma.urlManagePage.delete({
+    await prisma.urlmanagepage.delete({
       where: { id: managePage.id },
     });
 

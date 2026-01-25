@@ -21,7 +21,7 @@ export default function Home() {
   async function isBlacklisted(url: string): Promise<URLBanData> {
     "use server";
     let banNote: string | null | undefined = "";
-    const entries = await prisma.urlBlacklist.findMany({
+    const entries = await prisma.urlblacklist.findMany({
       select: { pattern: true, note: true },
     });
 
@@ -110,10 +110,10 @@ export default function Home() {
         redirect_url: validatedFields.data.url,
       },
     });
-    await prisma.urlManagePage.create({
+    await prisma.urlmanagepage.create({
       data: {
         id: generatedId,
-        managePage,
+        managepage: managePage,
       },
     });
     return {

@@ -32,7 +32,6 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-import NavBar from "@/app/components/NavBar";
 import { DeleteURL } from "./delete";
 
 interface ClickRecord {
