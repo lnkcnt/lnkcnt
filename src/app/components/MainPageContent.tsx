@@ -103,7 +103,9 @@ export default function Content({ genURL }: { genURL: GenURLFunc }) {
   return (
     <div className="mx-auto flex max-w-4xl flex-col items-center justify-start px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
       <h1 className="text-center text-3xl font-black sm:text-4xl md:text-5xl lg:text-6xl">
-        URL Shortener + Click Checker
+        URL Shortener +
+        <br />
+        Click Checker
       </h1>
       <div className="h-10 sm:h-20" />
       <Form action={formAction} className="w-full max-w-2xl">
