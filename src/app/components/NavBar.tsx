@@ -3,8 +3,8 @@ import {
   NavigationMenu,
   NavigationMenuItem,
   NavigationMenuList,
-} from "@/components/ui/navigation-menu";
-import { Button } from "@/components/ui/button";
+} from "@/src/components/ui/navigation-menu";
+import { Button } from "@/src/components/ui/button";
 
 export default function NavBar() {
   return (

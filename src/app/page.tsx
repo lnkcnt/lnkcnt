@@ -1,4 +1,4 @@
-import { prisma } from "../../lib/prisma";
+import { prisma } from "@/lib/prisma";
 import randomstring from "randomstring";
 import * as z from "zod";
 import Content from "./components/MainPageContent";

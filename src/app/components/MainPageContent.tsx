@@ -1,8 +1,8 @@
 "use client";
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription, AlertTitle } from "@/src/components/ui/alert";
+import { Button } from "@/src/components/ui/button";
+import { Input } from "@/src/components/ui/input";
 import Form from "next/form";
 import React, { useActionState } from "react";
 import { AlertCircle, CheckCircle } from "lucide-react";

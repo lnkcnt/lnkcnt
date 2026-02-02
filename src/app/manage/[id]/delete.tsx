@@ -1,6 +1,6 @@
 "use server";
 
-import { prisma } from "../../../../lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 /**
  * Delete a URL based on Management Page ID.
