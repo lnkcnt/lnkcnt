@@ -5,10 +5,10 @@ import { defineConfig, env } from "prisma/config";
 
 function concatConnectionURL(): string {
   try {
-    return `postgres://${env("DATABASE_USER")}:${env("DATABASE_PASSWORD")}@${env("DATABASE_HOST")}:${env("DATABASE_PORT")}/${env("DATABASE_NAME")}?schema=${env("DATABASE_NAME")}`;
+    return `mysql://${env("DATABASE_USER")}:${env("DATABASE_PASSWORD")}@${env("DATABASE_HOST")}:${env("DATABASE_PORT")}/${env("DATABASE_NAME")}?schema=${env("DATABASE_NAME")}`;
   } catch (e) {
     if (e instanceof Error && e.name === "PrismaConfigEnvError") {
-      return `postgres://${env("DATABASE_USER")}:${env("DATABASE_PASSWORD")}@localhost:${env("DATABASE_PORT")}/${env("DATABASE_NAME")}?schema=${env("DATABASE_NAME")}`;
+      return `mysql://${env("DATABASE_USER")}:${env("DATABASE_PASSWORD")}@localhost:${env("DATABASE_PORT")}/${env("DATABASE_NAME")}?schema=${env("DATABASE_NAME")}`;
     } else {
       return "";
     }

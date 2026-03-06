@@ -9,7 +9,7 @@ import { Prisma } from "@/generated/prisma/client";
  * @returns true if URL is blacklisted, false otherwise
  */
 async function isBlacklisted(url: string): Promise<boolean> {
-  const entries = await prisma.urlblacklist.findMany({
+  const entries = await prisma.urlBlacklist.findMany({
     select: { pattern: true },
   });
 
@@ -77,7 +77,7 @@ export default async function Redirection({
       const clientIP = getClientIP(headersList);
 
       try {
-        await prisma.linkclickcount.create({
+        await prisma.linkClickCount.create({
           data: {
             id: url,
             ip: clientIP,
