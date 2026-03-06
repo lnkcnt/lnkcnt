@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       "unknown";
 
     // 신고 저장
-    const report = await prisma.urlreport.create({
+    const report = await prisma.urlReport.create({
       data: {
         id,
         reason,
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      reportId: report.reportid,
+      reportId: report.reportId,
     });
   } catch (error) {
     console.error("Error submitting report:", error);

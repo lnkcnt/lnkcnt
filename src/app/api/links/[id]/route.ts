@@ -15,9 +15,9 @@ export async function GET(
     const { id } = await context.params;
 
     // Find the management page entry by managePage field
-    const managePage = await prisma.urlmanagepage.findFirst({
+    const managePage = await prisma.urlManagePage.findFirst({
       where: {
-        managepage: id,
+        managePage: id,
       },
     });
 
@@ -40,12 +40,12 @@ export async function GET(
     }
 
     // 집계 쿼리로 클릭 수 가져오기
-    const clickCount = await prisma.linkclickcount.count({
+    const clickCount = await prisma.linkClickCount.count({
       where: { id: managePage.id },
     });
 
     // 클릭 상세 정보도 필요하면 따로 조회
-    const clicks = await prisma.linkclickcount.findMany({
+    const clicks = await prisma.linkClickCount.findMany({
       where: { id: managePage.id },
       select: { ip: true, date: true },
     });
