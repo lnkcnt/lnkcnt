@@ -1,58 +1,122 @@
+
 generator client {
-    provider = "prisma-client"
-    output   = "../generated/prisma"
+  provider = "prisma-client"
+  output   = "../generated/prisma"
 }
 
 datasource db {
-    provider = "mysql"
+  provider = "mysql"
 }
 
 model linkClickCount {
-    clickId Int      @id @default(autoincrement())
-    id      String   @db.VarChar(32)
-    ip      String   @db.VarChar(38)
-    date    DateTime @db.DateTime(0)
-    links   links    @relation(fields: [id], references: [id], onUpdate: Cascade, onDelete: Cascade, map: "linkClickCount_id")
+  clickId Int      @id @default(autoincrement())
+  id      String   @db.VarChar(32)
+  ip      String   @db.VarChar(38)
+  date    DateTime @db.DateTime(0)
+  links   links    @relation(fields: [id], references: [id], onUpdate: Cascade, onDelete: Cascade, map: "linkClickCount_id")
 
-    @@index([id], map: "id")
+  @@index([id], map: "id")
 }
 
 model links {
-    id             String           @id @db.VarChar(32)
-    redirect_url   String           @db.VarChar(128)
-    linkClickCount linkClickCount[]
-    urlManagePage  urlManagePage[]
-    urlReport      urlReport[]
+  id             String           @id @db.VarChar(32)
+  redirect_url   String           @db.VarChar(128)
+  linkClickCount linkClickCount[]
+  urlManagePage  urlManagePage[]
+  urlReport      urlReport[]
 }
 
 model tester {
-    num  Int     @id @default(autoincrement())
-    flag Boolean @default(true)
+  num  Int     @id @default(autoincrement())
+  flag Boolean @default(true)
 }
 
 model urlBlacklist {
-    blacklistId Int      @id @default(autoincrement())
-    pattern     String   @unique(map: "uniq_pattern") @db.VarChar(255)
-    note        String?  @db.VarChar(255)
-    createdAt   DateTime @default(now()) @db.DateTime(0)
+  blacklistId Int      @id @default(autoincrement())
+  pattern     String   @unique(map: "uniq_pattern") @db.VarChar(255)
+  note        String?  @db.VarChar(255)
+  createdAt   DateTime @default(now()) @db.DateTime(0)
 }
 
 model urlManagePage {
-    id         String @db.VarChar(32)
-    managePage String @unique(map: "managePage") @db.VarChar(32)
-    links      links  @relation(fields: [id], references: [id], onUpdate: Cascade, onDelete: Cascade, map: "urlManagePage_id")
+  id         String @db.VarChar(32)
+  managePage String @unique(map: "managePage") @db.VarChar(32)
+  links      links  @relation(fields: [id], references: [id], onUpdate: Cascade, onDelete: Cascade, map: "urlManagePage_id")
 
-    @@index([id], map: "id")
+  @@index([id], map: "id")
 }
 
 model urlReport {
-    reportId  Int      @id @default(autoincrement())
-    id        String   @db.VarChar(32)
-    reason    String   @db.VarChar(50)
-    message   String   @db.LongText
-    ip        String   @db.VarChar(38)
-    createdAt DateTime @default(now()) @db.DateTime(0)
-    links     links    @relation(fields: [id], references: [id], onUpdate: Cascade, onDelete: Cascade, map: "urlReport_id")
+  reportId  Int      @id @default(autoincrement())
+  id        String   @db.VarChar(32)
+  reason    String   @db.VarChar(50)
+  message   String   @db.LongText
+  ip        String   @db.VarChar(38)
+  createdAt DateTime @default(now()) @db.DateTime(0)
+  links     links    @relation(fields: [id], references: [id], onUpdate: Cascade, onDelete: Cascade, map: "urlReport_id")
 
-    @@index([id], map: "id")
+  @@index([id], map: "id")
+}
+
+model User {
+  id            String    @id
+  name          String    @db.Text
+  email         String
+  emailVerified Boolean   @default(false)
+  image         String?   @db.Text
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?  @db.Text
+  userAgent String?  @db.Text
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId(length: 191)])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String    @db.Text
+  providerId            String    @db.Text
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?   @db.Text
+  refreshToken          String?   @db.Text
+  idToken               String?   @db.Text
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?   @db.Text
+  password              String?   @db.Text
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId(length: 191)])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String   @db.Text
+  value      String   @db.Text
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier(length: 191)])
+  @@map("verification")
 }
