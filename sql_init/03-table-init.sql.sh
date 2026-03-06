@@ -11,8 +11,8 @@ mariadb -u root -p"${MARIADB_ROOT_PASSWORD}" -e \
 		`ip` varchar(38) NOT NULL,
 		`date` datetime NOT NULL,
 		PRIMARY KEY (`clickId`),
-		KEY `linkClickCount_id` (`id`),
-		CONSTRAINT `linkClickCount_id` FOREIGN KEY (`id`) REFERENCES `links` (`id`)
+		KEY `id` (`id`),
+		CONSTRAINT `linkClickCount_id` FOREIGN KEY (`id`) REFERENCES `links` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 	CREATE TABLE `links` (
 		`id` varchar(32) NOT NULL,
@@ -24,7 +24,6 @@ mariadb -u root -p"${MARIADB_ROOT_PASSWORD}" -e \
 		`flag` tinyint(1) NOT NULL DEFAULT 1,
 		PRIMARY KEY (`num`)
 	);
-	INSERT INTO `tester` VALUES (DEFAULT, DEFAULT);
 	CREATE TABLE `urlBlacklist` (
 		`blacklistId` int(11) NOT NULL AUTO_INCREMENT,
 		`pattern` varchar(255) NOT NULL,
@@ -37,8 +36,8 @@ mariadb -u root -p"${MARIADB_ROOT_PASSWORD}" -e \
 		`id` varchar(32) NOT NULL,
 		`managePage` varchar(32) NOT NULL,
 		UNIQUE KEY `managePage` (`managePage`),
-		KEY `urlManagePage_id` (`id`),
-		CONSTRAINT `urlManagePage_id` FOREIGN KEY (`id`) REFERENCES `links` (`id`)
+		KEY `id` (`id`),
+		CONSTRAINT `urlManagePage_id` FOREIGN KEY (`id`) REFERENCES `links` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 	CREATE TABLE `urlReport` (
 		`reportId` int(11) NOT NULL AUTO_INCREMENT,
@@ -48,7 +47,7 @@ mariadb -u root -p"${MARIADB_ROOT_PASSWORD}" -e \
 		`ip` varchar(38) NOT NULL,
 		`createdAt` datetime NOT NULL DEFAULT current_timestamp(),
 		PRIMARY KEY (`reportId`),
-		KEY `urlReport_id` (`id`),
-		CONSTRAINT `urlReport_id` FOREIGN KEY (`id`) REFERENCES `links` (`id`)
+		KEY `id` (`id`),
+		CONSTRAINT `urlReport_id` FOREIGN KEY (`id`) REFERENCES `links` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 "
