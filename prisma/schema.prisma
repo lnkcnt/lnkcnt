@@ -1,58 +1,58 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+    provider = "prisma-client"
+    output   = "../generated/prisma"
 }
 
 datasource db {
-  provider = "mysql"
+    provider = "mysql"
 }
 
 model linkClickCount {
-  clickId Int      @id @default(autoincrement())
-  id      String   @db.VarChar(32)
-  ip      String   @db.VarChar(38)
-  date    DateTime @db.DateTime(0)
-  links   links    @relation(fields: [id], references: [id], onUpdate: Cascade, onDelete: Cascade, map: "linkClickCount_id")
+    clickId Int      @id @default(autoincrement())
+    id      String   @db.VarChar(32)
+    ip      String   @db.VarChar(38)
+    date    DateTime @db.DateTime(0)
+    links   links    @relation(fields: [id], references: [id], onUpdate: Cascade, onDelete: Cascade, map: "linkClickCount_id")
 
-  @@index([id], map: "id")
+    @@index([id], map: "id")
 }
 
 model links {
-  id             String           @id @db.VarChar(32)
-  redirect_url   String           @db.VarChar(128)
-  linkClickCount linkClickCount[]
-  urlManagePage  urlManagePage[]
-  urlReport      urlReport[]
+    id             String           @id @db.VarChar(32)
+    redirect_url   String           @db.VarChar(128)
+    linkClickCount linkClickCount[]
+    urlManagePage  urlManagePage[]
+    urlReport      urlReport[]
 }
 
 model tester {
-  num  Int     @id @default(autoincrement())
-  flag Boolean @default(true)
+    num  Int     @id @default(autoincrement())
+    flag Boolean @default(true)
 }
 
 model urlBlacklist {
-  blacklistId Int      @id @default(autoincrement())
-  pattern     String   @unique(map: "uniq_pattern") @db.VarChar(255)
-  note        String?  @db.VarChar(255)
-  createdAt   DateTime @default(now()) @db.DateTime(0)
+    blacklistId Int      @id @default(autoincrement())
+    pattern     String   @unique(map: "uniq_pattern") @db.VarChar(255)
+    note        String?  @db.VarChar(255)
+    createdAt   DateTime @default(now()) @db.DateTime(0)
 }
 
 model urlManagePage {
-  id         String @db.VarChar(32)
-  managePage String @unique(map: "managePage") @db.VarChar(32)
-  links      links  @relation(fields: [id], references: [id], onUpdate: Cascade, onDelete: Cascade, map: "urlManagePage_id")
+    id         String @db.VarChar(32)
+    managePage String @unique(map: "managePage") @db.VarChar(32)
+    links      links  @relation(fields: [id], references: [id], onUpdate: Cascade, onDelete: Cascade, map: "urlManagePage_id")
 
-  @@index([id], map: "id")
+    @@index([id], map: "id")
 }
 
 model urlReport {
-  reportId  Int      @id @default(autoincrement())
-  id        String   @db.VarChar(32)
-  reason    String   @db.VarChar(50)
-  message   String   @db.LongText
-  ip        String   @db.VarChar(38)
-  createdAt DateTime @default(now()) @db.DateTime(0)
-  links     links    @relation(fields: [id], references: [id], onUpdate: Cascade, onDelete: Cascade, map: "urlReport_id")
+    reportId  Int      @id @default(autoincrement())
+    id        String   @db.VarChar(32)
+    reason    String   @db.VarChar(50)
+    message   String   @db.LongText
+    ip        String   @db.VarChar(38)
+    createdAt DateTime @default(now()) @db.DateTime(0)
+    links     links    @relation(fields: [id], references: [id], onUpdate: Cascade, onDelete: Cascade, map: "urlReport_id")
 
-  @@index([id], map: "id")
+    @@index([id], map: "id")
 }

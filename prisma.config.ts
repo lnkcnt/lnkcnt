@@ -4,24 +4,24 @@ import "dotenv/config";
 import { defineConfig, env } from "prisma/config";
 
 function concatConnectionURL(): string {
-  try {
-    return `mysql://${env("DATABASE_USER")}:${env("DATABASE_PASSWORD")}@${env("DATABASE_HOST")}:${env("DATABASE_PORT")}/${env("DATABASE_NAME")}?schema=${env("DATABASE_NAME")}`;
-  } catch (e) {
-    if (e instanceof Error && e.name === "PrismaConfigEnvError") {
-      return `mysql://${env("DATABASE_USER")}:${env("DATABASE_PASSWORD")}@localhost:${env("DATABASE_PORT")}/${env("DATABASE_NAME")}?schema=${env("DATABASE_NAME")}`;
-    } else {
-      return "";
+    try {
+        return `mysql://${env("DATABASE_USER")}:${env("DATABASE_PASSWORD")}@${env("DATABASE_HOST")}:${env("DATABASE_PORT")}/${env("DATABASE_NAME")}?schema=${env("DATABASE_NAME")}`;
+    } catch (e) {
+        if (e instanceof Error && e.name === "PrismaConfigEnvError") {
+            return `mysql://${env("DATABASE_USER")}:${env("DATABASE_PASSWORD")}@localhost:${env("DATABASE_PORT")}/${env("DATABASE_NAME")}?schema=${env("DATABASE_NAME")}`;
+        } else {
+            return "";
+        }
     }
-  }
 }
 
 export default defineConfig({
-  schema: "prisma/schema.prisma",
-  migrations: {
-    path: "prisma/migrations",
-  },
-  datasource: {
-    // url: process.env["DATABASE_URL"],
-    url: concatConnectionURL(),
-  },
+    schema: "prisma/schema.prisma",
+    migrations: {
+        path: "prisma/migrations",
+    },
+    datasource: {
+        // url: process.env["DATABASE_URL"],
+        url: concatConnectionURL(),
+    },
 });

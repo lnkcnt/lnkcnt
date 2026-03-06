@@ -1,17 +1,16 @@
 networks:
-  lnkcnt:
-
+    lnkcnt:
 
 include:
-  - ./compose.db.yml
+    - ./compose.db.yml
 
 services:
-  next:
-    container_name: next
-    build:
-      context: .
-      dockerfile: Dockerfile
-    networks:
-      lnkcnt:
-    ports:
-      - 3000:3000
+    next:
+        container_name: next
+        build:
+            context: .
+            dockerfile: Dockerfile
+        networks:
+            lnkcnt:
+        ports:
+            - 3000:3000
