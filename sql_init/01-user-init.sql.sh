@@ -2,6 +2,5 @@
 
 # user definition
 
-psql -v ON_ERROR_STOP=1 --username "postgres" <<-EOSQL
-    CREATE USER $DATABASE_USER WITH PASSWORD '$DATABASE_PASSWORD';
-EOSQL
+mariadb -u root -p"${MARIADB_ROOT_PASSWORD}" -e \
+    "CREATE USER \`${DATABASE_USER}\`@'%' IDENTIFIED BY '${DATABASE_PASSWORD}';"

@@ -4,43 +4,55 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
 }
 
-model linkclickcount {
-  clickid Int      @id(map: "linkclickcount_pk") @default(autoincrement())
-  id      String   @unique(map: "linkclickcount_unique") @db.VarChar(32)
+model linkClickCount {
+  clickId Int      @id @default(autoincrement())
+  id      String   @db.VarChar(32)
   ip      String   @db.VarChar(38)
-  date    DateTime @db.Timestamp(6)
+  date    DateTime @db.DateTime(0)
+  links   links    @relation(fields: [id], references: [id], onUpdate: Restrict, map: "linkClickCount_id")
+
+  @@index([id], map: "id")
 }
 
 model links {
-  id           String @id(map: "links_pk") @db.VarChar(32)
-  redirect_url String @db.VarChar(128)
+  id             String           @id @db.VarChar(32)
+  redirect_url   String           @db.VarChar(128)
+  linkClickCount linkClickCount[]
+  urlManagePage  urlManagePage[]
+  urlReport      urlReport[]
 }
 
 model tester {
+  num  Int     @id @default(autoincrement())
   flag Boolean @default(true)
-  id   String  @id(map: "tester_pk") @default(dbgenerated("SUBSTRING(md5((random())::text) FROM 1 FOR 8)")) @db.VarChar(8)
 }
 
-model urlblacklist {
-  blacklistid Int      @id(map: "urlblacklist_pk") @default(autoincrement())
-  pattern     String   @unique(map: "urlblacklist_unique") @db.VarChar(255)
+model urlBlacklist {
+  blacklistId Int      @id @default(autoincrement())
+  pattern     String   @unique(map: "uniq_pattern") @db.VarChar(255)
   note        String?  @db.VarChar(255)
-  createdat   DateTime @default(now()) @db.Timestamp(6)
+  createdAt   DateTime @default(now()) @db.DateTime(0)
 }
 
-model urlmanagepage {
-  id         String @id(map: "urlmanagepage_pk") @db.VarChar(32)
-  managepage String @unique(map: "urlmanagepage_unique") @db.VarChar(32)
+model urlManagePage {
+  id         String @db.VarChar(32)
+  managePage String @unique(map: "managePage") @db.VarChar(32)
+  links      links  @relation(fields: [id], references: [id], onUpdate: Restrict, map: "urlManagePage_id")
+
+  @@index([id], map: "id")
 }
 
-model urlreport {
-  reportid  Int      @id(map: "urlreport_pk") @default(autoincrement())
-  id        String   @unique(map: "urlreport_unique") @db.VarChar(32)
+model urlReport {
+  reportId  Int      @id @default(autoincrement())
+  id        String   @db.VarChar(32)
   reason    String   @db.VarChar(50)
-  message   String
+  message   String   @db.LongText
   ip        String   @db.VarChar(38)
-  createdat DateTime @default(now()) @db.Timestamp(6)
+  createdAt DateTime @default(now()) @db.DateTime(0)
+  links     links    @relation(fields: [id], references: [id], onUpdate: Restrict, map: "urlReport_id")
+
+  @@index([id], map: "id")
 }
