@@ -6,7 +6,6 @@ test("Is DB connected", async () => {
     await prisma.tester.findFirst({
       select: {
         flag: true,
-        id: false,
       },
     }),
   ).toEqual({ flag: true });
