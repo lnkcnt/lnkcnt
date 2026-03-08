@@ -18,18 +18,11 @@
 
 1. **YOU SHOULDN'T DELETE A FILE WITHOUT USER'S EXPLICIT PERMISSION!**
 
-## Shell operation rules
-
-1. `shadcn-ui` is deprecated. use `shadcn` instead.
-
 ## Git operation rules
 
 1. **YOU SHOULDN'T USE GIT'S FORCE PUSH AND HARD RESET FEATURE!**
 
 # References
 
-- [Next.js](https://nextjs.org/docs/llms.txt)
-- [shadcn](https://ui.shadcn.com/llms.txt)
 - [TailwindCSS](https://context7.com/websites/tailwindcss/llms.txt?tokens=10000)
-- [Prisma](https://www.prisma.io/docs/llms.txt)
 - [Zod](https://zod.dev/llms.txt)
