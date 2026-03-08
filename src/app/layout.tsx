@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Footer from "./components/Footer";
 import NavBar from "./components/NavBar";
+import { TooltipProvider } from "@s/components/ui/tooltip";
 
 export const metadata: Metadata = {
     title: "LnkCnt",
@@ -26,7 +27,9 @@ export default function RootLayout({
                     <header className="shrink-0">
                         <NavBar />
                     </header>
-                    <main className="flex-1 pb-20">{children}</main>
+                    <main className="flex-1 pb-20">
+                        <TooltipProvider>{children}</TooltipProvider>
+                    </main>
                     <footer className="shrink-0 bg-gray-200 py-3">
                         <Footer />
                     </footer>
