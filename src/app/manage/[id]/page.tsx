@@ -36,6 +36,13 @@ import {
     Trash2,
     ArrowRight,
 } from "lucide-react";
+import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
+import {
+    ChartContainer,
+    ChartTooltip,
+    ChartTooltipContent,
+    type ChartConfig,
+} from "@/src/components/ui/chart";
 
 import { DeleteURL } from "./delete";
 
@@ -50,6 +57,18 @@ interface LinkData {
     click_count?: number;
     clicks?: ClickRecord[];
 }
+
+interface ChartRecord {
+    date: string;
+    sum: number;
+}
+
+const chartConfig = {
+    sum: {
+        label: "Clicks",
+        color: "#155dfc",
+    },
+} satisfies ChartConfig;
 
 /**
  * URL Management Page Component
@@ -66,6 +85,9 @@ export default function ManageLink() {
     const [copied, setCopied] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [chartData, setChartData] = useState<ChartRecord[]>([]);
+    const [chartLoading, setChartLoading] = useState(false);
+
     /**
      * Delete link handler
      */
@@ -122,6 +144,42 @@ export default function ManageLink() {
             if (intervalId) clearInterval(intervalId);
         };
     }, [managePage]);
+
+    /**
+     * Fetch chart data from the API
+     */
+    useEffect(() => {
+        if (!linkData?.id) return;
+
+        const fetchChartData = async () => {
+            try {
+                setChartLoading(true);
+                const oneWeekAgo = new Date();
+                oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+                const searchParams = new URLSearchParams({
+                    id: linkData.id,
+                    startYear: String(oneWeekAgo.getFullYear()),
+                    startMonth: String(oneWeekAgo.getMonth()),
+                });
+
+                const response = await fetch(`/api/charts?${searchParams}`);
+
+                if (!response.ok) {
+                    throw new Error("Failed to fetch chart data");
+                }
+
+                const result = await response.json();
+                setChartData(result?.data ?? []);
+            } catch {
+                setChartData([]);
+            } finally {
+                setChartLoading(false);
+            }
+        };
+
+        fetchChartData();
+    }, [linkData?.id]);
 
     /**
      * Copy shortened URL to clipboard
@@ -237,6 +295,51 @@ export default function ManageLink() {
                                 <h3 className="text-lg font-semibold">
                                     Click History
                                 </h3>
+                                {chartLoading ? (
+                                    <div className="flex h-55 items-center justify-center">
+                                        <Loader2 className="h-6 w-6 animate-spin" />
+                                    </div>
+                                ) : chartData.length > 0 ? (
+                                    <div className="rounded-lg border bg-white p-4">
+                                        <ChartContainer
+                                            config={chartConfig}
+                                            className="h-30 w-full"
+                                        >
+                                            <LineChart data={chartData}>
+                                                <CartesianGrid />
+                                                <XAxis
+                                                    dataKey="date"
+                                                    tickLine={false}
+                                                    axisLine={false}
+                                                    tickMargin={8}
+                                                    tickFormatter={(
+                                                        value: string,
+                                                    ) => value.slice(5)}
+                                                />
+                                                <ChartTooltip
+                                                    cursor={true}
+                                                    content={
+                                                        <ChartTooltipContent
+                                                            labelFormatter={(
+                                                                value,
+                                                            ) =>
+                                                                `Date: ${value}`
+                                                            }
+                                                        />
+                                                    }
+                                                />
+                                                <Line
+                                                    dataKey="sum"
+                                                    type="monotone"
+                                                    stroke="var(--color-sum)"
+                                                    strokeWidth={2}
+                                                />
+                                            </LineChart>
+                                        </ChartContainer>
+                                    </div>
+                                ) : (
+                                    <></>
+                                )}
                                 {linkData.clicks &&
                                 linkData.clicks.length > 0 ? (
                                     <div className="overflow-x-auto">
