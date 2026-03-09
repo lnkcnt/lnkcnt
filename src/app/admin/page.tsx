@@ -12,6 +12,7 @@ import { Label } from "@/src/components/ui/label";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import type { JSX } from "react";
+import { AdminPageClient } from "./admin-page";
 
 /**
  * Sign in an admin user with Better Auth email/password auth.
@@ -44,16 +45,6 @@ async function signIn(formData: FormData): Promise<void> {
     redirect("/admin");
 }
 
-async function signOut() {
-    "use server";
-    await auth.api.signOut({
-        // This endpoint requires session cookies.
-        headers: await headers(),
-    });
-
-    redirect("/");
-}
-
 /**
  * Admin route entry page.
  * Shows admin content when authenticated, otherwise shows the login form.
@@ -66,7 +57,7 @@ export default async function SignInPage(): Promise<JSX.Element> {
     });
 
     if (session) {
-        return <AdminPage />;
+        return <AdminPageClient />;
     }
 
     return (
@@ -105,41 +96,6 @@ export default async function SignInPage(): Promise<JSX.Element> {
                             Sign In
                         </Button>
                     </form>
-                </CardContent>
-            </Card>
-        </main>
-    );
-}
-
-/**
- * Protected admin screen shown only when a valid session exists.
- * @returns Admin page content.
- */
-export function AdminPage(): JSX.Element {
-    return (
-        <main className="container mx-auto px-4 py-10">
-            <Card>
-                {/* <CardHeader>
-                    <CardTitle>Admin Page</CardTitle>
-                    <CardDescription>
-                        This screen is only available to authenticated users.
-                    </CardDescription>
-                </CardHeader> */}
-                <CardContent>
-                    <Button onClick={signOut}>Sign Out</Button>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader>
-                    <CardTitle>Admin Page</CardTitle>
-                    <CardDescription>
-                        This screen is only available to authenticated users.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-muted-foreground text-sm">
-                        Add your admin-only management tools here.
-                    </p>
                 </CardContent>
             </Card>
         </main>

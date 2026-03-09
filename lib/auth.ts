@@ -9,4 +9,8 @@ export const auth = betterAuth({
     emailAndPassword: {
         enabled: true,
     },
+    session: {
+        expiresIn: 60, // 5분
+        updateAge: 0, // 요청마다 세션 갱신
+    },
 });
