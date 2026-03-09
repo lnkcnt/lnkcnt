@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
             999,
         ); // 해당 월의 마지막 순간
     } else {
-        let currentDate = new Date();
+        const currentDate = new Date();
         endDate = new Date(
             currentDate.getFullYear(),
             currentDate.getMonth(),
