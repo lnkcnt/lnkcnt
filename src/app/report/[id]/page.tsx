@@ -1,5 +1,7 @@
 "use client";
 
+// #region Imports
+
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
@@ -14,6 +16,9 @@ import {
 } from "@/src/components/ui/card";
 import { Alert, AlertDescription } from "@/src/components/ui/alert";
 import { Loader2, ArrowLeft, Send } from "lucide-react";
+import axios from "axios";
+
+// #endregion
 
 /**
  * URL Report Page Component
@@ -39,21 +44,19 @@ export default function ReportPage() {
         setError(null);
 
         try {
-            const response = await fetch("/api/report", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
+            const response = await axios.post(
+                "/api/report",
+                JSON.stringify({
                     id,
                     reason,
                     message,
                 }),
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to submit report");
-            }
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                },
+            );
 
             setSubmitted(true);
             setReason("");

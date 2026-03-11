@@ -5,6 +5,7 @@ import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import React, { useState } from "react";
 import { AlertCircle, CheckCircle } from "lucide-react";
+import axios from "axios";
 
 /**
  * Copy button component for copying text to clipboard
@@ -104,12 +105,14 @@ export default function Content() {
         setState(initialState);
 
         try {
-            const res = await fetch("/api/url/shorten", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ url }),
-            });
-            const data: FormState = await res.json();
+            const res = await axios.post(
+                "/api/url/shorten",
+                JSON.stringify({ url }),
+                {
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+            const data: FormState = res.data;
             setState(data);
             if (data.success) form.reset();
         } catch {
