@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { redirect, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
@@ -45,6 +45,7 @@ import {
 } from "@/src/components/ui/chart";
 
 import { DeleteURL } from "./delete";
+import axios from "axios";
 
 interface ClickRecord {
     ip: string;
@@ -114,14 +115,11 @@ export default function ManageLink() {
         const fetchLinkData = async () => {
             try {
                 setLoading(true);
-                const response = await fetch(`/api/url/manage/${managePage}`);
+                const response = await axios.get(
+                    `/api/url/manage/${managePage}`,
+                );
 
-                if (!response.ok) {
-                    throw new Error("Failed to fetch link data");
-                }
-
-                const data = await response.json();
-                setLinkData(data);
+                setLinkData(response.data);
                 setError(null);
             } catch (err) {
                 setError(
@@ -160,15 +158,10 @@ export default function ManageLink() {
                     startMonth: String(oneWeekAgo.getMonth()),
                 });
 
-                const response = await fetch(`/api/charts?${searchParams}`);
+                const response = await axios.get(`/api/charts?${searchParams}`);
 
-                if (!response.ok) {
-                    throw new Error("Failed to fetch chart data");
-                }
-
-                const result = await response.json();
-                setChartData(result?.data ?? []);
-            } catch {
+                setChartData(response.data.data);
+            } catch (e) {
                 setChartData([]);
             } finally {
                 setChartLoading(false);
