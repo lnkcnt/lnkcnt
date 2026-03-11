@@ -7,13 +7,9 @@ import axios from "axios";
  */
 export async function DeleteURL(id: string) {
     try {
-        const res = await axios.post(
-            "/api/url/delete",
-            JSON.stringify({ id: id }),
-            {
-                headers: { "Content-Type": "application/json" },
-            },
-        );
+        await axios.post("/api/url/delete", JSON.stringify({ id: id }), {
+            headers: { "Content-Type": "application/json" },
+        });
     } catch (error) {
         console.error("Error deleting link:", error);
         return false;

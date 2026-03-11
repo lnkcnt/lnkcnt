@@ -161,7 +161,7 @@ export default function ManageLink() {
                 const response = await axios.get(`/api/charts?${searchParams}`);
 
                 setChartData(response.data.data);
-            } catch (e) {
+            } catch {
                 setChartData([]);
             } finally {
                 setChartLoading(false);

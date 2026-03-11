@@ -44,7 +44,7 @@ export default function ReportPage() {
         setError(null);
 
         try {
-            const response = await axios.post(
+            await axios.post(
                 "/api/report",
                 JSON.stringify({
                     id,
