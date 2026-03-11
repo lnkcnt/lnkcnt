@@ -104,7 +104,7 @@ export default function Content() {
         setState(initialState);
 
         try {
-            const res = await fetch("/api/create", {
+            const res = await fetch("/api/url/shorten", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ url }),

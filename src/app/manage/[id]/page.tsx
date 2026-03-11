@@ -117,7 +117,7 @@ export default function ManageLink() {
         const fetchLinkData = async () => {
             try {
                 setLoading(true);
-                const response = await fetch(`/api/links/${managePage}`);
+                const response = await fetch(`/api/url/manage/${managePage}`);
 
                 if (!response.ok) {
                     throw new Error("Failed to fetch link data");
