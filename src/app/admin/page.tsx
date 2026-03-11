@@ -58,46 +58,46 @@ export default async function SignInPage(): Promise<JSX.Element> {
 
     if (session) {
         return <AdminPageClient />;
+    } else {
+        return (
+            <main className="container mx-auto flex min-h-[70dvh] items-center justify-center px-4 py-10">
+                <Card className="w-full max-w-md">
+                    <CardHeader>
+                        <CardTitle>Admin Page Sign-In</CardTitle>
+                        <CardDescription>
+                            Sign in to access the admin dashboard.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form action={signIn} className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="email">Email</Label>
+                                <Input
+                                    id="email"
+                                    name="email"
+                                    type="email"
+                                    placeholder="admin@example.com"
+                                    autoComplete="email"
+                                    required
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="password">Password</Label>
+                                <Input
+                                    id="password"
+                                    name="password"
+                                    type="password"
+                                    autoComplete="current-password"
+                                    required
+                                />
+                            </div>
+                            <Button type="submit" className="w-full">
+                                Sign In
+                            </Button>
+                        </form>
+                    </CardContent>
+                </Card>
+            </main>
+        );
     }
-
-    return (
-        <main className="container mx-auto flex min-h-[70dvh] items-center justify-center px-4 py-10">
-            <Card className="w-full max-w-md">
-                <CardHeader>
-                    <CardTitle>Admin Page Sign-In</CardTitle>
-                    <CardDescription>
-                        Sign in to access the admin dashboard.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form action={signIn} className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input
-                                id="email"
-                                name="email"
-                                type="email"
-                                placeholder="admin@example.com"
-                                autoComplete="email"
-                                required
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="password">Password</Label>
-                            <Input
-                                id="password"
-                                name="password"
-                                type="password"
-                                autoComplete="current-password"
-                                required
-                            />
-                        </div>
-                        <Button type="submit" className="w-full">
-                            Sign In
-                        </Button>
-                    </form>
-                </CardContent>
-            </Card>
-        </main>
-    );
 }
