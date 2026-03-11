@@ -3,6 +3,7 @@ networks:
 volumes:
     dbvol:
 
+
 services:
     mariadb:
         image: mariadb:latest
@@ -15,7 +16,7 @@ services:
             - ./sql_init:/docker-entrypoint-initdb.d
             - dbvol:/var/lib/mysql
         networks:
-            lnkcnt:
+            - lnkcnt
     adminer:
         image: adminer
         ports:
