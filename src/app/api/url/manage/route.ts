@@ -7,12 +7,19 @@ import { NextRequest, NextResponse } from "next/server";
  * @param params - Route parameters containing the management page ID
  * @returns JSON response with link data or error
  */
-export async function GET(
-    request: NextRequest,
-    context: { params: Promise<{ id: string }> },
-) {
+export async function GET(request: NextRequest) {
     try {
-        const { id } = await context.params;
+        const searchParams = request.nextUrl.searchParams;
+        const id = searchParams.get("id");
+
+        console.log(id);
+
+        if (!id) {
+            return NextResponse.json({
+                message: "Bad Request: id required",
+                status: 400,
+            });
+        }
 
         // Find the management page entry by managePage field
         const managePage = await prisma.urlManagePage.findFirst({

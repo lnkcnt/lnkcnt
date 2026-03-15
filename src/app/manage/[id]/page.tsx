@@ -116,7 +116,7 @@ export default function ManageLink() {
             try {
                 setLoading(true);
                 const response = await axios.get(
-                    `/api/url/manage/${managePage}`,
+                    `/api/url/manage?id=${managePage}`,
                 );
 
                 setLinkData(response.data);
