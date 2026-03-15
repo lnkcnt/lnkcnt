@@ -429,7 +429,8 @@ export default function ManageLink() {
                 <AlertDialogContent>
                     <AlertDialogTitle>Delete Link</AlertDialogTitle>
                     <AlertDialogDescription>
-                        정말로 이 링크를 삭제하시겠습니까? 복구할 수 없습니다.
+                        Are you sure to delete this link? it cannot be
+                        recovered.
                     </AlertDialogDescription>
                     <div className="flex justify-end gap-3">
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
