@@ -3,9 +3,9 @@
 import { Alert, AlertDescription, AlertTitle } from "@/src/components/ui/alert";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
-import Form from "next/form";
-import React, { useActionState } from "react";
+import React, { useState } from "react";
 import { AlertCircle, CheckCircle } from "lucide-react";
+import axios from "axios";
 
 /**
  * Copy button component for copying text to clipboard
@@ -64,11 +64,6 @@ function CopyButton({ text }: { text: string }) {
 }
 
 /**
- * Server action function type for URL generation
- */
-type GenURLFunc = (state: FormState, formData: FormData) => Promise<FormState>;
-
-/**
  * Form state type
  */
 type FormState = {
@@ -88,17 +83,50 @@ type FormState = {
 
 /**
  * Mainpage's content component.
- * @param props - Component props
- * @param props.genURL - Server action for URL generation
  * @returns JSX.Element containing div.
  */
-export default function Content({ genURL }: { genURL: GenURLFunc }) {
-    /**
-     * Initial state for the form
-     */
+export default function Content() {
+    /** Initial state for the form */
     const initialState: FormState = { message: "" };
 
-    const [state, formAction] = useActionState(genURL, initialState);
+    const [state, setState] = useState<FormState>(initialState);
+    const [isPending, setIsPending] = useState(false);
+
+    /**
+     * Handle form submission by calling POST /api/create.
+     * @param e - React form event
+     */
+    async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
+        e.preventDefault();
+        const form = e.currentTarget;
+        const url = (form.elements.namedItem("url") as HTMLInputElement).value;
+
+        setIsPending(true);
+        setState(initialState);
+
+        try {
+            const res = await axios.post(
+                "/api/url/shorten",
+                JSON.stringify({ url }),
+                {
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+            const data: FormState = res.data;
+            setState(data);
+            if (data.success) form.reset();
+        } catch {
+            setState({
+                message: "Network error. Please try again.",
+                errors: {
+                    errors: ["Failed to connect to server"],
+                    properties: {},
+                },
+            });
+        } finally {
+            setIsPending(false);
+        }
+    }
 
     return (
         <div className="mx-auto flex max-w-4xl flex-col items-center justify-start px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
@@ -108,7 +136,7 @@ export default function Content({ genURL }: { genURL: GenURLFunc }) {
                 Click Checker
             </h1>
             <div className="h-10 sm:h-20" />
-            <Form action={formAction} className="w-full max-w-2xl">
+            <form onSubmit={handleSubmit} className="w-full max-w-2xl">
                 <div className="flex flex-col gap-3 sm:flex-row sm:justify-center sm:gap-4 sm:align-middle">
                     <Input
                         name="url"
@@ -121,11 +149,12 @@ export default function Content({ genURL }: { genURL: GenURLFunc }) {
                         type="submit"
                         size="lg"
                         className="w-full cursor-pointer sm:w-auto"
+                        disabled={isPending}
                     >
-                        Shorten!
+                        {isPending ? "Shortening..." : "Shorten!"}
                     </Button>
                 </div>
-            </Form>
+            </form>
 
             {/* Error Messages */}
             {state.errors && (

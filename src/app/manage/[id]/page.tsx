@@ -45,6 +45,7 @@ import {
 } from "@/src/components/ui/chart";
 
 import { DeleteURL } from "./delete";
+import axios from "axios";
 
 interface ClickRecord {
     ip: string;
@@ -95,10 +96,7 @@ export default function ManageLink() {
         if (!managePage || deleting) return;
         setDeleting(true);
         try {
-            const response = await DeleteURL(managePage);
-            if (!response) {
-                throw new Error("Failed to delete link");
-            }
+            await DeleteURL(managePage);
             window.location.href = "/";
         } catch (err) {
             setError(err instanceof Error ? err.message : "삭제 중 오류 발생");
@@ -117,14 +115,11 @@ export default function ManageLink() {
         const fetchLinkData = async () => {
             try {
                 setLoading(true);
-                const response = await fetch(`/api/links/${managePage}`);
+                const response = await axios.get(
+                    `/api/url/manage?id=${managePage}`,
+                );
 
-                if (!response.ok) {
-                    throw new Error("Failed to fetch link data");
-                }
-
-                const data = await response.json();
-                setLinkData(data);
+                setLinkData(response.data);
                 setError(null);
             } catch (err) {
                 setError(
@@ -163,14 +158,9 @@ export default function ManageLink() {
                     startMonth: String(oneWeekAgo.getMonth()),
                 });
 
-                const response = await fetch(`/api/charts?${searchParams}`);
+                const response = await axios.get(`/api/charts?${searchParams}`);
 
-                if (!response.ok) {
-                    throw new Error("Failed to fetch chart data");
-                }
-
-                const result = await response.json();
-                setChartData(result?.data ?? []);
+                setChartData(response.data.data);
             } catch {
                 setChartData([]);
             } finally {
@@ -439,7 +429,8 @@ export default function ManageLink() {
                 <AlertDialogContent>
                     <AlertDialogTitle>Delete Link</AlertDialogTitle>
                     <AlertDialogDescription>
-                        정말로 이 링크를 삭제하시겠습니까? 복구할 수 없습니다.
+                        Are you sure to delete this link? it cannot be
+                        recovered.
                     </AlertDialogDescription>
                     <div className="flex justify-end gap-3">
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
