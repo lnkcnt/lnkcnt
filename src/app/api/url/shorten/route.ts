@@ -86,11 +86,9 @@ export async function POST(request: NextRequest) {
     if (banData.banned) {
         return NextResponse.json(
             {
-                message: "This URL is not allowed (blacklisted)",
+                message: "This URL is not allowed",
                 errors: {
-                    errors: [
-                        banData.note ?? "URL이 차단 목록에 포함되어 있습니다",
-                    ],
+                    errors: [banData.note ?? "No reason specified"],
                     properties: {},
                 },
             },
