@@ -5,7 +5,7 @@ import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import React, { useState } from "react";
 import { AlertCircle, CheckCircle } from "lucide-react";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 
 /**
  * Copy button component for copying text to clipboard
