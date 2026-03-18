@@ -171,7 +171,8 @@ export function AdminPageClient({
      */
     useEffect(() => {
         if (sessionInfo) {
-            const timeLeft = getTimeLeft(sessionInfo.expiresAt);
+            const timeLeft =
+                sessionInfo.expiresAt.getTime() - currentTime.getTime();
             if (timeLeft <= 0) {
                 window.location.reload();
             }
