@@ -168,11 +168,14 @@ async function deleteReport(reportId: number): Promise<void> {
  * @param pattern - The URL pattern to block.
  * @param note - Optional note about why this pattern is blocked.
  */
-async function blockURL(pattern: string, note: string): Promise<BlacklistItem> {
+async function blockURL(
+    pattern: string,
+    note?: string | null,
+): Promise<BlacklistItem> {
     "use server";
 
     const trimmedPattern = pattern.trim().toLowerCase();
-    const trimmedNote = note.trim();
+    const trimmedNote = (note ?? "").trim();
 
     if (!trimmedPattern) {
         throw new Error("Pattern is required");

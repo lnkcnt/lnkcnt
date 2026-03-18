@@ -10,6 +10,14 @@ import {
     CardHeader,
     CardTitle,
 } from "@/src/components/ui/card";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/src/components/ui/dialog";
 import { Input } from "@/src/components/ui/input";
 import { Spinner } from "@/src/components/ui/spinner";
 import {
@@ -57,11 +65,19 @@ interface ActionFeedback {
     text: string;
 }
 
+interface BlockDialogState {
+    source: "report" | "link";
+    targetId: string;
+    pattern: string;
+    report?: ReportItem;
+    link?: LinkItem;
+}
+
 interface AdminPageClientProps {
     initialReports: ReportItem[];
     initialLinks: LinkItem[];
     initialBlacklistEntries: BlacklistItem[];
-    blockURL: (pattern: string, note: string) => Promise<BlacklistItem>;
+    blockURL: (pattern: string, note?: string | null) => Promise<BlacklistItem>;
     removeBlockedURL: (blacklistId: number) => Promise<void>;
     deleteLink: (linkId: string) => Promise<void>;
     deleteReport: (reportId: number) => Promise<void>;
@@ -133,6 +149,13 @@ export function AdminPageClient({
 
     /** 수동 블랙리스트 등록 메모 입력값 */
     const [manualBlockNote, setManualBlockNote] = useState("");
+
+    /** 차단 사유 입력 다이얼로그 상태 */
+    const [blockDialogState, setBlockDialogState] =
+        useState<BlockDialogState | null>(null);
+
+    /** 다이얼로그의 차단 사유 입력값 */
+    const [blockDialogReason, setBlockDialogReason] = useState("");
 
     /** 개별 액션 로딩 상태 */
     const [actionLoadingMap, setActionLoadingMap] = useState<
@@ -225,11 +248,10 @@ export function AdminPageClient({
     };
 
     /**
-     * 신고 항목에서 차단 패턴을 저장한다.
+     * 신고 항목 기준으로 차단 다이얼로그를 연다.
      * @param report - 신고 데이터.
      */
-    const handleBlockFromReport = async (report: ReportItem): Promise<void> => {
-        const actionKey = `report-block-${report.reportId}`;
+    const openBlockDialogFromReport = (report: ReportItem): void => {
         const pattern = reportPatternInputs[report.reportId]
             ?.trim()
             .toLowerCase();
@@ -242,25 +264,91 @@ export function AdminPageClient({
             return;
         }
 
+        setBlockDialogReason("");
+        setBlockDialogState({
+            source: "report",
+            targetId: String(report.reportId),
+            pattern,
+            report,
+        });
+    };
+
+    /**
+     * URL 항목 기준으로 차단 다이얼로그를 연다.
+     * @param link - URL 데이터.
+     */
+    const openBlockDialogFromLink = (link: LinkItem): void => {
+        const pattern = linkPatternInputs[link.id]?.trim().toLowerCase();
+
+        if (!pattern) {
+            setActionFeedback({
+                type: "error",
+                text: "URL 차단 패턴을 입력해 주세요.",
+            });
+            return;
+        }
+
+        setBlockDialogReason("");
+        setBlockDialogState({
+            source: "link",
+            targetId: link.id,
+            pattern,
+            link,
+        });
+    };
+
+    /**
+     * 차단 다이얼로그를 닫고 입력을 초기화한다.
+     */
+    const closeBlockDialog = (): void => {
+        setBlockDialogState(null);
+        setBlockDialogReason("");
+    };
+
+    /**
+     * 다이얼로그에서 입력한 사유로 차단을 수행한다.
+     */
+    const handleConfirmBlockInDialog = async (): Promise<void> => {
+        if (!blockDialogState) {
+            return;
+        }
+
+        const actionKey =
+            blockDialogState.source === "report"
+                ? `report-block-${blockDialogState.targetId}`
+                : `link-block-${blockDialogState.targetId}`;
+        const note = blockDialogReason.trim();
+
         setActionLoadingMap((prev) => ({ ...prev, [actionKey]: true }));
 
         try {
-            await blockURL(
-                pattern,
-                `report#${report.reportId} ${report.reason}`,
-            );
+            const savedEntry = await blockURL(blockDialogState.pattern, note);
             setActionFeedback({
                 type: "success",
-                text: `패턴 '${pattern}' 을(를) 차단 목록에 추가했습니다.`,
+                text: `패턴 '${blockDialogState.pattern}' 을(를) 차단 목록에 추가했습니다.`,
             });
-            setReports((prev) =>
-                prev.filter((r) => r.reportId !== report.reportId),
-            );
+            setBlacklistEntries((prev) => {
+                const filtered = prev.filter(
+                    (entry) => entry.pattern !== savedEntry.pattern,
+                );
+                return [savedEntry, ...filtered];
+            });
+
+            if (
+                blockDialogState.source === "report" &&
+                blockDialogState.report
+            ) {
+                setReports((prev) =>
+                    prev.filter(
+                        (r) => r.reportId !== blockDialogState.report?.reportId,
+                    ),
+                );
+            }
+
+            closeBlockDialog();
         } catch (error) {
             const errorMessage =
-                error instanceof Error
-                    ? error.message
-                    : "신고 패턴 차단에 실패했습니다.";
+                error instanceof Error ? error.message : "차단에 실패했습니다.";
             setActionFeedback({
                 type: "error",
                 text: errorMessage,
@@ -288,44 +376,6 @@ export function AdminPageClient({
                 error instanceof Error
                     ? error.message
                     : "신고를 기각하지 못했습니다.";
-            setActionFeedback({
-                type: "error",
-                text: errorMessage,
-            });
-        } finally {
-            setActionLoadingMap((prev) => ({ ...prev, [actionKey]: false }));
-        }
-    };
-
-    /**
-     * URL 항목을 기준으로 차단 패턴을 저장한다.
-     * @param link - URL 데이터.
-     */
-    const handleBlockFromLink = async (link: LinkItem): Promise<void> => {
-        const actionKey = `link-block-${link.id}`;
-        const pattern = linkPatternInputs[link.id]?.trim().toLowerCase();
-
-        if (!pattern) {
-            setActionFeedback({
-                type: "error",
-                text: "URL 차단 패턴을 입력해 주세요.",
-            });
-            return;
-        }
-
-        setActionLoadingMap((prev) => ({ ...prev, [actionKey]: true }));
-
-        try {
-            await blockURL(pattern, `link#${link.id}`);
-            setActionFeedback({
-                type: "success",
-                text: `패턴 '${pattern}' 을(를) 차단 목록에 추가했습니다.`,
-            });
-        } catch (error) {
-            const errorMessage =
-                error instanceof Error
-                    ? error.message
-                    : "URL 차단 목록 추가에 실패했습니다.";
             setActionFeedback({
                 type: "error",
                 text: errorMessage,
@@ -640,7 +690,7 @@ export function AdminPageClient({
                                                             size="sm"
                                                             variant="outline"
                                                             onClick={() =>
-                                                                handleBlockFromReport(
+                                                                openBlockDialogFromReport(
                                                                     report,
                                                                 )
                                                             }
@@ -765,7 +815,7 @@ export function AdminPageClient({
                                                             size="sm"
                                                             variant="outline"
                                                             onClick={() =>
-                                                                handleBlockFromLink(
+                                                                openBlockDialogFromLink(
                                                                     link,
                                                                 )
                                                             }
@@ -935,6 +985,82 @@ export function AdminPageClient({
                     )}
                 </CardContent>
             </Card>
+
+            <Dialog
+                open={blockDialogState !== null}
+                onOpenChange={(open: boolean) => {
+                    if (!open) {
+                        closeBlockDialog();
+                    }
+                }}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>차단 사유 입력</DialogTitle>
+                        <DialogDescription>
+                            차단 사유는 선택 사항입니다.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex flex-col gap-3">
+                        <Input
+                            value={blockDialogState?.pattern ?? ""}
+                            readOnly
+                        />
+                        <Input
+                            value={blockDialogReason}
+                            onChange={(event) =>
+                                setBlockDialogReason(event.target.value)
+                            }
+                            placeholder="차단 사유 (선택)"
+                        />
+                    </div>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={closeBlockDialog}
+                            disabled={
+                                blockDialogState
+                                    ? (actionLoadingMap[
+                                          blockDialogState.source === "report"
+                                              ? `report-block-${blockDialogState.targetId}`
+                                              : `link-block-${blockDialogState.targetId}`
+                                      ] ?? false)
+                                    : false
+                            }
+                        >
+                            취소
+                        </Button>
+                        <Button
+                            onClick={handleConfirmBlockInDialog}
+                            variant="destructive"
+                            disabled={
+                                blockDialogState
+                                    ? (actionLoadingMap[
+                                          blockDialogState.source === "report"
+                                              ? `report-block-${blockDialogState.targetId}`
+                                              : `link-block-${blockDialogState.targetId}`
+                                      ] ?? false)
+                                    : true
+                            }
+                        >
+                            {blockDialogState &&
+                            (actionLoadingMap[
+                                blockDialogState.source === "report"
+                                    ? `report-block-${blockDialogState.targetId}`
+                                    : `link-block-${blockDialogState.targetId}`
+                            ] ??
+                                false) ? (
+                                <>
+                                    <Spinner className="mr-2 h-4 w-4" />
+                                    처리 중...
+                                </>
+                            ) : (
+                                "차단"
+                            )}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </main>
     );
 }
