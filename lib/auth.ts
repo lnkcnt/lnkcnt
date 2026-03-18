@@ -13,10 +13,10 @@ export const auth = betterAuth({
             hash: hashPassword,
             verify: verifyPassword,
         },
-        disableSignUp: true,
+        // disableSignUp: true,
     },
     session: {
-        expiresIn: 60,
+        expiresIn: 300,
         updateAge: 0,
     },
 });

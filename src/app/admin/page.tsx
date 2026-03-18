@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { Button } from "@/src/components/ui/button";
 import {
     Card,
@@ -13,6 +14,22 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import type { JSX } from "react";
 import { AdminPageClient } from "./admin-page";
+
+interface ReportItem {
+    reportId: number;
+    id: string;
+    reason: string;
+    message: string;
+    ip: string;
+    createdAt: string;
+    redirectUrl: string;
+}
+
+interface LinkItem {
+    id: string;
+    redirectUrl: string;
+    managePage: string | null;
+}
 
 /**
  * Sign in an admin user with Better Auth email/password auth.
@@ -46,6 +63,138 @@ async function signIn(formData: FormData): Promise<void> {
 }
 
 /**
+ * Fetch reports from database.
+ * @returns List of reports ordered by latest first.
+ */
+async function getReports(): Promise<ReportItem[]> {
+    try {
+        const reports = await prisma.urlReport.findMany({
+            orderBy: { createdAt: "desc" },
+            take: 30,
+            include: {
+                links: {
+                    select: {
+                        redirect_url: true,
+                    },
+                },
+            },
+        });
+
+        return reports.map((report) => ({
+            reportId: report.reportId,
+            id: report.id,
+            reason: report.reason,
+            message: report.message,
+            ip: report.ip,
+            createdAt: report.createdAt.toISOString(),
+            redirectUrl: report.links.redirect_url,
+        }));
+    } catch (error) {
+        console.error("Failed to fetch reports:", error);
+        return [];
+    }
+}
+
+/**
+ * Fetch shortened links from database.
+ * @returns List of shortened links with click counts.
+ */
+async function getLinks(): Promise<LinkItem[]> {
+    try {
+        const links = await prisma.links.findMany({
+            orderBy: { id: "desc" },
+            take: 50,
+            include: {
+                urlManagePage: {
+                    select: { managePage: true },
+                    take: 1,
+                },
+            },
+        });
+
+        return links.map((link) => ({
+            id: link.id,
+            redirectUrl: link.redirect_url,
+            managePage: link.urlManagePage[0]?.managePage ?? null,
+        }));
+    } catch (error) {
+        console.error("Failed to fetch links:", error);
+        return [];
+    }
+}
+
+async function deleteReport(reportId: number): Promise<void> {
+    "use server";
+
+    try {
+        await prisma.urlReport.delete({ where: { reportId: reportId } });
+    } catch (e) {
+        console.log("Failed to delete report: " + e);
+    }
+}
+
+/**
+ * Add a URL pattern to the blocklist.
+ * @param pattern - The URL pattern to block.
+ * @param note - Optional note about why this pattern is blocked.
+ */
+async function blockURL(pattern: string, note: string): Promise<void> {
+    "use server";
+
+    const trimmedPattern = pattern.trim().toLowerCase();
+    const trimmedNote = note.trim();
+
+    if (!trimmedPattern) {
+        throw new Error("Pattern is required");
+    }
+
+    if (trimmedPattern.length > 255) {
+        throw new Error("Pattern must be 255 characters or fewer");
+    }
+
+    if (trimmedNote && trimmedNote.length > 255) {
+        throw new Error("Note must be 255 characters or fewer");
+    }
+
+    try {
+        await prisma.urlBlacklist.upsert({
+            where: { pattern: trimmedPattern },
+            create: {
+                pattern: trimmedPattern,
+                note: trimmedNote || null,
+            },
+            update: {
+                note: trimmedNote || null,
+            },
+        });
+    } catch (error) {
+        console.error("Failed to add pattern to blocklist:", error);
+        throw new Error("Failed to add pattern to blocklist");
+    }
+}
+
+/**
+ * Delete a shortened link.
+ * @param linkId - The ID of the link to delete.
+ */
+async function deleteLink(linkId: string): Promise<void> {
+    "use server";
+
+    if (!linkId || linkId.trim().length === 0) {
+        throw new Error("Link ID is required");
+    }
+
+    try {
+        await prisma.links.delete({
+            where: { id: linkId.trim() },
+        });
+    } catch (error) {
+        console.error("Failed to delete link:", error);
+        throw new Error("Failed to delete link");
+    }
+}
+
+/**
  * Admin route entry page.
  * Shows admin content when authenticated, otherwise shows the login form.
  * @returns A protected admin page or sign-in UI.
@@ -57,7 +206,17 @@ export default async function SignInPage(): Promise<JSX.Element> {
     });
 
     if (session) {
-        return <AdminPageClient />;
+        const [reports, links] = await Promise.all([getReports(), getLinks()]);
+
+        return (
+            <AdminPageClient
+                initialReports={reports}
+                initialLinks={links}
+                blockURL={blockURL}
+                deleteLink={deleteLink}
+                deleteReport={deleteReport}
+            />
+        );
     } else {
         return (
             <main className="container mx-auto flex min-h-[70dvh] items-center justify-center px-4 py-10">
