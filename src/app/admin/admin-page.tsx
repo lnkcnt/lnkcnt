@@ -780,7 +780,7 @@ export function AdminPageClient({
                                                                     처리 중...
                                                                 </>
                                                             ) : (
-                                                                "차단 추가"
+                                                                "차단"
                                                             )}
                                                         </Button>
                                                         <Button
