@@ -45,6 +45,13 @@ interface LinkItem {
     managePage: string | null;
 }
 
+interface BlacklistItem {
+    blacklistId: number;
+    pattern: string;
+    note: string | null;
+    createdAt: string;
+}
+
 interface ActionFeedback {
     type: "success" | "error";
     text: string;
@@ -53,7 +60,9 @@ interface ActionFeedback {
 interface AdminPageClientProps {
     initialReports: ReportItem[];
     initialLinks: LinkItem[];
-    blockURL: (pattern: string, note: string) => Promise<void>;
+    initialBlacklistEntries: BlacklistItem[];
+    blockURL: (pattern: string, note: string) => Promise<BlacklistItem>;
+    removeBlockedURL: (blacklistId: number) => Promise<void>;
     deleteLink: (linkId: string) => Promise<void>;
     deleteReport: (reportId: number) => Promise<void>;
 }
@@ -80,7 +89,9 @@ function getSuggestedPattern(url: string): string {
 export function AdminPageClient({
     initialReports,
     initialLinks,
+    initialBlacklistEntries,
     blockURL,
+    removeBlockedURL,
     deleteLink,
     deleteReport,
 }: AdminPageClientProps): JSX.Element {
@@ -102,6 +113,11 @@ export function AdminPageClient({
     /** 단축 URL 목록 */
     const [links, setLinks] = useState<LinkItem[]>(initialLinks);
 
+    /** URL 블랙리스트 목록 */
+    const [blacklistEntries, setBlacklistEntries] = useState<BlacklistItem[]>(
+        initialBlacklistEntries,
+    );
+
     /** 신고별 차단 패턴 입력값 */
     const [reportPatternInputs, setReportPatternInputs] = useState<
         Record<number, string>
@@ -111,6 +127,12 @@ export function AdminPageClient({
     const [linkPatternInputs, setLinkPatternInputs] = useState<
         Record<string, string>
     >({});
+
+    /** 수동 블랙리스트 등록 패턴 입력값 */
+    const [manualBlockPattern, setManualBlockPattern] = useState("");
+
+    /** 수동 블랙리스트 등록 메모 입력값 */
+    const [manualBlockNote, setManualBlockNote] = useState("");
 
     /** 개별 액션 로딩 상태 */
     const [actionLoadingMap, setActionLoadingMap] = useState<
@@ -140,6 +162,7 @@ export function AdminPageClient({
     useEffect(() => {
         setReports(initialReports);
         setLinks(initialLinks);
+        setBlacklistEntries(initialBlacklistEntries);
         const reportInputs: Record<number, string> = {};
         initialReports.forEach((report) => {
             reportInputs[report.reportId] = getSuggestedPattern(
@@ -153,7 +176,7 @@ export function AdminPageClient({
             linkInputs[link.id] = getSuggestedPattern(link.redirectUrl);
         });
         setLinkPatternInputs(linkInputs);
-    }, [initialReports, initialLinks]);
+    }, [initialReports, initialLinks, initialBlacklistEntries]);
 
     /**
      * 매 초 현재 시간 업데이트
@@ -332,6 +355,85 @@ export function AdminPageClient({
                 error instanceof Error
                     ? error.message
                     : "URL 삭제에 실패했습니다.";
+            setActionFeedback({
+                type: "error",
+                text: errorMessage,
+            });
+        } finally {
+            setActionLoadingMap((prev) => ({ ...prev, [actionKey]: false }));
+        }
+    };
+
+    /**
+     * 수동으로 URL 차단 패턴을 등록한다.
+     */
+    const handleAddManualBlock = async (): Promise<void> => {
+        const actionKey = "blacklist-add";
+        const pattern = manualBlockPattern.trim().toLowerCase();
+        const note = manualBlockNote.trim();
+
+        if (!pattern) {
+            setActionFeedback({
+                type: "error",
+                text: "차단할 패턴을 입력해 주세요.",
+            });
+            return;
+        }
+
+        setActionLoadingMap((prev) => ({ ...prev, [actionKey]: true }));
+
+        try {
+            const savedEntry = await blockURL(pattern, note);
+            setActionFeedback({
+                type: "success",
+                text: `패턴 '${pattern}' 을(를) 차단 목록에 추가했습니다.`,
+            });
+            setBlacklistEntries((prev) => {
+                const filtered = prev.filter(
+                    (entry) => entry.pattern !== pattern,
+                );
+                return [savedEntry, ...filtered];
+            });
+            setManualBlockPattern("");
+            setManualBlockNote("");
+        } catch (error) {
+            const errorMessage =
+                error instanceof Error
+                    ? error.message
+                    : "차단 목록 추가에 실패했습니다.";
+            setActionFeedback({
+                type: "error",
+                text: errorMessage,
+            });
+        } finally {
+            setActionLoadingMap((prev) => ({ ...prev, [actionKey]: false }));
+        }
+    };
+
+    /**
+     * 블랙리스트 항목을 삭제한다.
+     * @param entry - 삭제 대상 블랙리스트 항목.
+     */
+    const handleRemoveBlacklistEntry = async (
+        entry: BlacklistItem,
+    ): Promise<void> => {
+        const actionKey = `blacklist-remove-${entry.blacklistId}`;
+        setActionLoadingMap((prev) => ({ ...prev, [actionKey]: true }));
+
+        try {
+            await removeBlockedURL(entry.blacklistId);
+            setActionFeedback({
+                type: "success",
+                text: `패턴 '${entry.pattern}' 을(를) 차단 목록에서 삭제했습니다.`,
+            });
+            setBlacklistEntries((prev) =>
+                prev.filter((item) => item.pattern !== entry.pattern),
+            );
+        } catch (error) {
+            const errorMessage =
+                error instanceof Error
+                    ? error.message
+                    : "차단 목록 삭제에 실패했습니다.";
             setActionFeedback({
                 type: "error",
                 text: errorMessage,
@@ -695,6 +797,125 @@ export function AdminPageClient({
                                                             }
                                                         >
                                                             {isDeleteLoading ? (
+                                                                <>
+                                                                    <Spinner className="mr-2 h-4 w-4" />
+                                                                    삭제 중...
+                                                                </>
+                                                            ) : (
+                                                                "삭제"
+                                                            )}
+                                                        </Button>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        );
+                                    })}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+
+            {/* 블랙리스트 관리 카드 */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>URL 블랙리스트 관리</CardTitle>
+                    <CardDescription>
+                        차단 패턴을 수동으로 추가하거나 기존 항목을 삭제할 수
+                        있습니다.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
+                        <Input
+                            value={manualBlockPattern}
+                            onChange={(event) =>
+                                setManualBlockPattern(event.target.value)
+                            }
+                            placeholder="차단 패턴 (예: example.com)"
+                        />
+                        <Input
+                            value={manualBlockNote}
+                            onChange={(event) =>
+                                setManualBlockNote(event.target.value)
+                            }
+                            placeholder="메모 (선택)"
+                        />
+                        <Button
+                            onClick={handleAddManualBlock}
+                            disabled={
+                                actionLoadingMap["blacklist-add"] ?? false
+                            }
+                        >
+                            {actionLoadingMap["blacklist-add"] ? (
+                                <>
+                                    <Spinner className="mr-2 h-4 w-4" />
+                                    추가 중...
+                                </>
+                            ) : (
+                                "패턴 추가"
+                            )}
+                        </Button>
+                    </div>
+
+                    {blacklistEntries.length === 0 ? (
+                        <p className="text-muted-foreground text-sm">
+                            등록된 차단 패턴이 없습니다.
+                        </p>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>패턴</TableHead>
+                                        <TableHead>메모</TableHead>
+                                        <TableHead>등록일</TableHead>
+                                        <TableHead className="text-right">
+                                            작업
+                                        </TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {blacklistEntries.map((entry) => {
+                                        const actionKey = `blacklist-remove-${entry.blacklistId}`;
+                                        const isRemoving =
+                                            actionLoadingMap[actionKey] ??
+                                            false;
+
+                                        return (
+                                            <TableRow
+                                                key={`${entry.pattern}-${entry.blacklistId}`}
+                                            >
+                                                <TableCell className="font-mono text-xs">
+                                                    {entry.pattern}
+                                                </TableCell>
+                                                <TableCell
+                                                    className="max-w-80 truncate"
+                                                    title={entry.note ?? ""}
+                                                >
+                                                    {entry.note ?? "-"}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {new Date(
+                                                        entry.createdAt,
+                                                    ).toLocaleString()}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="flex justify-end">
+                                                        <Button
+                                                            size="sm"
+                                                            variant="destructive"
+                                                            onClick={() =>
+                                                                handleRemoveBlacklistEntry(
+                                                                    entry,
+                                                                )
+                                                            }
+                                                            disabled={
+                                                                isRemoving
+                                                            }
+                                                        >
+                                                            {isRemoving ? (
                                                                 <>
                                                                     <Spinner className="mr-2 h-4 w-4" />
                                                                     삭제 중...

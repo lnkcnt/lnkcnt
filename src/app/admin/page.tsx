@@ -31,6 +31,13 @@ interface LinkItem {
     managePage: string | null;
 }
 
+interface BlacklistItem {
+    blacklistId: number;
+    pattern: string;
+    note: string | null;
+    createdAt: string;
+}
+
 /**
  * Sign in an admin user with Better Auth email/password auth.
  * @param formData - The submitted form data from the admin sign-in form.
@@ -123,6 +130,29 @@ async function getLinks(): Promise<LinkItem[]> {
     }
 }
 
+/**
+ * Fetch URL blacklist entries from database.
+ * @returns List of URL blacklist entries ordered by latest first.
+ */
+async function getBlacklistEntries(): Promise<BlacklistItem[]> {
+    try {
+        const entries = await prisma.urlBlacklist.findMany({
+            orderBy: { createdAt: "desc" },
+            take: 100,
+        });
+
+        return entries.map((entry) => ({
+            blacklistId: entry.blacklistId,
+            pattern: entry.pattern,
+            note: entry.note,
+            createdAt: entry.createdAt.toISOString(),
+        }));
+    } catch (error) {
+        console.error("Failed to fetch blacklist entries:", error);
+        return [];
+    }
+}
+
 async function deleteReport(reportId: number): Promise<void> {
     "use server";
 
@@ -138,7 +168,7 @@ async function deleteReport(reportId: number): Promise<void> {
  * @param pattern - The URL pattern to block.
  * @param note - Optional note about why this pattern is blocked.
  */
-async function blockURL(pattern: string, note: string): Promise<void> {
+async function blockURL(pattern: string, note: string): Promise<BlacklistItem> {
     "use server";
 
     const trimmedPattern = pattern.trim().toLowerCase();
@@ -157,7 +187,7 @@ async function blockURL(pattern: string, note: string): Promise<void> {
     }
 
     try {
-        await prisma.urlBlacklist.upsert({
+        const entry = await prisma.urlBlacklist.upsert({
             where: { pattern: trimmedPattern },
             create: {
                 pattern: trimmedPattern,
@@ -167,9 +197,37 @@ async function blockURL(pattern: string, note: string): Promise<void> {
                 note: trimmedNote || null,
             },
         });
+
+        return {
+            blacklistId: entry.blacklistId,
+            pattern: entry.pattern,
+            note: entry.note,
+            createdAt: entry.createdAt.toISOString(),
+        };
     } catch (error) {
         console.error("Failed to add pattern to blocklist:", error);
         throw new Error("Failed to add pattern to blocklist");
+    }
+}
+
+/**
+ * Remove a URL pattern from the blocklist.
+ * @param blacklistId - The blacklist entry ID.
+ */
+async function removeBlockedURL(blacklistId: number): Promise<void> {
+    "use server";
+
+    if (!Number.isInteger(blacklistId) || blacklistId <= 0) {
+        throw new Error("Invalid blacklist entry ID");
+    }
+
+    try {
+        await prisma.urlBlacklist.delete({
+            where: { blacklistId },
+        });
+    } catch (error) {
+        console.error("Failed to remove pattern from blocklist:", error);
+        throw new Error("Failed to remove pattern from blocklist");
     }
 }
 
@@ -206,13 +264,19 @@ export default async function SignInPage(): Promise<JSX.Element> {
     });
 
     if (session) {
-        const [reports, links] = await Promise.all([getReports(), getLinks()]);
+        const [reports, links, blacklistEntries] = await Promise.all([
+            getReports(),
+            getLinks(),
+            getBlacklistEntries(),
+        ]);
 
         return (
             <AdminPageClient
                 initialReports={reports}
                 initialLinks={links}
+                initialBlacklistEntries={blacklistEntries}
                 blockURL={blockURL}
+                removeBlockedURL={removeBlockedURL}
                 deleteLink={deleteLink}
                 deleteReport={deleteReport}
             />
