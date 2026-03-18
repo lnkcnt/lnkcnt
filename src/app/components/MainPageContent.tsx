@@ -115,14 +115,18 @@ export default function Content() {
             const data: FormState = res.data;
             setState(data);
             if (data.success) form.reset();
-        } catch {
-            setState({
-                message: "Network error. Please try again.",
-                errors: {
-                    errors: ["Failed to connect to server"],
-                    properties: {},
-                },
-            });
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                setState(error.response?.data);
+            } else {
+                setState({
+                    message: "Unknown error",
+                    errors: {
+                        errors: [],
+                        properties: {},
+                    },
+                });
+            }
         } finally {
             setIsPending(false);
         }
@@ -161,26 +165,26 @@ export default function Content() {
                 <Alert variant="destructive" className="mt-5 w-full max-w-md">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>{state.message}</AlertTitle>
-                    <AlertDescription>
-                        <div className="mt-2 space-y-2">
-                            {state.errors.errors.length > 0 && (
+                    {state.errors.errors.length > 0 && (
+                        <AlertDescription>
+                            <div className="mt-2 space-y-2">
                                 <ul className="list-inside list-disc space-y-1 text-sm">
                                     {state.errors.errors.map((error, index) => (
                                         <li key={index}>{error}</li>
                                     ))}
                                 </ul>
-                            )}
-                            {state.errors.properties.url && (
-                                <ul className="list-inside list-disc space-y-1 text-sm">
-                                    {state.errors.properties.url.errors?.map(
-                                        (error, index) => (
-                                            <li key={index}>{error}</li>
-                                        ),
-                                    )}
-                                </ul>
-                            )}
-                        </div>
-                    </AlertDescription>
+                                {state.errors.properties.url && (
+                                    <ul className="list-inside list-disc space-y-1 text-sm">
+                                        {state.errors.properties.url.errors?.map(
+                                            (error, index) => (
+                                                <li key={index}>{error}</li>
+                                            ),
+                                        )}
+                                    </ul>
+                                )}
+                            </div>
+                        </AlertDescription>
+                    )}
                 </Alert>
             )}
 
