@@ -2,7 +2,7 @@
 
 ## About this project
 
-This project is a url shortener but including url click counter feature.
+This project is a URL shortener with URL click counter feature.
 
 ### Used libraries & frameworks
 
@@ -15,11 +15,10 @@ This project is a url shortener but including url click counter feature.
 
 - **YOU SHOULDN'T DELETE A FILE WITHOUT USER'S EXPLICIT PERMISSION!**
 - **YOU SHOULDN'T USE GIT'S FORCE PUSH AND HARD RESET FEATURE!**
-- Use TypeScript. DO NOT USE PLAIN JAVASCRIPT!
+- Use TypeScript(`.ts`/`.tsx`). DO NOT USE PLAIN JAVASCRIPT!
 - DO NOT USE PLAIN SQL. instead, use Prisma ORM.
 - If possible, use shadcn or TailwindCSS.
 - Use axios instead of `fetch`.
-- This project is intended to host on podman.
 - Write JSDoc on functions, and variables.
 
 ## Tips
@@ -28,11 +27,6 @@ This project is a url shortener but including url click counter feature.
   you can replace `npm` to `pnpm`, `npx` to `pnpx`.
 - `shadcn-ui` is deprecated. use `shadcn` instead.
 - This project includes SKILLS. Refer to SKILLS for recent and accurate information.
-
-## References
-
-- [Next.js](https://nextjs.org/docs/llms.txt)
-- [shadcn](https://ui.shadcn.com/llms.txt)
-- [TailwindCSS](https://context7.com/websites/tailwindcss/llms.txt?tokens=10000)
-- [Prisma](https://www.prisma.io/docs/llms.txt)
-- [Zod](https://zod.dev/llms.txt)
+- This project needs MariaDB server to run.
+  <br/>You can start mariadb server with `podman compose -f ./compose.db.yml up -d`.
+- You can run project with `pnpm dev`.
