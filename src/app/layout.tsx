@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Footer from "./components/Footer";
 import NavBar from "./components/NavBar";
+import { ThemeProvider } from "../components/ui/theme-provider";
 
 export const metadata: Metadata = {
     title: "LnkCnt",
@@ -14,7 +15,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="ko">
+        <html lang="ko" suppressHydrationWarning>
             <head>
                 <meta
                     name="viewport"
@@ -22,15 +23,17 @@ export default function RootLayout({
                 />
             </head>
             <body className={`antialiased`}>
-                <div className="flex min-h-screen flex-col">
-                    <header className="shrink-0">
-                        <NavBar />
-                    </header>
-                    <main className="flex-1 pb-20">{children}</main>
-                    <footer className="shrink-0 bg-gray-200 py-3">
-                        <Footer />
-                    </footer>
-                </div>
+                <ThemeProvider>
+                    <div className="flex min-h-screen flex-col">
+                        <header className="shrink-0">
+                            <NavBar />
+                        </header>
+                        <main className="flex-1 pb-20">{children}</main>
+                        <footer className="shrink-0 bg-gray-200 py-3">
+                            <Footer />
+                        </footer>
+                    </div>
+                </ThemeProvider>
             </body>
         </html>
     );

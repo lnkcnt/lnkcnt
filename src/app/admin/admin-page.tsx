@@ -901,10 +901,10 @@ export function AdminPageClient({
                             {actionLoadingMap["blacklist-add"] ? (
                                 <>
                                     <Spinner className="mr-2 h-4 w-4" />
-                                    추가 중...
+                                    차단 중...
                                 </>
                             ) : (
-                                "패턴 추가"
+                                "차단"
                             )}
                         </Button>
                     </div>
@@ -955,7 +955,6 @@ export function AdminPageClient({
                                                     <div className="flex justify-end">
                                                         <Button
                                                             size="sm"
-                                                            variant="destructive"
                                                             onClick={() =>
                                                                 handleRemoveBlacklistEntry(
                                                                     entry,
@@ -968,10 +967,10 @@ export function AdminPageClient({
                                                             {isRemoving ? (
                                                                 <>
                                                                     <Spinner className="mr-2 h-4 w-4" />
-                                                                    삭제 중...
+                                                                    해제 중...
                                                                 </>
                                                             ) : (
-                                                                "삭제"
+                                                                "차단 해제"
                                                             )}
                                                         </Button>
                                                     </div>

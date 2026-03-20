@@ -131,6 +131,9 @@ export default function ReportPage() {
                                             <option value="redirectloop">
                                                 이미 단축된 URL(다중 리다이렉트)
                                             </option>
+                                            <option value="unaccessible">
+                                                접속 불가능한 URL
+                                            </option>
                                             <option value="adult">
                                                 성인 콘텐츠
                                             </option>
