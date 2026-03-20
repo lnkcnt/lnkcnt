@@ -23,7 +23,11 @@ export default function RootLayout({
                 />
             </head>
             <body className={`antialiased`}>
-                <ThemeProvider>
+                <ThemeProvider
+                    attribute="class"
+                    defaultTheme="system"
+                    enableSystem
+                >
                     <div className="flex min-h-screen flex-col">
                         <header className="shrink-0">
                             <NavBar />
