@@ -33,7 +33,7 @@ export default function RootLayout({
                             <NavBar />
                         </header>
                         <main className="flex-1 pb-20">{children}</main>
-                        <footer className="shrink-0 bg-gray-200 py-3">
+                        <footer className="shrink-0 bg-gray-200 py-3 dark:bg-gray-700">
                             <Footer />
                         </footer>
                     </div>

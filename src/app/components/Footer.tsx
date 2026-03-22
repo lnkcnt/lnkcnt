@@ -4,7 +4,7 @@ import Link from "next/link";
 export default async function Footer() {
     return (
         <div className="flex h-full items-center justify-center px-4">
-            <div className="text-center text-xs sm:text-sm">
+            <div className="text-center text-xs sm:text-sm dark:text-white">
                 Contact:&nbsp;
                 <Link
                     href={"mailto:admin@" + (await headers()).get("host")}
