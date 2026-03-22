@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
-import randomstring from "randomstring";
+import { nanoid } from "nanoid";
 import * as z from "zod";
 
 /** Blacklist check result */
@@ -96,14 +96,8 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    const generatedId = randomstring.generate({
-        length: 16,
-        charset: "alphanumeric",
-    });
-    const managePage = randomstring.generate({
-        length: 30,
-        charset: "alphanumeric",
-    });
+    const generatedId = nanoid();
+    const managePage = nanoid(32);
 
     await prisma.links.create({
         data: {
