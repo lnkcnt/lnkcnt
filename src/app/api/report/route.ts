@@ -2,9 +2,17 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
- * POST handler for submitting URL report
- * @param request - NextRequest object containing report data
- * @returns JSON response with result or error
+ * Handle URL abuse report submission.
+ *
+ * Expects a JSON body with `id`, `reason`, and `message`.
+ * Returns:
+ * - 200 with `{ success: true, reportId }` on success
+ * - 400 when required fields are missing
+ * - 404 when the target link is not found
+ * - 500 for unexpected server errors
+ *
+ * @param request Incoming Next.js request containing report payload.
+ * @returns JSON response describing the result of report creation.
  */
 export async function POST(request: NextRequest) {
     try {

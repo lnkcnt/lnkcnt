@@ -3,6 +3,20 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
+/**
+ * Delete a shortened URL by management page token.
+ *
+ * Route: `POST /api/url/delete`
+ * Expects a JSON body with `id` (management page token).
+ * Returns:
+ * - 200 when deletion succeeds
+ * - 400 for invalid JSON body
+ * - 404 when token is not found
+ * - 500 for unexpected server errors
+ *
+ * @param request Incoming Next.js request containing JSON body.
+ * @returns JSON response describing deletion result.
+ */
 export async function POST(request: NextRequest) {
     let body;
     try {

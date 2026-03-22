@@ -2,10 +2,17 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
- * GET handler for fetching link data by management page ID
- * @param request - NextRequest object
- * @param params - Route parameters containing the management page ID
- * @returns JSON response with link data or error
+ * Fetch link details and click history by management page token.
+ *
+ * Route: `GET /api/url/manage?id=<managePageToken>`
+ * Returns:
+ * - 200 with link metadata and click records
+ * - 400 when `id` query parameter is missing
+ * - 404 when manage page token or link data is not found
+ * - 500 for unexpected server errors
+ *
+ * @param request Incoming Next.js request containing query parameters.
+ * @returns JSON response with link information or an error payload.
  */
 export async function GET(request: NextRequest) {
     try {

@@ -2,12 +2,20 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
- * 지정된 기간 동안의 링크 클릭 수를 일별로 집계하여 반환합니다.
- * @param startYear 시작 연도
- * @param startMonth 시작 월 (1-12)
- * @param endYear 종료 연도
- * @param endMonth 종료 월 (1-12)
- * @returns 일별 클릭 수 집계 데이터 배열 [{ date: "YYYY-MM-DD", sum: number }]
+ * Return daily click aggregates for a link within a date range.
+ *
+ * Route: `GET /api/charts`
+ * Query parameters:
+ * - `id` (required): shortened link id
+ * - `startYear` and `startMonth` (required): start period
+ * - `endYear` and `endMonth` (optional): end period
+ *
+ * Returns:
+ * - 200 with `{ data: Array<{ date: string, sum: number }> }`
+ * - 400 when required query parameters are missing
+ *
+ * @param request Incoming Next.js request containing chart query parameters.
+ * @returns JSON response with aggregated click data.
  */
 export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
