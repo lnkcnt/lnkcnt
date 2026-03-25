@@ -19,8 +19,6 @@ export async function GET(request: NextRequest) {
         const searchParams = request.nextUrl.searchParams;
         const id = searchParams.get("id");
 
-        console.log(id);
-
         if (!id) {
             return NextResponse.json({
                 message: "Bad Request: id required",
