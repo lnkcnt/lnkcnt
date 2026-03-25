@@ -19,4 +19,5 @@ export const auth = betterAuth({
         expiresIn: 300,
         updateAge: 0,
     },
+    trustedOrigins: ["http://localhost:3000", "http://127.0.0.1:3000"],
 });
