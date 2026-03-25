@@ -38,19 +38,12 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // IP 주소 가져오기
-        const ip =
-            request.headers.get("x-forwarded-for") ||
-            request.headers.get("x-real-ip") ||
-            "unknown";
-
         // 신고 저장
         const report = await prisma.urlReport.create({
             data: {
                 id,
                 reason,
                 message,
-                ip,
             },
         });
 

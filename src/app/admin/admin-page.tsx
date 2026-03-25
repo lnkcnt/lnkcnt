@@ -42,7 +42,6 @@ interface ReportItem {
     id: string;
     reason: string;
     message: string;
-    ip: string;
     createdAt: string;
     redirectUrl: string;
 }

@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
         // 클릭 상세 정보도 필요하면 따로 조회
         const clicks = await prisma.linkClickCount.findMany({
             where: { id: managePage.id },
-            select: { ip: true, date: true },
+            select: { date: true },
         });
 
         return NextResponse.json({

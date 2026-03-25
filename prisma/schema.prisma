@@ -10,7 +10,6 @@ datasource db {
 model linkClickCount {
   clickId Int      @id @default(autoincrement())
   id      String   @db.VarChar(32)
-  ip      String   @db.VarChar(38)
   date    DateTime @db.DateTime(0)
   links   links    @relation(fields: [id], references: [id], onDelete: Cascade, map: "linkClickCount_id")
 
@@ -50,7 +49,6 @@ model urlReport {
   id        String   @db.VarChar(32)
   reason    String   @db.VarChar(50)
   message   String   @db.LongText
-  ip        String   @db.VarChar(38)
   createdAt DateTime @default(now()) @db.DateTime(0)
   links     links    @relation(fields: [id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "urlReport_id")
 

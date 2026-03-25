@@ -48,7 +48,6 @@ import { DeleteURL } from "./delete";
 import axios from "axios";
 
 interface ClickRecord {
-    ip: string;
     date: string;
 }
 
@@ -337,9 +336,6 @@ export default function ManageLink() {
                                             <TableHeader>
                                                 <TableRow>
                                                     <TableHead>
-                                                        IP Address
-                                                    </TableHead>
-                                                    <TableHead>
                                                         Date & Time
                                                     </TableHead>
                                                 </TableRow>
@@ -348,9 +344,6 @@ export default function ManageLink() {
                                                 {linkData.clicks.map(
                                                     (click, index) => (
                                                         <TableRow key={index}>
-                                                            <TableCell className="font-mono text-sm">
-                                                                {click.ip}
-                                                            </TableCell>
                                                             <TableCell>
                                                                 {new Date(
                                                                     click.date,

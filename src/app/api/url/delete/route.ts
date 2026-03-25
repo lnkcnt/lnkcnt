@@ -52,9 +52,9 @@ export async function POST(request: NextRequest) {
             success: true,
             message: "Successfully deleted",
         });
-    } catch (error) {
+    } catch {
         return NextResponse.json(
-            { message: `Internal error: ${error}` },
+            { message: `Internal server error` },
             { status: 500 },
         );
     }

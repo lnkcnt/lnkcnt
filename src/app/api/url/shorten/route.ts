@@ -41,7 +41,7 @@ async function isBlacklisted(url: string): Promise<URLBanData> {
 }
 
 const URLSchema = z.object({
-    url: z.url(),
+    url: z.httpUrl(),
 });
 
 /**

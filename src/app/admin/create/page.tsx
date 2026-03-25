@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { Button } from "@/src/components/ui/button";
 import {
     Card,
@@ -51,6 +52,12 @@ async function createAdminAccount(formData: FormData): Promise<void> {
     }
 
     if (secretCode !== databasePassword) {
+        redirect("/admin/create?error=1");
+    }
+
+    const userQuery = await prisma.user.findMany();
+
+    if (userQuery.length >= 1) {
         redirect("/admin/create?error=1");
     }
 

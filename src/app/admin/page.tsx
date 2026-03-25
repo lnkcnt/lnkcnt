@@ -20,7 +20,6 @@ interface ReportItem {
     id: string;
     reason: string;
     message: string;
-    ip: string;
     createdAt: string;
     redirectUrl: string;
 }
@@ -92,7 +91,6 @@ async function getReports(): Promise<ReportItem[]> {
             id: report.id,
             reason: report.reason,
             message: report.message,
-            ip: report.ip,
             createdAt: report.createdAt.toISOString(),
             redirectUrl: report.links.redirect_url,
         }));
