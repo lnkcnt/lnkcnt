@@ -1,20 +1,14 @@
-import { hash, type Options, verify } from "@node-rs/argon2";
-
-const opts: Options = {
-    memoryCost: 65536,
-    timeCost: 3,
-    parallelism: 4,
-    outputLen: 32,
-    algorithm: 2,
-};
-
 export async function hashPassword(password: string) {
-    const result = await hash(password, opts);
+    const result = await Bun.password.hash(password, {
+        algorithm: "argon2id",
+        memoryCost: 65536,
+        timeCost: 3,
+    });
     return result;
 }
 
 export async function verifyPassword(data: { password: string; hash: string }) {
     const { password, hash } = data;
-    const result = await verify(hash, password, opts);
+    const result = await Bun.password.verify(password, hash, "argon2id");
     return result;
 }
