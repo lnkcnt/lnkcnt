@@ -1,5 +1,5 @@
 import { prisma } from "../lib/prisma";
-import { expect, test } from "vitest";
+import { expect, test } from "bun:test";
 
 test("Is DB connected", async () => {
     expect(

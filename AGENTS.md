@@ -32,15 +32,7 @@ This project is a url shortener but including url click counter feature.
 
 ## Tips
 
-- This project uses pnpm.
-  you can replace `npm` to `pnpm`, `npx` to `pnpx`.
+- This project uses bun.
+  you can replace `npm` to `bun`, `npx` to `bunx`.
 - `shadcn-ui` is deprecated. use `shadcn` instead.
 - This project includes SKILLS. Refer to SKILLS for recent and accurate information.
-
-## References
-
-- [Next.js](https://nextjs.org/docs/llms.txt)
-- [shadcn](https://ui.shadcn.com/llms.txt)
-- [TailwindCSS](https://context7.com/websites/tailwindcss/llms.txt?tokens=10000)
-- [Prisma](https://www.prisma.io/docs/llms.txt)
-- [Zod](https://zod.dev/llms.txt)
