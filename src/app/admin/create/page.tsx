@@ -45,7 +45,7 @@ async function createAdminAccount(formData: FormData): Promise<void> {
     }
 
     /** Secret value configured in environment variable for account creation authorization. */
-    const databasePassword = process.env.DATABASE_PASSWORD;
+    const databasePassword = process.env.ADMIN_CREATION_SECRET;
 
     if (!databasePassword) {
         redirect("/admin/create?error=1");
