@@ -1,5 +1,26 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import z from "zod";
+
+/**
+ * Validation object for user forms.
+ */
+const formValidator = z.object({
+    id: z.nanoid().trim(),
+    reason: z.enum([
+        "phishing",
+        "malware",
+        "spam",
+        "redirectloop",
+        "unaccessible",
+        "adult",
+        "harassment",
+        "violence",
+        "illegal",
+        "other",
+    ]),
+    message: z.string().trim().min(1).max(300),
+});
 
 /**
  * Handle URL abuse report submission.
@@ -26,9 +47,22 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        // 필드 유효성 검사
+        const formValidation = formValidator.safeParse({
+            id,
+            reason,
+            message,
+        });
+        if (!formValidation.success) {
+            return NextResponse.json(
+                { error: "Invalid values" },
+                { status: 400 },
+            );
+        }
+
         // 링크 존재 여부 확인
         const link = await prisma.links.findUnique({
-            where: { id },
+            where: { id: formValidation.data.id },
         });
 
         if (!link) {
@@ -41,9 +75,9 @@ export async function POST(request: NextRequest) {
         // 신고 저장
         const report = await prisma.urlReport.create({
             data: {
-                id,
-                reason,
-                message,
+                id: formValidation.data.id,
+                reason: formValidation.data.reason,
+                message: formValidation.data.message,
             },
         });
 
@@ -52,7 +86,6 @@ export async function POST(request: NextRequest) {
             reportId: report.reportId,
         });
     } catch (error) {
-        console.error("Error submitting report:", error);
         return NextResponse.json(
             { error: "Internal server error" },
             { status: 500 },

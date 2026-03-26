@@ -153,7 +153,7 @@ export default function ReportPage() {
                                     {/* Message */}
                                     <div className="space-y-2">
                                         <label className="block text-sm font-semibold">
-                                            상세 설명
+                                            상세 설명 *
                                         </label>
                                         <textarea
                                             value={message}
@@ -163,6 +163,7 @@ export default function ReportPage() {
                                             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
                                             placeholder="신고 사유에 대해 상세히 설명해 주세요."
                                             rows={5}
+                                            maxLength={300}
                                             required
                                         />
                                     </div>

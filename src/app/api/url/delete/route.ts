@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import z from "zod";
 
 /**
  * Delete a shortened URL by management page token.
@@ -31,6 +32,21 @@ export async function POST(request: NextRequest) {
     }
 
     try {
+        const idValidator = z.object({
+            id: z.string().regex(/^[a-z0-9_-]{32}$/i),
+        });
+
+        const idValidation = idValidator.safeParse({ id: body.id });
+
+        if (!idValidation.success) {
+            return NextResponse.json(
+                {
+                    message: "Invalid ID",
+                },
+                { status: 400 },
+            );
+        }
+
         const managePage = await prisma.urlManagePage.findFirst({
             where: { managePage: body.id },
         });

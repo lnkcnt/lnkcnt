@@ -11,7 +11,6 @@ export async function DeleteURL(id: string) {
             headers: { "Content-Type": "application/json" },
         });
     } catch (error) {
-        console.error("Error deleting link:", error);
         return false;
     }
 }

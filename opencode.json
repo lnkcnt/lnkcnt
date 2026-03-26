@@ -1,0 +1,38 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "shadcn": {
+      "type": "local",
+      "command": [
+        "bunx",
+        "--bun",
+        "@playwright/mcp@latest"
+      ]
+    },
+    "playwright": {
+      "type": "local",
+      "command": [
+        "bunx",
+        "--bun",
+        "@playwright/mcp@latest"
+      ]
+    },
+    "prisma": {
+      "type": "local",
+      "command": [
+        "bunx",
+        "--bun",
+        "prisma",
+        "mcp"
+      ]
+    },
+    "next-devtools": {
+      "type": "local",
+      "command": [
+        "bunx",
+        "--bun",
+        "next-devtools-mcp@latest"
+      ]
+    }
+  }
+}

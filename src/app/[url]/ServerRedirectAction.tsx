@@ -49,9 +49,16 @@ export async function resolveRedirectUrl(
     shortId: string,
 ): Promise<ResolveRedirectUrlResult> {
     try {
+        const idValidator = z.object({ id: z.nanoid() });
+
+        const idValidation = idValidator.safeParse(shortId);
+        if (!idValidation.success) {
+            return { redirectUrl: null };
+        }
+
         const query = await prisma.links.findUnique({
             where: {
-                id: shortId,
+                id: idValidation.data.id,
             },
             select: {
                 redirect_url: true,
