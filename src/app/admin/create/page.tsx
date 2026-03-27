@@ -100,8 +100,9 @@ function getErrorMessage(errorKey?: string): string {
     // }
     if (errorKey) {
         return "Failed.";
+    } else {
+        return "";
     }
-    return "";
 }
 
 /**

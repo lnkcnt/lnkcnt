@@ -207,7 +207,7 @@ async function blockURL(
         };
     } catch (error) {
         console.error("Failed to add pattern to blocklist:", error);
-        throw new Error("Failed to add pattern to blocklist");
+        throw new Error("Failed to add pattern to blocklist", { cause: error });
     }
 }
 
@@ -228,7 +228,9 @@ async function removeBlockedURL(blacklistId: number): Promise<void> {
         });
     } catch (error) {
         console.error("Failed to remove pattern from blocklist:", error);
-        throw new Error("Failed to remove pattern from blocklist");
+        throw new Error("Failed to remove pattern from blocklist", {
+            cause: error,
+        });
     }
 }
 
@@ -249,7 +251,7 @@ async function deleteLink(linkId: string): Promise<void> {
         });
     } catch (error) {
         console.error("Failed to delete link:", error);
-        throw new Error("Failed to delete link");
+        throw new Error("Failed to delete link", { cause: error });
     }
 }
 
