@@ -156,7 +156,7 @@ async function deleteReport(reportId: number): Promise<void> {
 
     try {
         await prisma.urlReport.delete({ where: { reportId: reportId } });
-    } catch (e) {
+    } catch {
         console.log("Failed to delete report.");
     }
 }

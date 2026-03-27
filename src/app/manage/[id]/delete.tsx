@@ -11,7 +11,7 @@ export async function DeleteURL(id: string) {
             body: JSON.stringify({ id: id }),
             headers: { "Content-Type": "application/json" },
         });
-    } catch (error) {
+    } catch {
         return false;
     }
 }

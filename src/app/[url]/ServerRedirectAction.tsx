@@ -1,7 +1,6 @@
 "use server";
 
 import z from "zod";
-import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 
 interface ResolveRedirectUrlResult {
@@ -88,7 +87,7 @@ export async function resolveRedirectUrl(
                     date: new Date(),
                 },
             });
-        } catch (err) {
+        } catch {
             // Click logging failure should not block redirect.
             console.error("Failed to log click.");
         }

@@ -46,7 +46,7 @@ export default function Redirection({ params }: RedirectionProps) {
         return () => {
             isMounted = false;
         };
-    }, [url]);
+    }, [url, router]);
 
     if (isNotFound) {
         notFound();
