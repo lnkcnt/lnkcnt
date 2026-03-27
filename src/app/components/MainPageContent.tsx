@@ -5,7 +5,7 @@ import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import React, { useState } from "react";
 import { AlertCircle, CheckCircle } from "lucide-react";
-import axios from "axios";
+import ky, { isHTTPError } from "ky";
 
 /**
  * Copy button component for copying text to clipboard
@@ -106,19 +106,18 @@ export default function Content() {
         setState(initialState);
 
         try {
-            const res = await axios.post(
-                "/api/url/shorten",
-                JSON.stringify({ url }),
-                {
+            const res = await ky
+                .post("/api/url/shorten", {
+                    body: JSON.stringify({ url: url }),
                     headers: { "Content-Type": "application/json" },
-                },
-            );
-            const data: FormState = res.data;
+                })
+                .json<FormState>();
+            const data: FormState = res;
             setState(data);
             if (data.success) form.reset();
         } catch (error) {
-            if (axios.isAxiosError(error)) {
-                setState(error.response?.data);
+            if (isHTTPError(error)) {
+                setState(await error.response.json());
             } else {
                 setState({
                     message: "Unknown error",

@@ -9,6 +9,10 @@ type URLBanData = {
     note?: string | null;
 };
 
+type URLRequest = {
+    url: string;
+};
+
 /**
  * Check if a URL matches any blacklist pattern.
  * @param url The URL to validate against blacklist entries.
@@ -40,10 +44,6 @@ async function isBlacklisted(url: string): Promise<URLBanData> {
     return isBanned ? { banned: true, note: banNote } : { banned: false };
 }
 
-const URLSchema = z.object({
-    url: z.httpUrl(),
-});
-
 /**
  * Create a shortened URL.
  *
@@ -59,7 +59,11 @@ const URLSchema = z.object({
  * @returns JSON response describing creation result or validation errors.
  */
 export async function POST(request: NextRequest) {
-    let body: unknown;
+    const URLSchema = z.object({
+        url: z.httpUrl(),
+    });
+
+    let body: URLRequest;
     try {
         body = await request.json();
     } catch {
@@ -81,9 +85,7 @@ export async function POST(request: NextRequest) {
                 message: "URL is invalid",
                 errors: {
                     errors: flatErrors.formErrors,
-                    properties: flatErrors.fieldErrors as {
-                        url?: { _errors: string[] };
-                    },
+                    properties: flatErrors.fieldErrors,
                 },
             },
             { status: 422 },

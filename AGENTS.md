@@ -17,7 +17,7 @@ This project is a URL shortener with URL click counter feature.
 1. [Next.js](https://github.com/vercel/next.js)
 2. [shadcn](https://github.com/shadcn-ui/ui)
 3. [Prisma](https://github.com/prisma/prisma)
-4. [axios](https://github.com/axios/axios)
+4. [ky](https://github.com/sindresorhus/ky)
 
 ## RULES
 
@@ -26,7 +26,7 @@ This project is a URL shortener with URL click counter feature.
 - Use TypeScript(`.ts`/`.tsx`). DO NOT USE PLAIN JAVASCRIPT!
 - DO NOT USE PLAIN SQL. instead, use Prisma ORM.
 - If possible, use shadcn or TailwindCSS.
-- Use axios instead of `fetch`.
+- Use ky instead of `fetch`.
 - Write JSDoc on functions, and variables.
 
 ## Tips

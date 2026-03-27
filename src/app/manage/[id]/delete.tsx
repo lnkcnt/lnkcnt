@@ -1,4 +1,4 @@
-import axios from "axios";
+import ky from "ky";
 
 /**
  * Delete a URL based on Management Page ID.
@@ -7,7 +7,8 @@ import axios from "axios";
  */
 export async function DeleteURL(id: string) {
     try {
-        await axios.post("/api/url/delete", JSON.stringify({ id: id }), {
+        await ky.post("/api/url/delete", {
+            body: JSON.stringify({ id: id }),
             headers: { "Content-Type": "application/json" },
         });
     } catch (error) {

@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
+import { DeleteURL } from "./delete";
 import {
     Card,
     CardContent,
@@ -43,9 +44,7 @@ import {
     ChartTooltipContent,
     type ChartConfig,
 } from "@/src/components/ui/chart";
-
-import { DeleteURL } from "./delete";
-import axios from "axios";
+import ky from "ky";
 
 interface ClickRecord {
     date: string;
@@ -114,11 +113,11 @@ export default function ManageLink() {
         const fetchLinkData = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get(
-                    `/api/url/manage?id=${managePage}`,
-                );
+                const response = await ky
+                    .get(`/api/url/manage?id=${managePage}`)
+                    .json<LinkData>();
 
-                setLinkData(response.data);
+                setLinkData(response);
                 setError(null);
             } catch (err) {
                 setError(
@@ -157,9 +156,11 @@ export default function ManageLink() {
                     startMonth: String(oneWeekAgo.getMonth()),
                 });
 
-                const response = await axios.get(`/api/charts?${searchParams}`);
+                const response = await ky
+                    .get(`/api/charts?${searchParams}`)
+                    .json<ChartRecord[]>();
 
-                setChartData(response.data.data);
+                setChartData(response);
             } catch {
                 setChartData([]);
             } finally {

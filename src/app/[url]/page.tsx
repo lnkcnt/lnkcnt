@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-import { notFound, redirect } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 import { resolveRedirectUrl } from "./ServerRedirectAction";
 
 interface RedirectionProps {
@@ -16,6 +16,7 @@ interface RedirectionProps {
 export default function Redirection({ params }: RedirectionProps) {
     const { url } = use(params);
     const [isNotFound, setIsNotFound] = useState<boolean>(false);
+    const router = useRouter();
 
     useEffect(() => {
         let isMounted = true;
@@ -33,7 +34,7 @@ export default function Redirection({ params }: RedirectionProps) {
                     return;
                 }
 
-                redirect(result.redirectUrl);
+                router.push(result.redirectUrl);
             } catch {
                 if (!isMounted) return;
                 setIsNotFound(true);

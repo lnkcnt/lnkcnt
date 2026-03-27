@@ -16,7 +16,7 @@ import {
 } from "@/src/components/ui/card";
 import { Alert, AlertDescription } from "@/src/components/ui/alert";
 import { Loader2, ArrowLeft, Send } from "lucide-react";
-import axios from "axios";
+import ky from "ky";
 
 // #endregion
 
@@ -44,19 +44,16 @@ export default function ReportPage() {
         setError(null);
 
         try {
-            await axios.post(
-                "/api/report",
-                JSON.stringify({
+            await ky.post("/api/report", {
+                body: JSON.stringify({
                     id,
                     reason,
                     message,
                 }),
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
+                headers: {
+                    "Content-Type": "application/json",
                 },
-            );
+            });
 
             setSubmitted(true);
             setReason("");

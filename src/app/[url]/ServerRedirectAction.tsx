@@ -51,7 +51,7 @@ export async function resolveRedirectUrl(
     try {
         const idValidator = z.object({ id: z.nanoid() });
 
-        const idValidation = idValidator.safeParse(shortId);
+        const idValidation = idValidator.safeParse({ id: shortId });
         if (!idValidation.success) {
             return { redirectUrl: null };
         }
@@ -65,10 +65,10 @@ export async function resolveRedirectUrl(
             },
         });
 
-        const finalURL = query?.redirect_url;
-        if (!finalURL) {
+        if (!query) {
             return { redirectUrl: null };
         }
+        const finalURL = query.redirect_url;
 
         const urlValidator = z.object({ url: z.httpUrl() });
         const urlValidationResult = urlValidator.safeParse({ url: finalURL });
@@ -90,15 +90,12 @@ export async function resolveRedirectUrl(
             });
         } catch (err) {
             // Click logging failure should not block redirect.
-            console.error("Failed to log click:", err);
+            console.error("Failed to log click.");
         }
 
         return { redirectUrl: finalURL };
     } catch (error) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
-            return { redirectUrl: null };
-        }
-
+        console.error(error);
         throw error;
     }
 }
