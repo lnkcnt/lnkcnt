@@ -10,24 +10,23 @@ Before any Next.js work, find and read the relevant doc in `node_modules/next/di
 
 ## About this project
 
-This project is a url shortener but including url click counter feature.
+This project is a URL shortener with URL click counter feature.
 
 ### Used libraries & frameworks
 
 1. [Next.js](https://github.com/vercel/next.js)
 2. [shadcn](https://github.com/shadcn-ui/ui)
 3. [Prisma](https://github.com/prisma/prisma)
-4. [axios](https://github.com/axios/axios)
+4. [ky](https://github.com/sindresorhus/ky)
 
 ## RULES
 
 - **YOU SHOULDN'T DELETE A FILE WITHOUT USER'S EXPLICIT PERMISSION!**
 - **YOU SHOULDN'T USE GIT'S FORCE PUSH AND HARD RESET FEATURE!**
-- Use TypeScript. DO NOT USE PLAIN JAVASCRIPT!
+- Use TypeScript(`.ts`/`.tsx`). DO NOT USE PLAIN JAVASCRIPT!
 - DO NOT USE PLAIN SQL. instead, use Prisma ORM.
 - If possible, use shadcn or TailwindCSS.
-- Use axios instead of `fetch`.
-- This project is intended to host on podman.
+- Use ky instead of `fetch`.
 - Write JSDoc on functions, and variables.
 
 ## Tips
@@ -36,3 +35,6 @@ This project is a url shortener but including url click counter feature.
   you can replace `npm` to `bun`, `npx` to `bunx`.
 - `shadcn-ui` is deprecated. use `shadcn` instead.
 - This project includes SKILLS. Refer to SKILLS for recent and accurate information.
+- This project needs MariaDB server to run.
+  <br/>You can start mariadb server with `podman compose -f ./compose.db.yml up -d`.
+- You can run project with `bun dev`.

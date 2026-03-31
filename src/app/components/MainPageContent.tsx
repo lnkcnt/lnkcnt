@@ -5,7 +5,7 @@ import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import React, { useState } from "react";
 import { AlertCircle, CheckCircle } from "lucide-react";
-import axios from "axios";
+import ky, { isHTTPError } from "ky";
 
 /**
  * Copy button component for copying text to clipboard
@@ -28,6 +28,7 @@ function CopyButton({ text }: { text: string }) {
             variant="outline"
             size="sm"
             title="Copy to clipboard"
+            className="dark:text-white"
         >
             {copied ? (
                 <>
@@ -105,19 +106,18 @@ export default function Content() {
         setState(initialState);
 
         try {
-            const res = await axios.post(
-                "/api/url/shorten",
-                JSON.stringify({ url }),
-                {
+            const res = await ky
+                .post("/api/url/shorten", {
+                    body: JSON.stringify({ url: url }),
                     headers: { "Content-Type": "application/json" },
-                },
-            );
-            const data: FormState = res.data;
+                })
+                .json<FormState>();
+            const data: FormState = res;
             setState(data);
             if (data.success) form.reset();
         } catch (error) {
-            if (axios.isAxiosError(error)) {
-                setState(error.response?.data);
+            if (isHTTPError(error)) {
+                setState(await error.response.json());
             } else {
                 setState({
                     message: "Unknown error",
@@ -190,13 +190,13 @@ export default function Content() {
 
             {/* Success Message */}
             {state.success && state.generatedId && (
-                <Alert className="mt-5 w-full max-w-2xl border-green-500 bg-green-50">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    <AlertTitle className="text-green-800">
+                <Alert className="mt-5 w-full max-w-2xl border-green-500 bg-green-50 dark:border-emerald-500 dark:bg-green-500/10">
+                    <CheckCircle className="h-4 w-4 text-green-600 dark:text-emerald-400" />
+                    <AlertTitle className="text-green-800 dark:text-emerald-400">
                         {state.message}
                     </AlertTitle>
                     <AlertDescription className="space-y-4">
-                        <div className="text-sm font-semibold text-green-900 sm:text-base">
+                        <div className="text-sm font-semibold text-green-900 sm:text-base dark:text-white">
                             MAKE SURE TO BACK UP THE Management Page URL!
                             <br />
                             IF LOST, YOU CANNOT ACCESS THE MANAGEMENT PAGE
@@ -205,11 +205,11 @@ export default function Content() {
                             <br /> IT CAN&apos;T BE RETRIEVED LATER!
                         </div>
                         <div>
-                            <p className="font-semibold text-green-900">
+                            <p className="font-semibold text-green-900 dark:text-white">
                                 Shortened URL:
                             </p>
                             <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-                                <code className="flex-1 overflow-x-auto rounded border border-gray-300 bg-gray-100 p-2 text-xs sm:text-sm">
+                                <code className="flex-1 overflow-x-auto rounded border border-gray-300 bg-gray-100 p-2 text-xs sm:text-sm dark:text-black">
                                     {`${typeof window !== "undefined" ? window.location.origin : ""}/${state.generatedId}`}
                                 </code>
                                 <CopyButton
@@ -219,11 +219,11 @@ export default function Content() {
                         </div>
                         {state.managePage && (
                             <div>
-                                <p className="font-semibold text-green-900">
+                                <p className="font-semibold text-green-900 dark:text-white">
                                     Management Page:
                                 </p>
                                 <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-                                    <code className="flex-1 overflow-x-auto rounded border border-gray-300 bg-gray-100 p-2 text-xs sm:text-sm">
+                                    <code className="flex-1 overflow-x-auto rounded border border-gray-300 bg-gray-100 p-2 text-xs sm:text-sm dark:text-black">
                                         {`${typeof window !== "undefined" ? window.location.origin : ""}/manage/${state.managePage}`}
                                     </code>
                                     <CopyButton

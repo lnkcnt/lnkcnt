@@ -2,17 +2,22 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
- * GET handler for fetching link data by management page ID
- * @param request - NextRequest object
- * @param params - Route parameters containing the management page ID
- * @returns JSON response with link data or error
+ * Fetch link details and click history by management page token.
+ *
+ * Route: `GET /api/url/manage?id=<managePageToken>`
+ * Returns:
+ * - 200 with link metadata and click records
+ * - 400 when `id` query parameter is missing
+ * - 404 when manage page token or link data is not found
+ * - 500 for unexpected server errors
+ *
+ * @param request Incoming Next.js request containing query parameters.
+ * @returns JSON response with link information or an error payload.
  */
 export async function GET(request: NextRequest) {
     try {
         const searchParams = request.nextUrl.searchParams;
         const id = searchParams.get("id");
-
-        console.log(id);
 
         if (!id) {
             return NextResponse.json({
@@ -57,7 +62,7 @@ export async function GET(request: NextRequest) {
         // 클릭 상세 정보도 필요하면 따로 조회
         const clicks = await prisma.linkClickCount.findMany({
             where: { id: managePage.id },
-            select: { ip: true, date: true },
+            select: { date: true },
         });
 
         return NextResponse.json({
@@ -66,8 +71,7 @@ export async function GET(request: NextRequest) {
             click_count: clickCount,
             clicks,
         });
-    } catch (error) {
-        console.error("Error fetching link:", error);
+    } catch {
         return NextResponse.json(
             { error: "Internal server error" },
             { status: 500 },

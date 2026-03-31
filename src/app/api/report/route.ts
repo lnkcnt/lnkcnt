@@ -1,10 +1,39 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import z from "zod";
 
 /**
- * POST handler for submitting URL report
- * @param request - NextRequest object containing report data
- * @returns JSON response with result or error
+ * Validation object for user forms.
+ */
+const formValidator = z.object({
+    id: z.nanoid().trim(),
+    reason: z.enum([
+        "phishing",
+        "malware",
+        "spam",
+        "redirectloop",
+        "unaccessible",
+        "adult",
+        "harassment",
+        "violence",
+        "illegal",
+        "other",
+    ]),
+    message: z.string().trim().min(1).max(300),
+});
+
+/**
+ * Handle URL abuse report submission.
+ *
+ * Expects a JSON body with `id`, `reason`, and `message`.
+ * Returns:
+ * - 200 with `{ success: true, reportId }` on success
+ * - 400 when required fields are missing
+ * - 404 when the target link is not found
+ * - 500 for unexpected server errors
+ *
+ * @param request Incoming Next.js request containing report payload.
+ * @returns JSON response describing the result of report creation.
  */
 export async function POST(request: NextRequest) {
     try {
@@ -18,9 +47,22 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        // 필드 유효성 검사
+        const formValidation = formValidator.safeParse({
+            id,
+            reason,
+            message,
+        });
+        if (!formValidation.success) {
+            return NextResponse.json(
+                { error: "Invalid values" },
+                { status: 400 },
+            );
+        }
+
         // 링크 존재 여부 확인
         const link = await prisma.links.findUnique({
-            where: { id },
+            where: { id: formValidation.data.id },
         });
 
         if (!link) {
@@ -30,19 +72,12 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // IP 주소 가져오기
-        const ip =
-            request.headers.get("x-forwarded-for") ||
-            request.headers.get("x-real-ip") ||
-            "unknown";
-
         // 신고 저장
         const report = await prisma.urlReport.create({
             data: {
-                id,
-                reason,
-                message,
-                ip,
+                id: formValidation.data.id,
+                reason: formValidation.data.reason,
+                message: formValidation.data.message,
             },
         });
 
@@ -50,8 +85,7 @@ export async function POST(request: NextRequest) {
             success: true,
             reportId: report.reportId,
         });
-    } catch (error) {
-        console.error("Error submitting report:", error);
+    } catch {
         return NextResponse.json(
             { error: "Internal server error" },
             { status: 500 },

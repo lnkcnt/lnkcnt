@@ -9,10 +9,14 @@ type URLBanData = {
     note?: string | null;
 };
 
+type URLRequest = {
+    url: string;
+};
+
 /**
  * Check if a URL matches any blacklist pattern.
- * @param url - The URL to check
- * @returns URLBanData with banned status and optional note
+ * @param url The URL to validate against blacklist entries.
+ * @returns Blacklist result with `banned` flag and optional `note`.
  */
 async function isBlacklisted(url: string): Promise<URLBanData> {
     const entries = await prisma.urlBlacklist.findMany({
@@ -40,18 +44,26 @@ async function isBlacklisted(url: string): Promise<URLBanData> {
     return isBanned ? { banned: true, note: banNote } : { banned: false };
 }
 
-const URLSchema = z.object({
-    url: z.url(),
-});
-
 /**
- * POST /api/create
- * Creates a shortened URL and its management page entry.
- * @param request - NextRequest containing JSON body with `url` field
- * @returns JSON response with generatedId and managePage, or error details
+ * Create a shortened URL.
+ *
+ * Route: `POST /api/url/shorten`
+ * Expects a JSON body with `url`.
+ * Returns:
+ * - 201 with `generatedId` and `managePage` when created
+ * - 400 for invalid JSON body
+ * - 422 when URL validation fails
+ * - 403 when the URL matches a blacklist rule
+ *
+ * @param request Incoming Next.js request with JSON body.
+ * @returns JSON response describing creation result or validation errors.
  */
 export async function POST(request: NextRequest) {
-    let body: unknown;
+    const URLSchema = z.object({
+        url: z.httpUrl(),
+    });
+
+    let body: URLRequest;
     try {
         body = await request.json();
     } catch {
@@ -73,9 +85,7 @@ export async function POST(request: NextRequest) {
                 message: "URL is invalid",
                 errors: {
                     errors: flatErrors.formErrors,
-                    properties: flatErrors.fieldErrors as {
-                        url?: { _errors: string[] };
-                    },
+                    properties: flatErrors.fieldErrors,
                 },
             },
             { status: 422 },

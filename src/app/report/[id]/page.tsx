@@ -16,7 +16,7 @@ import {
 } from "@/src/components/ui/card";
 import { Alert, AlertDescription } from "@/src/components/ui/alert";
 import { Loader2, ArrowLeft, Send } from "lucide-react";
-import axios from "axios";
+import ky from "ky";
 
 // #endregion
 
@@ -44,19 +44,16 @@ export default function ReportPage() {
         setError(null);
 
         try {
-            await axios.post(
-                "/api/report",
-                JSON.stringify({
+            await ky.post("/api/report", {
+                body: JSON.stringify({
                     id,
                     reason,
                     message,
                 }),
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
+                headers: {
+                    "Content-Type": "application/json",
                 },
-            );
+            });
 
             setSubmitted(true);
             setReason("");
@@ -131,6 +128,9 @@ export default function ReportPage() {
                                             <option value="redirectloop">
                                                 이미 단축된 URL(다중 리다이렉트)
                                             </option>
+                                            <option value="unaccessible">
+                                                접속 불가능한 URL
+                                            </option>
                                             <option value="adult">
                                                 성인 콘텐츠
                                             </option>
@@ -150,7 +150,7 @@ export default function ReportPage() {
                                     {/* Message */}
                                     <div className="space-y-2">
                                         <label className="block text-sm font-semibold">
-                                            상세 설명
+                                            상세 설명 *
                                         </label>
                                         <textarea
                                             value={message}
@@ -160,6 +160,7 @@ export default function ReportPage() {
                                             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
                                             placeholder="신고 사유에 대해 상세히 설명해 주세요."
                                             rows={5}
+                                            maxLength={300}
                                             required
                                         />
                                     </div>
