@@ -4,24 +4,24 @@
     "shadcn": {
       "type": "local",
       "command": [
-        "bunx",
-        "--bun",
+        "pnpx",
+        "--pnpm",
         "@playwright/mcp@latest"
       ]
     },
     "playwright": {
       "type": "local",
       "command": [
-        "bunx",
-        "--bun",
+        "pnpx",
+        "--pnpm",
         "@playwright/mcp@latest"
       ]
     },
     "prisma": {
       "type": "local",
       "command": [
-        "bunx",
-        "--bun",
+        "pnpx",
+        "--pnpm",
         "prisma",
         "mcp"
       ]
@@ -29,8 +29,8 @@
     "next-devtools": {
       "type": "local",
       "command": [
-        "bunx",
-        "--bun",
+        "pnpx",
+        "--pnpm",
         "next-devtools-mcp@latest"
       ]
     }

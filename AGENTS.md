@@ -31,10 +31,10 @@ This project is a URL shortener with URL click counter feature.
 
 ## Tips
 
-- This project uses bun.
-  you can replace `npm` to `bun`, `npx` to `bunx`.
+- This project uses pnpm.
+  you can replace `npm` to `pnpm`, `npx` to `pnpx`.
 - `shadcn-ui` is deprecated. use `shadcn` instead.
 - This project includes SKILLS. Refer to SKILLS for recent and accurate information.
 - This project needs MariaDB server to run.
-  <br/>You can start mariadb server with `podman compose -f ./compose.db.yml up -d`.
-- You can run project with `bun dev`.
+  - You can start mariadb server with `podman compose -f ./compose.db.yml up -d`.
+- You can run project with `pnpm dev`.

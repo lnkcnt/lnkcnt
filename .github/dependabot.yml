@@ -1,19 +1,12 @@
 version: 2
 updates:
-    - package-ecosystem: bun
+    - package-ecosystem: npm
       directory: /
       schedule:
           interval: daily
       assignees:
           - pji2918
     - package-ecosystem: docker-compose
-      directories:
-          - /
-      schedule:
-          interval: daily
-      assignees:
-          - pji2918
-    - package-ecosystem: docker
       directories:
           - /
       schedule:
