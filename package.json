@@ -60,11 +60,6 @@
     "unrs-resolver"
   ],
   "pnpm": {
-    "peerDependencyRules": {
-      "allowedVersions": {
-        "vite": "^7"
-      }
-    },
     "overrides": {
       "vite@>=7.0.0 <=7.3.1": ">=7.3.2",
       "vite@>=7.1.0 <=7.3.1": ">=7.3.2",
