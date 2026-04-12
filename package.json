@@ -62,7 +62,7 @@
   "pnpm": {
     "peerDependencyRules": {
       "allowedVersions": {
-        "vite": "7"
+        "vite": "^7"
       }
     },
     "overrides": {
