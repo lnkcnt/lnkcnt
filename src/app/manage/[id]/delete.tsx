@@ -8,7 +8,7 @@ import ky from "ky";
 export async function DeleteURL(id: string) {
     try {
         await ky.post("/api/url/delete", {
-            body: JSON.stringify({ id: id }),
+            body: JSON.stringify({ id }),
             headers: { "Content-Type": "application/json" },
         });
     } catch {

@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
     // Prisma ORM을 사용하여 기간 내의 모든 클릭 데이터 가져오기
     const clicks = await prisma.linkClickCount.findMany({
         where: {
-            id: id,
+            id,
             date: {
                 gte: startDate,
                 lte: endDate,

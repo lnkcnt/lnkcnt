@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
         // 필수 필드 검증
         if (!id || !reason || !message) {
             return NextResponse.json(
-                { error: "Missing required fields" },
+                { success: false, error: "Missing required fields" },
                 { status: 400 },
             );
         }
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
         });
         if (!formValidation.success) {
             return NextResponse.json(
-                { error: "Invalid values" },
+                { success: false, error: "Invalid values" },
                 { status: 400 },
             );
         }
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
 
         if (!link) {
             return NextResponse.json(
-                { error: "Link not found" },
+                { success: false, error: "Link not found" },
                 { status: 404 },
             );
         }
@@ -87,7 +87,10 @@ export async function POST(request: NextRequest) {
         });
     } catch {
         return NextResponse.json(
-            { error: "Internal server error" },
+            {
+                success: false,
+                error: "Internal server error",
+            },
             { status: 500 },
         );
     }
