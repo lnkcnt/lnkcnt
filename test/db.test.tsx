@@ -2,13 +2,7 @@ import { prisma } from "../lib/prisma";
 import { expect, test } from "vitest";
 
 test("Is DB connected", async () => {
-    expect(
-        await prisma.tester.findFirst({
-            select: {
-                flag: true,
-            },
-        }),
-    ).toEqual({ flag: true });
+    expect(await prisma.$queryRaw`SELECT 1`).toEqual([{ 1: 1 }]);
 });
 
 test("Can write data on DB", async () => {
@@ -22,14 +16,9 @@ test("Can write data on DB", async () => {
             flag: true,
         },
     });
-    expect(data.length).toBeGreaterThanOrEqual(2);
+    expect(data.length).toBeGreaterThanOrEqual(1);
 
-    if (data.length >= 2) {
+    if (data.length >= 1) {
         await prisma.tester.deleteMany({});
-        await prisma.tester.create({
-            data: {
-                flag: true,
-            },
-        });
     }
 });
