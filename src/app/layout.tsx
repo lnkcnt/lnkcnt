@@ -29,11 +29,11 @@ export default function RootLayout({
                     enableSystem
                 >
                     <div className="flex min-h-screen flex-col">
-                        <header className="shrink-0">
+                        <header className="">
                             <NavBar />
                         </header>
-                        <main className="flex-1 pb-20">{children}</main>
-                        <footer className="shrink-0 bg-gray-200 py-3 dark:bg-gray-700">
+                        <main className="flex flex-1 flex-col">{children}</main>
+                        <footer className="bg-gray-200 py-3 dark:bg-gray-700">
                             <Footer />
                         </footer>
                     </div>

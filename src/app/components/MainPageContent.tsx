@@ -6,6 +6,7 @@ import { Input } from "@/src/components/ui/input";
 import React, { useState } from "react";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import ky, { isHTTPError } from "ky";
+import { Field, FieldLabel } from "@/src/components/ui/field";
 
 /**
  * Copy button component for copying text to clipboard
@@ -39,6 +40,7 @@ function CopyButton({ text }: { text: string }) {
                         fill="none"
                         stroke="currentColor"
                         strokeWidth="2"
+                        aria-label="Check icon that means success."
                     >
                         <polyline points="20 6 9 17 4 12" />
                     </svg>
@@ -53,6 +55,7 @@ function CopyButton({ text }: { text: string }) {
                         fill="none"
                         stroke="currentColor"
                         strokeWidth="2"
+                        aria-label="Clipboard icon that means copy."
                     >
                         <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
                         <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
@@ -133,31 +136,34 @@ export default function Content() {
     }
 
     return (
-        <div className="mx-auto flex max-w-4xl flex-col items-center justify-start px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
-            <h1 className="text-center text-3xl font-black sm:text-4xl md:text-5xl lg:text-6xl">
+        <div className="flex flex-col items-center justify-start px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
+            <h1 className="flex-1 text-center text-3xl font-black sm:text-4xl md:text-5xl lg:text-6xl">
                 URL Shortener +
                 <br />
                 Click Checker
             </h1>
-            <div className="h-10 sm:h-20" />
-            <form onSubmit={handleSubmit} className="w-full max-w-2xl">
-                <div className="flex flex-col gap-3 sm:flex-row sm:justify-center sm:gap-4 sm:align-middle">
-                    <Input
-                        name="url"
-                        type="url"
-                        placeholder="Enter your URL here..."
-                        className="h-10 w-full sm:flex-1"
-                        required
-                    />
-                    <Button
-                        type="submit"
-                        size="lg"
-                        className="w-full cursor-pointer sm:w-auto"
-                        disabled={isPending}
-                    >
-                        {isPending ? "Shortening..." : "Shorten!"}
-                    </Button>
-                </div>
+            <div className="h-20 grow max-md:h-10" />
+            <form onSubmit={handleSubmit} className="w-full max-w-2xl flex-2">
+                <Field>
+                    <FieldLabel htmlFor="main-content">URL</FieldLabel>
+                    <div className="flex flex-row gap-2">
+                        <Input
+                            id="main-content"
+                            name="url"
+                            type="url"
+                            placeholder="Enter your URL here..."
+                            className="flex-5"
+                            required
+                        />
+                        <Button
+                            type="submit"
+                            className="flex-1 cursor-pointer"
+                            disabled={isPending}
+                        >
+                            {isPending ? "Shortening..." : "Shorten!"}
+                        </Button>
+                    </div>
+                </Field>
             </form>
 
             {/* Error Messages */}
@@ -209,7 +215,7 @@ export default function Content() {
                                 Shortened URL:
                             </p>
                             <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-                                <code className="flex-1 overflow-x-auto rounded border border-gray-300 bg-gray-100 p-2 text-xs sm:text-sm dark:text-black">
+                                <code className="flex-1 overflow-x-auto rounded border border-gray-300 bg-gray-100 p-2 text-xs text-black sm:text-sm">
                                     {`${typeof window !== "undefined" ? window.location.origin : ""}/${state.generatedId}`}
                                 </code>
                                 <CopyButton
@@ -223,7 +229,7 @@ export default function Content() {
                                     Management Page:
                                 </p>
                                 <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-                                    <code className="flex-1 overflow-x-auto rounded border border-gray-300 bg-gray-100 p-2 text-xs sm:text-sm dark:text-black">
+                                    <code className="flex-1 overflow-x-auto rounded border border-gray-300 bg-gray-100 p-2 text-xs text-black sm:text-sm">
                                         {`${typeof window !== "undefined" ? window.location.origin : ""}/manage/${state.managePage}`}
                                     </code>
                                     <CopyButton

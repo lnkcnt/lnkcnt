@@ -217,203 +217,199 @@ export default function ManageLink() {
     }/${linkData.id}`;
 
     return (
-        <>
-            <div className="min-h-screen bg-gray-50 p-4">
-                <div className="mx-auto max-w-4xl">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Manage Your Link</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                            {/* Shortened URL */}
-                            <div className="space-y-2">
-                                <label className="block text-sm font-semibold">
-                                    Shortened URL
-                                </label>
-                                <div className="flex gap-2">
-                                    <Input
-                                        type="text"
-                                        value={shortUrl}
-                                        readOnly
-                                        className="flex-1"
-                                    />
-                                    <Button
-                                        onClick={copyToClipboard}
-                                        variant={copied ? "default" : "outline"}
-                                    >
-                                        {copied ? (
-                                            <>
-                                                <CheckCircle2 className="mr-2 h-4 w-4" />
-                                                Copied!
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Copy className="mr-2 h-4 w-4" />
-                                                Copy
-                                            </>
-                                        )}
-                                    </Button>
-                                </div>
-                            </div>
-
-                            {/* Original URL */}
-                            <div className="space-y-2">
-                                <label className="block text-sm font-semibold">
-                                    Original URL
-                                </label>
+        <div className="flex-1 bg-gray-50 p-4">
+            <div className="mx-auto max-w-4xl">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Manage Your Link</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        {/* Shortened URL */}
+                        <div className="space-y-2">
+                            <label className="block text-sm font-semibold">
+                                Shortened URL
+                            </label>
+                            <div className="flex gap-2">
                                 <Input
+                                    id="main-content"
                                     type="text"
-                                    value={linkData.redirect_url}
+                                    value={shortUrl}
                                     readOnly
+                                    className="flex-1"
                                 />
-                            </div>
-
-                            {/* Click Count */}
-                            <div className="space-y-2">
-                                <label className="block text-sm font-semibold">
-                                    Total Clicks
-                                </label>
-                                <div className="rounded-lg bg-gray-100 p-4">
-                                    <div className="text-3xl font-bold text-blue-600">
-                                        {linkData.click_count || 0}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Click History Table */}
-                            <div className="space-y-2">
-                                <h3 className="text-lg font-semibold">
-                                    Click History
-                                </h3>
-                                {chartLoading ? (
-                                    <div className="flex h-55 items-center justify-center">
-                                        <Loader2 className="h-6 w-6 animate-spin" />
-                                    </div>
-                                ) : chartData.length > 0 ? (
-                                    <div className="rounded-lg border bg-white p-4">
-                                        <ChartContainer
-                                            config={chartConfig}
-                                            className="h-30 w-full"
-                                        >
-                                            <LineChart data={chartData}>
-                                                <CartesianGrid />
-                                                <XAxis
-                                                    dataKey="date"
-                                                    tickLine={false}
-                                                    axisLine={false}
-                                                    tickMargin={8}
-                                                    tickFormatter={(
-                                                        value: string,
-                                                    ) => value.slice(5)}
-                                                />
-                                                <ChartTooltip
-                                                    cursor={true}
-                                                    content={
-                                                        <ChartTooltipContent
-                                                            labelFormatter={(
-                                                                value,
-                                                            ) =>
-                                                                `Date: ${value}`
-                                                            }
-                                                        />
-                                                    }
-                                                />
-                                                <Line
-                                                    dataKey="sum"
-                                                    type="monotone"
-                                                    stroke="var(--color-sum)"
-                                                    strokeWidth={2}
-                                                />
-                                            </LineChart>
-                                        </ChartContainer>
-                                    </div>
-                                ) : (
-                                    <></>
-                                )}
-                                {linkData.clicks &&
-                                linkData.clicks.length > 0 ? (
-                                    <div className="overflow-x-auto">
-                                        <Table>
-                                            <TableHeader>
-                                                <TableRow>
-                                                    <TableHead>
-                                                        Date & Time
-                                                    </TableHead>
-                                                </TableRow>
-                                            </TableHeader>
-                                            <TableBody>
-                                                {linkData.clicks.map(
-                                                    (click, index) => (
-                                                        <TableRow key={index}>
-                                                            <TableCell>
-                                                                {new Date(
-                                                                    click.date,
-                                                                ).toLocaleString(
-                                                                    "ko-KR",
-                                                                    {
-                                                                        year: "numeric",
-                                                                        month: "2-digit",
-                                                                        day: "2-digit",
-                                                                        hour: "2-digit",
-                                                                        minute: "2-digit",
-                                                                        second: "2-digit",
-                                                                    },
-                                                                )}
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    ),
-                                                )}
-                                            </TableBody>
-                                        </Table>
-                                    </div>
-                                ) : (
-                                    <Alert>
-                                        <AlertDescription>
-                                            No clicks recorded yet.
-                                        </AlertDescription>
-                                    </Alert>
-                                )}
-                            </div>
-
-                            {/* Actions */}
-                            <div className="flex flex-wrap gap-3 border-t pt-6">
-                                <Link href="/">
-                                    <Button variant="outline">
-                                        <ArrowLeft className="mr-2 h-4 w-4" />
-                                        Back
-                                    </Button>
-                                </Link>
                                 <Button
-                                    onClick={() => setDeleteDialogOpen(true)}
-                                    variant="destructive"
-                                    disabled={deleting}
+                                    onClick={copyToClipboard}
+                                    variant={copied ? "default" : "outline"}
                                 >
-                                    {deleting ? (
+                                    {copied ? (
                                         <>
-                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            Deleting...
+                                            <CheckCircle2 className="mr-2 h-4 w-4" />
+                                            Copied!
                                         </>
                                     ) : (
                                         <>
-                                            <Trash2 className="mr-2 h-4 w-4" />
-                                            Delete Link
+                                            <Copy className="mr-2 h-4 w-4" />
+                                            Copy
                                         </>
                                     )}
                                 </Button>
+                            </div>
+                        </div>
+
+                        {/* Original URL */}
+                        <div className="space-y-2">
+                            <label className="block text-sm font-semibold">
+                                Original URL
+                            </label>
+                            <Input
+                                type="text"
+                                value={linkData.redirect_url}
+                                readOnly
+                            />
+                        </div>
+
+                        {/* Click Count */}
+                        <div className="space-y-2">
+                            <label className="block text-sm font-semibold">
+                                Total Clicks
+                            </label>
+                            <div className="rounded-lg bg-gray-100 p-4">
+                                <div className="text-3xl font-bold text-blue-600">
+                                    {linkData.click_count || 0}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Click History Table */}
+                        <div className="space-y-2">
+                            <h3 className="text-lg font-semibold">
+                                Click History
+                            </h3>
+                            {chartLoading ? (
+                                <div className="flex h-55 items-center justify-center">
+                                    <Loader2 className="h-6 w-6 animate-spin" />
+                                </div>
+                            ) : chartData.length > 0 ? (
+                                <div className="rounded-lg border bg-white p-4">
+                                    <ChartContainer
+                                        config={chartConfig}
+                                        className="h-30 w-full"
+                                    >
+                                        <LineChart data={chartData}>
+                                            <CartesianGrid />
+                                            <XAxis
+                                                dataKey="date"
+                                                tickLine={false}
+                                                axisLine={false}
+                                                tickMargin={8}
+                                                tickFormatter={(
+                                                    value: string,
+                                                ) => value.slice(5)}
+                                            />
+                                            <ChartTooltip
+                                                cursor={true}
+                                                content={
+                                                    <ChartTooltipContent
+                                                        labelFormatter={(
+                                                            value,
+                                                        ) => `Date: ${value}`}
+                                                    />
+                                                }
+                                            />
+                                            <Line
+                                                dataKey="sum"
+                                                type="monotone"
+                                                stroke="var(--color-sum)"
+                                                strokeWidth={2}
+                                            />
+                                        </LineChart>
+                                    </ChartContainer>
+                                </div>
+                            ) : (
+                                <></>
+                            )}
+                            {linkData.clicks && linkData.clicks.length > 0 ? (
+                                <div className="overflow-x-auto">
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>
+                                                    Date & Time
+                                                </TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {linkData.clicks.map(
+                                                (click, index) => (
+                                                    <TableRow key={index}>
+                                                        <TableCell>
+                                                            {new Date(
+                                                                click.date,
+                                                            ).toLocaleString(
+                                                                "ko-KR",
+                                                                {
+                                                                    year: "numeric",
+                                                                    month: "2-digit",
+                                                                    day: "2-digit",
+                                                                    hour: "2-digit",
+                                                                    minute: "2-digit",
+                                                                    second: "2-digit",
+                                                                },
+                                                            )}
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ),
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                            ) : (
+                                <Alert>
+                                    <AlertDescription>
+                                        No clicks recorded yet.
+                                    </AlertDescription>
+                                </Alert>
+                            )}
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex gap-3 border-t pt-6 max-md:flex-col max-md:flex-wrap">
+                            <Button asChild variant="outline">
+                                <Link href="/">
+                                    <ArrowLeft className="mr-2 h-4 w-4" />
+                                    Back
+                                </Link>
+                            </Button>
+                            <Button
+                                onClick={() => setDeleteDialogOpen(true)}
+                                variant="destructive"
+                                disabled={deleting}
+                            >
+                                {deleting ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Deleting...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Trash2 className="mr-2 h-4 w-4" />
+                                        Delete Link
+                                    </>
+                                )}
+                            </Button>
+                            <Button asChild>
                                 <a
                                     href={linkData.redirect_url}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                 >
-                                    <Button>
-                                        Visit Link
-                                        <ArrowRight className="ml-2 h-4 w-4" />
-                                    </Button>
+                                    Visit Link
+                                    <ArrowRight className="ml-2 h-4 w-4" />
                                 </a>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
 
             <AlertDialog
@@ -437,6 +433,6 @@ export default function ManageLink() {
                     </div>
                 </AlertDialogContent>
             </AlertDialog>
-        </>
+        </div>
     );
 }
