@@ -13,7 +13,7 @@
     "@node-rs/argon2": "^2.0.2",
     "@prisma/adapter-mariadb": "^7.7.0",
     "@prisma/client": "^7.7.0",
-    "better-auth": "^1.6.4",
+    "better-auth": "^1.6.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^17.4.2",
