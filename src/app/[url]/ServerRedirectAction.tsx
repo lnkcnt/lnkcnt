@@ -83,7 +83,7 @@ export async function resolveRedirectUrl(
         try {
             await prisma.linkClickCount.create({
                 data: {
-                    id: shortId,
+                    id: idValidation.data.id,
                     date: new Date(),
                 },
             });

@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
         }
 
         const managePage = await prisma.urlManagePage.findFirst({
-            where: { managePage: body.id },
+            where: { managePage: idValidation.data.id },
         });
 
         if (!managePage) {
