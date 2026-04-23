@@ -58,8 +58,10 @@ interface LinkData {
 }
 
 interface ChartRecord {
-    date: string;
-    sum: number;
+    data: {
+        date: string;
+        sum: number;
+    }[];
 }
 
 const chartConfig = {
@@ -84,7 +86,7 @@ export default function ManageLink() {
     const [copied, setCopied] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-    const [chartData, setChartData] = useState<ChartRecord[]>([]);
+    const [chartData, setChartData] = useState<ChartRecord>();
     const [chartLoading, setChartLoading] = useState(false);
 
     /**
@@ -158,11 +160,11 @@ export default function ManageLink() {
 
                 const response = await ky
                     .get(`/api/charts?${searchParams}`)
-                    .json<ChartRecord[]>();
+                    .json<ChartRecord>();
 
                 setChartData(response);
             } catch {
-                setChartData([]);
+                setChartData({ data: [] });
             } finally {
                 setChartLoading(false);
             }
@@ -289,13 +291,13 @@ export default function ManageLink() {
                                 <div className="flex h-55 items-center justify-center">
                                     <Loader2 className="h-6 w-6 animate-spin" />
                                 </div>
-                            ) : chartData.length > 0 ? (
+                            ) : !chartData || chartData.data.length > 0 ? (
                                 <div className="rounded-lg border bg-white p-4">
                                     <ChartContainer
                                         config={chartConfig}
                                         className="h-30 w-full"
                                     >
-                                        <LineChart data={chartData}>
+                                        <LineChart data={chartData?.data}>
                                             <CartesianGrid />
                                             <XAxis
                                                 dataKey="date"
