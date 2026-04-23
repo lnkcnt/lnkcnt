@@ -40,8 +40,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Prisma generated class
-/generated/prisma
-
 # Playwright files
 /.playwright-mcp

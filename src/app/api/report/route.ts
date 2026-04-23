@@ -1,4 +1,6 @@
-import { prisma } from "@/lib/prisma";
+import { db } from "@/src/db";
+import { links, urlReport } from "@/src/db/schema";
+import { and, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
 
@@ -61,9 +63,7 @@ export async function POST(request: NextRequest) {
         }
 
         // 링크 존재 여부 확인
-        const link = await prisma.links.findUnique({
-            where: { id: formValidation.data.id },
-        });
+        const link = (await db.selectDistinct().from(links).limit(1)).at(0);
 
         if (!link) {
             return NextResponse.json(
@@ -73,13 +73,29 @@ export async function POST(request: NextRequest) {
         }
 
         // 신고 저장
-        const report = await prisma.urlReport.create({
-            data: {
-                id: formValidation.data.id,
-                reason: formValidation.data.reason,
-                message: formValidation.data.message,
-            },
+        await db.insert(urlReport).values({
+            id: formValidation.data.id,
+            reason: formValidation.data.reason,
+            message: formValidation.data.message,
         });
+
+        const report = (
+            await db
+                .select({ reportId: urlReport.reportId })
+                .from(urlReport)
+                .where(
+                    and(
+                        eq(urlReport.id, formValidation.data.id),
+                        eq(urlReport.reason, formValidation.data.reason),
+                        eq(urlReport.message, formValidation.data.message),
+                    ),
+                )
+                .limit(1)
+        ).at(0);
+
+        if (!report) {
+            throw new Error();
+        }
 
         return NextResponse.json({
             success: true,

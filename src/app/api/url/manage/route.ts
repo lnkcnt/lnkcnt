@@ -1,4 +1,6 @@
-import { prisma } from "@/lib/prisma";
+import { db } from "@/src/db";
+import { linkClickCount, links, urlManagePage } from "@/src/db/schema";
+import { count, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
@@ -27,11 +29,12 @@ export async function GET(request: NextRequest) {
         }
 
         // Find the management page entry by managePage field
-        const managePage = await prisma.urlManagePage.findFirst({
-            where: {
-                managePage: id,
-            },
-        });
+        const managePage = (
+            await db
+                .select()
+                .from(urlManagePage)
+                .where(eq(urlManagePage.managePage, id))
+        ).at(0);
 
         if (!managePage) {
             return NextResponse.json(
@@ -40,12 +43,9 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        // Fetch the corresponding link data with click counts
-        const linkData = await prisma.links.findUnique({
-            where: {
-                id: managePage.id,
-            },
-        });
+        const linkData = (
+            await db.select().from(links).where(eq(links.id, managePage.id))
+        ).at(0);
 
         if (!linkData) {
             return NextResponse.json(
@@ -55,21 +55,24 @@ export async function GET(request: NextRequest) {
         }
 
         // 집계 쿼리로 클릭 수 가져오기
-        const clickCount = await prisma.linkClickCount.count({
-            where: { id: managePage.id },
-        });
+        const clickCount = (
+            await db
+                .select({ count: count() })
+                .from(linkClickCount)
+                .where(eq(linkClickCount.id, managePage.id))
+        ).at(0);
 
         // 클릭 상세 정보도 필요하면 따로 조회
-        const clicks = await prisma.linkClickCount.findMany({
-            where: { id: managePage.id },
-            select: { date: true },
-        });
+        const clicks = await db
+            .select({ date: linkClickCount.date })
+            .from(linkClickCount)
+            .where(eq(linkClickCount.id, managePage.id));
 
         return NextResponse.json({
             id: linkData.id,
-            redirect_url: linkData.redirect_url,
-            click_count: clickCount,
-            clicks,
+            redirect_url: linkData.redirectUrl,
+            click_count: clickCount?.count ?? 0,
+            clicks: clicks,
         });
     } catch {
         return NextResponse.json(

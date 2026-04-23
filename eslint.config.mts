@@ -15,6 +15,8 @@ const eslintConfig = defineConfig([
         "build/**",
         "next-env.d.ts",
         "src/components/**",
+        "drizzle/*.ts",
+        "src/db/*.ts",
     ]),
     {
         name: "Default lint rules",

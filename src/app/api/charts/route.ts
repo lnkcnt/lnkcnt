@@ -1,4 +1,6 @@
-import { prisma } from "@/lib/prisma";
+import { db } from "@/src/db";
+import { linkClickCount } from "@/src/db/schema";
+import { and, eq, gte, lte } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
@@ -73,30 +75,28 @@ export async function GET(request: NextRequest) {
         );
     }
 
-    // Prisma ORM을 사용하여 기간 내의 모든 클릭 데이터 가져오기
-    const clicks = await prisma.linkClickCount.findMany({
-        where: {
-            id,
-            date: {
-                gte: startDate,
-                lte: endDate,
-            },
-        },
-        select: {
-            date: true,
-        },
-        orderBy: {
-            date: "asc",
-        },
-    });
+    // ORM을 사용하여 기간 내의 모든 클릭 데이터 가져오기
+    const clicks = await db
+        .select({ date: linkClickCount.date })
+        .from(linkClickCount)
+        .where(
+            and(
+                eq(linkClickCount.id, id),
+                gte(linkClickCount.date, startDate),
+                lte(linkClickCount.date, endDate),
+            ),
+        )
+        .orderBy(linkClickCount.date);
 
     // JavaScript로 일별 그룹화 및 집계
     const dailyData = new Map<string, number>();
 
     clicks.forEach((click) => {
-        const year = click.date.getFullYear();
-        const month = String(click.date.getMonth() + 1).padStart(2, "0");
-        const day = String(click.date.getDate()).padStart(2, "0");
+        const date = new Date(click.date);
+
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
         const dayKey = `${year}-${month}-${day}`;
 
         dailyData.set(dayKey, (dailyData.get(dayKey) || 0) + 1);

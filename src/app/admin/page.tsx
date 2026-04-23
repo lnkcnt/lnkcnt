@@ -1,5 +1,4 @@
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
 import { Button } from "@/src/components/ui/button";
 import {
     Card,
@@ -14,6 +13,9 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import type { JSX } from "react";
 import { AdminPageClient } from "./admin-page";
+import { db } from "@/src/db";
+import { links, urlBlacklist, urlManagePage, urlReport } from "@/src/db/schema";
+import { desc, eq } from "drizzle-orm";
 
 interface ReportItem {
     reportId: number;
@@ -74,17 +76,19 @@ async function signIn(formData: FormData): Promise<void> {
  */
 async function getReports(): Promise<ReportItem[]> {
     try {
-        const reports = await prisma.urlReport.findMany({
-            orderBy: { createdAt: "desc" },
-            take: 30,
-            include: {
-                links: {
-                    select: {
-                        redirect_url: true,
-                    },
-                },
-            },
-        });
+        const reports = await db
+            .select({
+                reportId: urlReport.reportId,
+                id: urlReport.id,
+                reason: urlReport.reason,
+                message: urlReport.message,
+                createdAt: urlReport.createdAt,
+                redirect_url: links.redirectUrl,
+            })
+            .from(urlReport)
+            .innerJoin(links, eq(urlReport.id, links.id))
+            .orderBy(desc(urlReport.createdAt))
+            .limit(30);
 
         return reports.map((report) => ({
             reportId: report.reportId,
@@ -92,7 +96,7 @@ async function getReports(): Promise<ReportItem[]> {
             reason: report.reason,
             message: report.message,
             createdAt: report.createdAt.toISOString(),
-            redirectUrl: report.links.redirect_url,
+            redirectUrl: report.redirect_url,
         }));
     } catch (error) {
         console.error("Failed to fetch reports:", error);
@@ -106,21 +110,21 @@ async function getReports(): Promise<ReportItem[]> {
  */
 async function getLinks(): Promise<LinkItem[]> {
     try {
-        const links = await prisma.links.findMany({
-            orderBy: { id: "desc" },
-            take: 50,
-            include: {
-                urlManagePage: {
-                    select: { managePage: true },
-                    take: 1,
-                },
-            },
-        });
+        const lnks = await db
+            .select({
+                id: links.id,
+                redirect_url: links.redirectUrl,
+                managePage: urlManagePage.managePage,
+            })
+            .from(links)
+            .innerJoin(urlManagePage, eq(links.id, urlManagePage.id))
+            .limit(50)
+            .orderBy(desc(links.id));
 
-        return links.map((link) => ({
+        return lnks.map((link) => ({
             id: link.id,
             redirectUrl: link.redirect_url,
-            managePage: link.urlManagePage[0]?.managePage ?? null,
+            managePage: link.managePage ?? null,
         }));
     } catch (error) {
         console.error("Failed to fetch links:", error);
@@ -134,10 +138,11 @@ async function getLinks(): Promise<LinkItem[]> {
  */
 async function getBlacklistEntries(): Promise<BlacklistItem[]> {
     try {
-        const entries = await prisma.urlBlacklist.findMany({
-            orderBy: { createdAt: "desc" },
-            take: 100,
-        });
+        const entries = await db
+            .select()
+            .from(urlBlacklist)
+            .limit(100)
+            .orderBy(desc(urlBlacklist.createdAt));
 
         return entries.map((entry) => ({
             blacklistId: entry.blacklistId,
@@ -155,7 +160,7 @@ async function deleteReport(reportId: number): Promise<void> {
     "use server";
 
     try {
-        await prisma.urlReport.delete({ where: { reportId: reportId } });
+        await db.delete(urlReport).where(eq(urlReport.reportId, reportId));
     } catch {
         console.log("Failed to delete report.");
     }
@@ -188,16 +193,23 @@ async function blockURL(
     }
 
     try {
-        const entry = await prisma.urlBlacklist.upsert({
-            where: { pattern: trimmedPattern },
-            create: {
-                pattern: trimmedPattern,
-                note: trimmedNote || null,
-            },
-            update: {
-                note: trimmedNote || null,
-            },
-        });
+        await db
+            .insert(urlBlacklist)
+            .values({ pattern: trimmedPattern, note: trimmedNote || null })
+            .onDuplicateKeyUpdate({
+                set: { note: trimmedNote || null },
+            });
+
+        const entry = (
+            await db
+                .select()
+                .from(urlBlacklist)
+                .where(eq(urlBlacklist.pattern, trimmedPattern))
+        ).at(0);
+
+        if (!entry) {
+            throw new Error();
+        }
 
         return {
             blacklistId: entry.blacklistId,
@@ -223,9 +235,9 @@ async function removeBlockedURL(blacklistId: number): Promise<void> {
     }
 
     try {
-        await prisma.urlBlacklist.delete({
-            where: { blacklistId },
-        });
+        await db
+            .delete(urlBlacklist)
+            .where(eq(urlBlacklist.blacklistId, blacklistId));
     } catch (error) {
         console.error("Failed to remove pattern from blocklist:", error);
         throw new Error("Failed to remove pattern from blocklist", {
@@ -246,9 +258,7 @@ async function deleteLink(linkId: string): Promise<void> {
     }
 
     try {
-        await prisma.links.delete({
-            where: { id: linkId.trim() },
-        });
+        await db.delete(links).where(eq(links.id, linkId.trim()));
     } catch (error) {
         console.error("Failed to delete link:", error);
         throw new Error("Failed to delete link", { cause: error });

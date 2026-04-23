@@ -1,5 +1,5 @@
+import { user } from "@/auth-schema";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
 import { Button } from "@/src/components/ui/button";
 import {
     Card,
@@ -10,6 +10,7 @@ import {
 } from "@/src/components/ui/card";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
+import { db } from "@/src/db";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import type { JSX } from "react";
@@ -48,16 +49,19 @@ async function createAdminAccount(formData: FormData): Promise<void> {
     const databasePassword = process.env.ADMIN_CREATION_SECRET;
 
     if (!databasePassword) {
+        console.error("Secret not defined");
         redirect("/admin/create?error=1");
     }
 
     if (secretCode !== databasePassword) {
+        console.error("secretCode is not match");
         redirect("/admin/create?error=1");
     }
 
-    const userQuery = await prisma.user.findMany();
+    const userQuery = await db.select().from(user);
 
     if (userQuery.length >= 1) {
+        console.error("user exists");
         redirect("/admin/create?error=1");
     }
 
@@ -73,7 +77,8 @@ async function createAdminAccount(formData: FormData): Promise<void> {
             },
             headers: await headers(),
         });
-    } catch {
+    } catch (e) {
+        console.error(e);
         redirect("/admin/create?error=1");
     }
 
