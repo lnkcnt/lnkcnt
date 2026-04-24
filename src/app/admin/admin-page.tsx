@@ -29,7 +29,7 @@ import {
     TableRow,
 } from "@/src/components/ui/table";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { JSX } from "react";
 
 interface SessionInfo {
@@ -96,6 +96,32 @@ function getSuggestedPattern(url: string): string {
 }
 
 /**
+ * Build default report pattern inputs from report list.
+ * @param reports - Report items.
+ * @returns Mapping from report id to suggested pattern.
+ */
+function createReportPatternInputs(
+    reports: ReportItem[],
+): Record<number, string> {
+    return reports.reduce<Record<number, string>>((acc, report) => {
+        acc[report.reportId] = getSuggestedPattern(report.redirectUrl);
+        return acc;
+    }, {});
+}
+
+/**
+ * Build default link pattern inputs from link list.
+ * @param links - URL items.
+ * @returns Mapping from link id to suggested pattern.
+ */
+function createLinkPatternInputs(links: LinkItem[]): Record<string, string> {
+    return links.reduce<Record<string, string>>((acc, link) => {
+        acc[link.id] = getSuggestedPattern(link.redirectUrl);
+        return acc;
+    }, {});
+}
+
+/**
  * 클라이언트 측 관리 페이지 컴포넌트.
  * 세션 정보, 유효시간 표시 및 갱신 기능 제공.
  * @param props - Component props with initial data and server actions.
@@ -113,8 +139,32 @@ export function AdminPageClient({
     /** 현재 활성 세션 정보 */
     const { data: session, isPending } = authClient.useSession();
 
+    /** 수동 갱신으로 받은 세션 유효시간 정보 */
+    const [manualSessionInfo, setManualSessionInfo] =
+        useState<SessionInfo | null>(null);
+
     /** 세션 유효시간 정보 */
-    const [sessionInfo, setSessionInfo] = useState<SessionInfo | null>(null);
+    const sessionInfo = useMemo<SessionInfo | null>(() => {
+        const hookSessionInfo = session?.session?.expiresAt
+            ? {
+                  expiresAt: new Date(session.session.expiresAt),
+                  email: session.user?.email,
+              }
+            : null;
+
+        if (!manualSessionInfo) {
+            return hookSessionInfo;
+        }
+
+        if (!hookSessionInfo) {
+            return manualSessionInfo;
+        }
+
+        return hookSessionInfo.expiresAt.getTime() >=
+            manualSessionInfo.expiresAt.getTime()
+            ? hookSessionInfo
+            : manualSessionInfo;
+    }, [manualSessionInfo, session]);
 
     /** 세션 갱신 중 상태 */
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -123,25 +173,25 @@ export function AdminPageClient({
     const [currentTime, setCurrentTime] = useState<Date>(new Date());
 
     /** 신고 목록 */
-    const [reports, setReports] = useState<ReportItem[]>(initialReports);
+    const [reports, setReports] = useState<ReportItem[]>(() => initialReports);
 
     /** 단축 URL 목록 */
-    const [links, setLinks] = useState<LinkItem[]>(initialLinks);
+    const [links, setLinks] = useState<LinkItem[]>(() => initialLinks);
 
     /** URL 블랙리스트 목록 */
     const [blacklistEntries, setBlacklistEntries] = useState<BlacklistItem[]>(
-        initialBlacklistEntries,
+        () => initialBlacklistEntries,
     );
 
     /** 신고별 차단 패턴 입력값 */
     const [reportPatternInputs, setReportPatternInputs] = useState<
         Record<number, string>
-    >({});
+    >(() => createReportPatternInputs(initialReports));
 
     /** URL별 차단 패턴 입력값 */
     const [linkPatternInputs, setLinkPatternInputs] = useState<
         Record<string, string>
-    >({});
+    >(() => createLinkPatternInputs(initialLinks));
 
     /** 수동 블랙리스트 등록 패턴 입력값 */
     const [manualBlockPattern, setManualBlockPattern] = useState("");
@@ -165,40 +215,6 @@ export function AdminPageClient({
     const [actionFeedback, setActionFeedback] = useState<ActionFeedback | null>(
         null,
     );
-
-    /**
-     * 컴포넌트 초기화 시 세션 정보 업데이트
-     */
-    useEffect(() => {
-        if (session?.session?.expiresAt) {
-            setSessionInfo({
-                expiresAt: new Date(session.session.expiresAt),
-                email: session.user?.email,
-            });
-        }
-    }, [session]);
-
-    /**
-     * Initialize state with initial data
-     */
-    useEffect(() => {
-        setReports(initialReports);
-        setLinks(initialLinks);
-        setBlacklistEntries(initialBlacklistEntries);
-        const reportInputs: Record<number, string> = {};
-        initialReports.forEach((report) => {
-            reportInputs[report.reportId] = getSuggestedPattern(
-                report.redirectUrl,
-            );
-        });
-        setReportPatternInputs(reportInputs);
-
-        const linkInputs: Record<string, string> = {};
-        initialLinks.forEach((link) => {
-            linkInputs[link.id] = getSuggestedPattern(link.redirectUrl);
-        });
-        setLinkPatternInputs(linkInputs);
-    }, [initialReports, initialLinks, initialBlacklistEntries]);
 
     /**
      * 매 초 현재 시간 업데이트
@@ -234,7 +250,7 @@ export function AdminPageClient({
             const result = await authClient.getSession();
 
             if (result?.data?.session?.expiresAt) {
-                setSessionInfo({
+                setManualSessionInfo({
                     expiresAt: new Date(result.data.session.expiresAt),
                     email: result.data.user?.email,
                 });
