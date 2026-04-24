@@ -16,6 +16,7 @@ This project is a URL shortener with URL click counter feature.
 
 1. [Next.js](https://github.com/vercel/next.js)
 2. [shadcn](https://github.com/shadcn-ui/ui)
+3. [Drizzle ORM](https://orm.drizzle.team/)
 4. [ky](https://github.com/sindresorhus/ky)
 
 ## RULES
