@@ -2,10 +2,7 @@
     "servers": {
         "shadcn": {
             "command": "pnpx",
-            "args": [
-                "shadcn@latest",
-                "mcp"
-            ]
+            "args": ["shadcn@latest", "mcp"]
         }
     }
 }
