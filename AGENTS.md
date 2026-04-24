@@ -28,7 +28,7 @@ This project is a URL shortener with URL click counter feature.
 - If possible, use shadcn or TailwindCSS.
 - Use ky instead of `fetch`.
 - Write JSDoc on functions.
-- After finished a job, run `pn lint`.
+- After each code change, run `pnpm lint`.
 
 ## Tips
 
@@ -38,4 +38,10 @@ This project is a URL shortener with URL click counter feature.
 - This project includes SKILLS. Refer to SKILLS for recent and accurate information.
 - This project needs MariaDB server to run.
     - You can start mariadb server with `podman compose -f ./compose.db.yml up -d`.
-- You can run project with `pnpm dev`.
+
+### Helpful commands
+
+- `pnpm dev`: launch project.
+- `pnpm fmt`: runs prettier to format code.
+- `pnpm lint`: runs eslint to check potential errors.
+- `pnpm test --run`: runs vitest to run unit tests.
