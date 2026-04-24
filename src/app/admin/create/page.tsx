@@ -54,7 +54,7 @@ async function createAdminAccount(formData: FormData): Promise<void> {
     }
 
     if (secretCode !== databasePassword) {
-        console.error("secretCode is not match");
+        console.error("secretCode does not match");
         redirect("/admin/create?error=1");
     }
 

@@ -40,7 +40,7 @@ export const urlBlacklist = mysqlTable(
     {
         blacklistId: int().autoincrement().notNull().primaryKey(),
         pattern: varchar({ length: 255 }).notNull(),
-        note: varchar({ length: 255 }).default("NULL"),
+        note: varchar({ length: 255 }).default(sql`NULL`),
         createdAt: datetime({ mode: "date" })
             .default(sql`CURRENT_TIMESTAMP()`)
             .notNull(),

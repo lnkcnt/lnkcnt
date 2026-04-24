@@ -1,6 +1,6 @@
 import { db } from "@/src/db";
 import { links, urlReport } from "@/src/db/schema";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
 
@@ -63,7 +63,13 @@ export async function POST(request: NextRequest) {
         }
 
         // 링크 존재 여부 확인
-        const link = (await db.selectDistinct().from(links).limit(1)).at(0);
+        const link = (
+            await db
+                .selectDistinct()
+                .from(links)
+                .where(eq(links.id, formValidation.data.id))
+                .limit(1)
+        ).at(0);
 
         if (!link) {
             return NextResponse.json(
@@ -73,25 +79,16 @@ export async function POST(request: NextRequest) {
         }
 
         // 신고 저장
-        await db.insert(urlReport).values({
-            id: formValidation.data.id,
-            reason: formValidation.data.reason,
-            message: formValidation.data.message,
-        });
+        const insertResult = await db
+            .insert(urlReport)
+            .values({
+                id: formValidation.data.id,
+                reason: formValidation.data.reason,
+                message: formValidation.data.message,
+            })
+            .$returningId();
 
-        const report = (
-            await db
-                .select({ reportId: urlReport.reportId })
-                .from(urlReport)
-                .where(
-                    and(
-                        eq(urlReport.id, formValidation.data.id),
-                        eq(urlReport.reason, formValidation.data.reason),
-                        eq(urlReport.message, formValidation.data.message),
-                    ),
-                )
-                .limit(1)
-        ).at(0);
+        const report = insertResult[0]?.reportId;
 
         if (!report) {
             throw new Error();
@@ -99,7 +96,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
             success: true,
-            reportId: report.reportId,
+            reportId: report,
         });
     } catch {
         return NextResponse.json(

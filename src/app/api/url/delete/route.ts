@@ -48,9 +48,13 @@ export async function POST(request: NextRequest) {
                 { status: 400 },
             );
         }
-        const managePage = (await db.select().from(urlManagePage).limit(1)).at(
-            0,
-        );
+        const managePage = (
+            await db
+                .select()
+                .from(urlManagePage)
+                .where(eq(urlManagePage.managePage, idValidation.data.id))
+                .limit(1)
+        ).at(0);
 
         if (!managePage) {
             return NextResponse.json(
