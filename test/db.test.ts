@@ -4,7 +4,7 @@ import { eq, sql } from "drizzle-orm";
 import { expect, test } from "vitest";
 
 test("Is DB connected", async () => {
-    expect((await db.execute(sql`SELECT 1`)).at(0)).toEqual([{ 1: 1 }]);
+    expect((await db.execute(sql`SELECT 1`)).at(0)).toEqual({ 1: 1 });
 });
 
 test("Can write data on DB", async () => {

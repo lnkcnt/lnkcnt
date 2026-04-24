@@ -1,19 +1,13 @@
-import { relations } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import {
     mysqlTable,
-    mysqlSchema,
-    AnyMySqlColumn,
     index,
-    foreignKey,
     varchar,
-    text,
     datetime,
     int,
     unique,
     longtext,
     tinyint,
-    timestamp,
-    boolean,
 } from "drizzle-orm/mysql-core";
 
 export const linkClickCount = mysqlTable(
@@ -47,7 +41,9 @@ export const urlBlacklist = mysqlTable(
         blacklistId: int().autoincrement().notNull().primaryKey(),
         pattern: varchar({ length: 255 }).notNull(),
         note: varchar({ length: 255 }).default("NULL"),
-        createdAt: datetime({ mode: "date" }).default(new Date()).notNull(),
+        createdAt: datetime({ mode: "date" })
+            .default(sql`CURRENT_TIMESTAMP()`)
+            .notNull(),
     },
     (table) => [unique("uniq_pattern").on(table.pattern)],
 );
@@ -55,14 +51,13 @@ export const urlBlacklist = mysqlTable(
 export const urlManagePage = mysqlTable(
     "urlManagePage",
     {
+        managePage: varchar({ length: 32 }).notNull().primaryKey(),
         id: varchar({ length: 32 })
             .notNull()
             .references(() => links.id, {
                 onDelete: "cascade",
                 onUpdate: "cascade",
-            })
-            .primaryKey(),
-        managePage: varchar({ length: 32 }).notNull(),
+            }),
     },
     (table) => [index("id").on(table.id)],
 );
@@ -76,7 +71,9 @@ export const urlReport = mysqlTable(
             .references(() => links.id),
         reason: varchar({ length: 50 }).notNull(),
         message: longtext().notNull(),
-        createdAt: datetime({ mode: "date" }).default(new Date()).notNull(),
+        createdAt: datetime({ mode: "date" })
+            .default(sql`CURRENT_TIMESTAMP()`)
+            .notNull(),
     },
     (table) => [index("id").on(table.id)],
 );
