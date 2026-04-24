@@ -28,7 +28,7 @@ This project is a URL shortener with URL click counter feature.
 - If possible, use shadcn or TailwindCSS.
 - Use ky instead of `fetch`.
 - Write JSDoc on functions.
-- After every code writing, run `pn lint`.
+- After each code change, run `pnpm lint`.
 
 ## Tips
 
