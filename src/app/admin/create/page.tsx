@@ -49,7 +49,7 @@ async function createAdminAccount(formData: FormData): Promise<void> {
     const databasePassword = process.env.ADMIN_CREATION_SECRET;
 
     if (!databasePassword) {
-        console.error("Secret not defined");
+        console.error("ADMIN_CREATION_SECRET is not defined");
         redirect("/admin/create?error=1");
     }
 
@@ -61,7 +61,7 @@ async function createAdminAccount(formData: FormData): Promise<void> {
     const userQuery = await db.select().from(user);
 
     if (userQuery.length >= 1) {
-        console.error("user exists");
+        console.error("User already exists");
         redirect("/admin/create?error=1");
     }
 
