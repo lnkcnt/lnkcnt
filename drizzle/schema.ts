@@ -1,9 +1,6 @@
 import {
     mysqlTable,
-    mysqlSchema,
-    AnyMySqlColumn,
     index,
-    foreignKey,
     varchar,
     text,
     datetime,
@@ -12,7 +9,6 @@ import {
     longtext,
     tinyint,
 } from "drizzle-orm/mysql-core";
-import { sql } from "drizzle-orm";
 
 export const account = mysqlTable(
     "account",
