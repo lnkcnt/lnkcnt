@@ -17,15 +17,6 @@
         "@playwright/mcp@latest"
       ]
     },
-    "prisma": {
-      "type": "local",
-      "command": [
-        "pnpx",
-        "--pnpm",
-        "prisma",
-        "mcp"
-      ]
-    },
     "next-devtools": {
       "type": "local",
       "command": [

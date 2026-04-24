@@ -1,7 +1,8 @@
-import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { nanoid } from "nanoid";
 import * as z from "zod";
+import { db } from "@/src/db";
+import { links, urlBlacklist, urlManagePage } from "@/src/db/schema";
 
 /** Blacklist check result */
 type URLBanData = {
@@ -19,9 +20,12 @@ type URLRequest = {
  * @returns Blacklist result with `banned` flag and optional `note`.
  */
 async function isBlacklisted(url: string): Promise<URLBanData> {
-    const entries = await prisma.urlBlacklist.findMany({
-        select: { pattern: true, note: true },
-    });
+    const entries = await db
+        .select({
+            pattern: urlBlacklist.pattern,
+            note: urlBlacklist.note,
+        })
+        .from(urlBlacklist);
 
     if (!entries.length) return { banned: false };
 
@@ -109,18 +113,10 @@ export async function POST(request: NextRequest) {
     const generatedId = nanoid();
     const managePage = nanoid(32);
 
-    await prisma.links.create({
-        data: {
-            id: generatedId,
-            redirect_url: validatedFields.data.url,
-        },
-    });
-    await prisma.urlManagePage.create({
-        data: {
-            id: generatedId,
-            managePage: managePage,
-        },
-    });
+    await db
+        .insert(links)
+        .values({ id: generatedId, redirectUrl: validatedFields.data.url });
+    await db.insert(urlManagePage).values({ id: generatedId, managePage });
 
     return NextResponse.json(
         {

@@ -1,6 +1,8 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
+import { db } from "@/src/db";
+import { links, urlManagePage } from "@/src/db/schema";
+import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
 
@@ -46,10 +48,13 @@ export async function POST(request: NextRequest) {
                 { status: 400 },
             );
         }
-
-        const managePage = await prisma.urlManagePage.findFirst({
-            where: { managePage: idValidation.data.id },
-        });
+        const managePage = (
+            await db
+                .select()
+                .from(urlManagePage)
+                .where(eq(urlManagePage.managePage, idValidation.data.id))
+                .limit(1)
+        ).at(0);
 
         if (!managePage) {
             return NextResponse.json(
@@ -61,9 +66,7 @@ export async function POST(request: NextRequest) {
         }
 
         // 링크 삭제
-        await prisma.links.delete({
-            where: { id: managePage.id },
-        });
+        await db.delete(links).where(eq(links.id, managePage.id));
         return NextResponse.json({
             success: true,
             message: "Successfully deleted",
