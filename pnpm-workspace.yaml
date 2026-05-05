@@ -3,7 +3,10 @@ allowBuilds:
   msw: true
   sharp: true
   unrs-resolver: true
+minimumReleaseAgeExclude:
+  - ip-address@10.1.1
 overrides:
   '@hono/node-server@<1.19.13': '>=1.19.13'
   esbuild@<=0.24.2: '>=0.25.0'
+  ip-address@<=10.1.0: ^10.1.1
   postcss@<8.5.10: '>=8.5.10'
