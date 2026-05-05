@@ -6,6 +6,8 @@ updates:
       interval: daily
     assignees:
       - pji2918
+    cooldown:
+      default-days: 1
   - package-ecosystem: docker-compose
     directories:
       - /
