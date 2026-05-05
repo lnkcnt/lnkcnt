@@ -1,5 +1,13 @@
 {
     "plugins": ["prettier-plugin-tailwindcss"],
     "tabWidth": 4,
-    "useTabs": false
+    "useTabs": false,
+    "overrides": [
+        {
+            "files": ["*.yaml", "*.yml"],
+            "options": {
+                "tabWidth": 2
+            }
+        }
+    ]
 }
