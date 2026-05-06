@@ -7,17 +7,6 @@
 				"mcp"
 			],
 			"type": "stdio"
-		},
-		"git": {
-			"command": "uvx",
-			"args": [
-				"mcp-server-git"
-			],
-			"type": "stdio"
-		},
-		"github": {
-			"type": "http",
-			"url": "https://api.githubcopilot.com/mcp/"
 		}
 	},
 	"inputs": []
