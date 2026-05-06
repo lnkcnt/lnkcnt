@@ -26,19 +26,24 @@ export const linkClickCount = mysqlTable(
 );
 
 export const links = mysqlTable("links", {
-    id: varchar({ length: 32 }).notNull().primaryKey(),
+    id: varchar({ length: 32 }).primaryKey(),
     redirectUrl: varchar("redirect_url", { length: 128 }).notNull(),
 });
 
 export const tester = mysqlTable("tester", {
-    num: int().autoincrement().notNull().primaryKey(),
+    num: int().autoincrement().primaryKey(),
     flag: tinyint().default(1).notNull(),
+});
+
+export const trustedURL = mysqlTable("trustedURL", {
+    id: int().autoincrement().primaryKey(),
+    url: varchar({ length: 64 }).notNull(),
 });
 
 export const urlBlacklist = mysqlTable(
     "urlBlacklist",
     {
-        blacklistId: int().autoincrement().notNull().primaryKey(),
+        blacklistId: int().autoincrement().primaryKey(),
         pattern: varchar({ length: 255 }).notNull(),
         note: varchar({ length: 255 }).default(sql`NULL`),
         createdAt: datetime({ mode: "date" })
@@ -51,7 +56,7 @@ export const urlBlacklist = mysqlTable(
 export const urlManagePage = mysqlTable(
     "urlManagePage",
     {
-        managePage: varchar({ length: 32 }).notNull().primaryKey(),
+        managePage: varchar({ length: 32 }).primaryKey(),
         id: varchar({ length: 32 })
             .notNull()
             .references(() => links.id, {
@@ -65,7 +70,7 @@ export const urlManagePage = mysqlTable(
 export const urlReport = mysqlTable(
     "urlReport",
     {
-        reportId: int().autoincrement().notNull().primaryKey(),
+        reportId: int().autoincrement().primaryKey(),
         id: varchar({ length: 32 })
             .notNull()
             .references(() => links.id),

@@ -1,12 +1,18 @@
 "use server";
 
 import { db } from "@/src/db";
-import { linkClickCount, links, urlBlacklist } from "@/src/db/schema";
+import {
+    linkClickCount,
+    links,
+    trustedURL,
+    urlBlacklist,
+} from "@/src/db/schema";
 import { eq } from "drizzle-orm";
 import z from "zod";
 
 interface ResolveRedirectUrlResult {
     redirectUrl: string | null;
+    isTrusted?: boolean;
 }
 
 /**
@@ -42,9 +48,29 @@ async function isBlacklisted(url: string): Promise<boolean> {
 }
 
 /**
+ * Check URL is trusted.
+ * @param url URL to check.
+ * @returns true if URL is trusted, otherwise false.
+ */
+async function isTrusted(url: string): Promise<boolean> {
+    const baseUrl = new URL(url).hostname;
+
+    const entries = await db
+        .select({ url: trustedURL.url })
+        .from(trustedURL)
+        .where(eq(trustedURL.url, baseUrl));
+
+    if (entries.length >= 1) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/**
  * Resolve a short URL to a final redirect URL on server side
  * @param shortId - Short URL id
- * @returns redirectUrl when valid and allowed, otherwise null
+ * @returns {ResolveRedirectUrlResult} redirectUrl: provided when valid and allowed, otherwise null / isTrusted: true when redirectUrl is trusted, otherwise false
  */
 export async function resolveRedirectUrl(
     shortId: string,
@@ -96,7 +122,12 @@ export async function resolveRedirectUrl(
             );
         }
 
-        return { redirectUrl: finalURL };
+        const isUrlTrusted = await isTrusted(finalURL);
+
+        return {
+            redirectUrl: finalURL,
+            isTrusted: isUrlTrusted,
+        };
     } catch (error) {
         console.error(error);
         throw error;

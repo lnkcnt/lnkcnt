@@ -32,6 +32,7 @@ const eslintConfig = defineConfig([
                     format: ["camelCase", "PascalCase"],
                 },
             ],
+            "@typescript-eslint/no-unused-vars": "warn",
         },
     },
 ]);
