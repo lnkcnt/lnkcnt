@@ -100,6 +100,14 @@ export default function Redirection({ params }: RedirectionProps) {
                     <br />
                     Please double-check the URL before move.
                 </p>
+                <Button
+                    variant="ghost"
+                    className="text-red-600"
+                    onClick={() => router.push(`/report/${url}`)}
+                >
+                    <TriangleAlert />
+                    Report URL
+                </Button>
                 <code className="rounded border border-gray-300 bg-gray-100 p-2 text-xs text-black sm:text-sm">
                     {redirectUrl}
                 </code>
