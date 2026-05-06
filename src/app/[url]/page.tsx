@@ -26,15 +26,6 @@ export default function Redirection({ params }: RedirectionProps) {
     useEffect(() => {
         let isMounted = true;
 
-        const timer = setInterval(() => {
-            setWarningCount((warningCount) => warningCount - 1);
-            console.log(warningCount);
-        }, 1000);
-
-        if (warningCount < 0) {
-            clearInterval(timer);
-        }
-
         /**
          * Resolves and redirects to target URL
          */
@@ -63,16 +54,33 @@ export default function Redirection({ params }: RedirectionProps) {
 
         return () => {
             isMounted = false;
+        };
+    }, [url]);
+
+    useEffect(() => {
+        if (isTrusted) {
+            router.push(redirectUrl);
+        }
+    }, [isTrusted, redirectUrl, router]);
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setWarningCount((warningCount) => warningCount - 1);
+            if (warningCount < 0) {
+                clearInterval(timer);
+            }
+        }, 1000);
+
+        return () => {
             clearInterval(timer);
         };
-    }, [url, router, warningCount]);
+    }, [warningCount]);
 
     if (isNotFound) {
         notFound();
     }
 
     if (isTrusted) {
-        router.push(redirectUrl);
         return (
             <main className="flex min-h-screen items-center justify-center">
                 <p className="text-muted-foreground text-sm">
@@ -84,7 +92,7 @@ export default function Redirection({ params }: RedirectionProps) {
         return (
             <div className="flex flex-col items-center justify-start gap-5 p-10 text-center max-sm:items-stretch">
                 <div className="amber-50 flex flex-row items-center justify-center gap-5 text-amber-800 dark:text-amber-400">
-                    <TriangleAlert className="size-8" />
+                    <TriangleAlert className="h-8 w-8" />
                     <p className="text-4xl font-bold">WARNING</p>
                 </div>
                 <p>

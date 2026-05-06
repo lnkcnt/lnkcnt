@@ -50,19 +50,24 @@ async function isBlacklisted(url: string): Promise<boolean> {
 /**
  * Check URL is trusted.
  * @param url URL to check.
- * @returns true if URL is trusted, otherwise false.
+ * @returns true if URL is in trusted, otherwise false.
  */
 async function isTrusted(url: string): Promise<boolean> {
-    const baseUrl = new URL(url).hostname;
+    try {
+        const baseUrl = new URL(url).hostname;
 
-    const entries = await db
-        .select({ url: trustedURL.url })
-        .from(trustedURL)
-        .where(eq(trustedURL.url, baseUrl));
+        const entries = await db
+            .select({ url: trustedURL.url })
+            .from(trustedURL)
+            .where(eq(trustedURL.url, baseUrl));
 
-    if (entries.length >= 1) {
-        return true;
-    } else {
+        if (entries.length >= 1) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (e) {
+        console.error(`An error occurred when checking trust: ${e}`);
         return false;
     }
 }
