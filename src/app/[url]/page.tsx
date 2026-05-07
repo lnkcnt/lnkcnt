@@ -86,7 +86,7 @@ export default function Redirection({ params }: RedirectionProps) {
         return (
             <main className="flex min-h-screen items-center justify-center">
                 <p className="text-muted-foreground text-sm">
-                    리다이렉트 중입니다...
+                    Redirecting...
                 </p>
             </main>
         );
