@@ -17,9 +17,10 @@ interface RedirectionProps {
  */
 export default function Redirection({ params }: RedirectionProps) {
     const { url } = use(params);
-    const [redirectUrl, setRedirectUrl] = useState<string>("");
     const [isNotFound, setIsNotFound] = useState<boolean>(false);
     const [isTrusted, setIsTrusted] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [redirectUrl, setRedirectUrl] = useState<string>("");
     const [warningCount, setWarningCount] = useState<number>(5);
     const router = useRouter();
 
@@ -44,6 +45,7 @@ export default function Redirection({ params }: RedirectionProps) {
                 }
 
                 setRedirectUrl(result.redirectUrl);
+                setIsLoading(false);
             } catch {
                 if (!isMounted) return;
                 setIsNotFound(true);
@@ -80,7 +82,7 @@ export default function Redirection({ params }: RedirectionProps) {
         notFound();
     }
 
-    if (isTrusted) {
+    if (isTrusted || isLoading) {
         return (
             <main className="flex min-h-screen items-center justify-center">
                 <p className="text-muted-foreground text-sm">
