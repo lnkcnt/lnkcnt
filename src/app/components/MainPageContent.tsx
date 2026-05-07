@@ -108,31 +108,17 @@ export default function Content() {
         setIsPending(true);
         setState(initialState);
 
-        try {
-            const res = await ky
-                .post("/api/url/shorten", {
-                    body: JSON.stringify({ url: url }),
-                    headers: { "Content-Type": "application/json" },
-                })
-                .json<FormState>();
-            const data: FormState = res;
-            setState(data);
-            if (data.success) form.reset();
-        } catch (error) {
-            if (isHTTPError(error)) {
-                setState(await error.response.json());
-            } else {
-                setState({
-                    message: "Unknown error",
-                    errors: {
-                        errors: [],
-                        properties: {},
-                    },
-                });
-            }
-        } finally {
-            setIsPending(false);
-        }
+        const res = await ky
+            .post("/api/url/shorten", {
+                body: JSON.stringify({ url: url }),
+                headers: { "Content-Type": "application/json" },
+                throwHttpErrors: false,
+            })
+            .json<FormState>();
+
+        setState(res);
+        form.reset();
+        setIsPending(false);
     }
 
     return (
