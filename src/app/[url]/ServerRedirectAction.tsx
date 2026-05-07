@@ -121,7 +121,8 @@ export async function resolveRedirectUrl(
         } catch (e) {
             // Click logging failure should not block redirect.
             console.error(
-                "===== ERROR =====\nFailed to log click.",
+                "===== ERROR =====",
+                "\nFailed to log click.",
                 e,
                 "\n=================",
             );
