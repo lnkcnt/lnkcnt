@@ -10,30 +10,43 @@ import {
 } from "@/src/components/ui/card";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
-import { JSX, use, useEffect, useState } from "react";
-import {
-    CreateAdminAccountPageProps,
-    getErrorMessage,
-    createAdminAccount,
-} from "./server";
+import { createAdminAccount } from "./server";
+import { useSearchParams } from "next/navigation";
+
+/**
+ * Resolve query-string error key to user-facing text.
+ * @param errorKey - Error key from query string.
+ * @returns Human-readable error message.
+ */
+function getErrorMessage(errorKey?: string | null) {
+    // if (errorKey === "invalid_form") {
+    //     return "Please provide email, password, and secret code.";
+    // }
+    // if (errorKey === "server_secret_not_set") {
+    //     return "Server is missing DATABASE_PASSWORD configuration.";
+    // }
+    // if (errorKey === "invalid_secret") {
+    //     return "Secret code does not match.";
+    // }
+    // if (errorKey === "signup_failed") {
+    //     return "Failed to create account. The email may already exist.";
+    // }
+    if (errorKey) {
+        return "Failed.";
+    } else {
+        return null;
+    }
+}
 
 /**
  * Admin account creation page.
  * @param props - Page props from Next.js.
  * @returns Admin account creation form.
  */
-export default function CreateAdminAccountPage({
-    searchParams,
-}: CreateAdminAccountPageProps): JSX.Element {
-    const resolvedSearchParams = use(searchParams);
-    const [errorKey, setErrorKey] = useState("");
-    useEffect(() => {
-        setErrorKey(
-            typeof resolvedSearchParams.error === "string"
-                ? resolvedSearchParams.error
-                : undefined,
-        );
-    });
+export default function CreateAdminAccountPage() {
+    const searchParams = useSearchParams();
+    const errorKey = searchParams.get("error");
+
     /** Resolved search params from the current request. */
     /** Error key from query string. */
     /** User-visible error text rendered above form. */
@@ -54,6 +67,7 @@ export default function CreateAdminAccountPage({
                             {errorMessage}
                         </p>
                     ) : null}
+
                     <form action={createAdminAccount} className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="email">E-mail</Label>
