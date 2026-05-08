@@ -5,7 +5,7 @@ import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import React, { useState } from "react";
 import { AlertCircle, CheckCircle } from "lucide-react";
-import ky, { isHTTPError } from "ky";
+import ky from "ky";
 import { Field, FieldLabel } from "@/src/components/ui/field";
 
 /**
