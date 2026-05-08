@@ -85,9 +85,7 @@ export default function Redirection({ params }: RedirectionProps) {
     if (isTrusted || isLoading) {
         return (
             <main className="flex min-h-screen items-center justify-center">
-                <p className="text-muted-foreground text-sm">
-                    Redirecting...
-                </p>
+                <p className="text-muted-foreground text-sm">Redirecting...</p>
             </main>
         );
     } else {

@@ -30,7 +30,6 @@ import {
 } from "@/src/components/ui/table";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import type { JSX } from "react";
 
 interface SessionInfo {
     expiresAt: Date;
@@ -135,7 +134,7 @@ export function AdminPageClient({
     removeBlockedURL,
     deleteLink,
     deleteReport,
-}: AdminPageClientProps): JSX.Element {
+}: AdminPageClientProps) {
     /** 현재 활성 세션 정보 */
     const { data: session, isPending } = authClient.useSession();
 
@@ -1083,7 +1082,7 @@ export function AdminPageClient({
  * 로그아웃 폼 컴포넌트.
  * @returns 로그아웃 버튼을 포함한 폼
  */
-function SignOutForm(): JSX.Element {
+function SignOutForm() {
     /** 로그아웃 중 상태 */
     const [isLoading, setIsLoading] = useState(false);
 
