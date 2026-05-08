@@ -23,17 +23,16 @@ This project is a URL shortener with URL click counter feature.
 
 - **YOU SHOULDN'T DELETE A FILE WITHOUT USER'S EXPLICIT PERMISSION!**
 - **YOU SHOULDN'T USE GIT'S FORCE PUSH AND HARD RESET FEATURE!**
+- After each code change, run `pnpm lint`.
 - Use TypeScript(`.ts`/`.tsx`). DO NOT USE PLAIN JAVASCRIPT!
 - DO NOT USE PLAIN SQL. instead, use Drizzle ORM.
 - If possible, use shadcn or TailwindCSS.
 - Use ky instead of `fetch`.
 - Write JSDoc on functions.
-- After each code change, run `pnpm lint`.
 
 ## Tips
 
-- This project uses pnpm.
-  you can replace `npm` to `pnpm`, `npx` to `pnpx`.
+- This project uses pnpm. you can replace `npm` to `pnpm`, `npx` to `pnpx`.
 - `shadcn-ui` is deprecated. use `shadcn` instead.
 - This project includes SKILLS. Refer to SKILLS for recent and accurate information.
 - This project needs MariaDB server to run.
@@ -41,7 +40,7 @@ This project is a URL shortener with URL click counter feature.
 
 ### Helpful commands
 
-- `pnpm dev`: launch project.
+- `pnpm dev`: runs project in development(debug) mode.
 - `pnpm fmt`: runs prettier to format code.
-- `pnpm lint`: runs eslint to check potential errors.
+- `pnpm lint`: runs eslint to check potential issues.
 - `pnpm test --run`: runs vitest to run unit tests.
