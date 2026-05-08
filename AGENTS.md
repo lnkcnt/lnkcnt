@@ -32,6 +32,7 @@ This project is a URL shortener with URL click counter feature.
 
 ## Tips
 
+- When you need to search docs(excluding Next.js), use Context7.
 - This project uses pnpm. you can replace `npm` to `pnpm`, `npx` to `pnpx`.
 - `shadcn-ui` is deprecated. use `shadcn` instead.
 - This project includes SKILLS. Refer to SKILLS for recent and accurate information.
