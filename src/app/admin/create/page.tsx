@@ -22,7 +22,12 @@ import { styleText } from "node:util";
  * @param formData - The submitted form data from the account creation form.
  */
 export async function createAdminAccount(formData: FormData): Promise<void> {
-    if (await checkAdminExists()) {
+    const isE2ETest =
+        process.env.NODE_ENV === "development"
+            ? formData.get("e2eTest") === "1"
+            : false;
+
+    if (!isE2ETest && (await checkAdminExists())) {
         console.error(styleText("red", "ERROR:"), "User already exists.");
         notFound();
     }
@@ -57,10 +62,17 @@ export async function createAdminAccount(formData: FormData): Promise<void> {
     }
 
     if (secretCode !== databasePassword) {
-        console.error(
-            styleText("red", "ERROR:"),
-            "secretCode does not match in admin account creation.",
-        );
+        if (isE2ETest) {
+            console.log(
+                styleText("blue", "INFO:"),
+                "Incorrect secretCode is entered in E2E test.",
+            );
+        } else {
+            console.error(
+                styleText("red", "ERROR:"),
+                "secretCode does not match in admin account creation.",
+            );
+        }
         redirect("/admin/create?error=1");
     }
 
@@ -68,14 +80,18 @@ export async function createAdminAccount(formData: FormData): Promise<void> {
     const name = "admin";
 
     try {
-        await auth.api.signUpEmail({
-            body: {
-                name,
-                email,
-                password,
-            },
-            headers: await headers(),
-        });
+        if (isE2ETest) {
+            // simulate successful sign up
+        } else {
+            await auth.api.signUpEmail({
+                body: {
+                    name,
+                    email,
+                    password,
+                },
+                headers: await headers(),
+            });
+        }
     } catch (e) {
         console.error(`ERROR: ${e}`);
         redirect("/admin/create?error=1");
@@ -90,8 +106,19 @@ export async function checkAdminExists(): Promise<boolean> {
     return userQuery.length >= 1;
 }
 
-export default async function AdminCreationPage() {
-    if (await checkAdminExists()) {
+export default async function AdminCreationPage({
+    searchParams,
+}: {
+    searchParams?: Promise<{ e2e?: string }>;
+}) {
+    const resolvedSearchParams = await searchParams;
+    const e2eMode = resolvedSearchParams?.e2e;
+    const isE2ENone =
+        process.env.NODE_ENV === "development" ? e2eMode === "none" : false;
+    const isE2EExisting =
+        process.env.NODE_ENV === "development" ? e2eMode === "existing" : false;
+
+    if (isE2EExisting || (!isE2ENone && (await checkAdminExists()))) {
         notFound();
     }
 
@@ -106,6 +133,9 @@ export default async function AdminCreationPage() {
                 </CardHeader>
                 <CardContent>
                     <form action={createAdminAccount} className="space-y-4">
+                        {isE2ENone ? (
+                            <input name="e2eTest" type="hidden" value="1" />
+                        ) : null}
                         <div className="space-y-2">
                             <Label htmlFor="email">E-mail</Label>
                             <Input
