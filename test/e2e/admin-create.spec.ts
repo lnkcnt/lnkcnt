@@ -5,7 +5,6 @@ import "dotenv/config";
  * Playwright E2E tests for the admin creation page.
  *
  * Requirements:
- * - The application server must be running (default http://localhost:3000).
  * - The server must be started with the same `ADMIN_CREATION_SECRET` value
  *   that the test runner uses. Set `ADMIN_CREATION_SECRET` in your environment
  *   before starting the server and when running Playwright.
