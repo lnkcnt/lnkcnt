@@ -58,7 +58,7 @@ vi.mock("@/src/db", () => ({
     },
 }));
 
-import { resolveRedirectUrl } from "../src/app/[url]/ServerRedirectAction";
+import { resolveRedirectUrl } from "@/src/app/[url]/ServerRedirectAction";
 
 describe("resolveRedirectUrl", () => {
     beforeEach(() => {

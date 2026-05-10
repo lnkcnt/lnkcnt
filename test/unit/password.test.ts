@@ -10,7 +10,7 @@ vi.mock("@node-rs/argon2", () => ({
     verify: argonState.verify,
 }));
 
-import { hashPassword, verifyPassword } from "../lib/password";
+import { hashPassword, verifyPassword } from "@/lib/password";
 
 describe("password helpers", () => {
     beforeEach(() => {

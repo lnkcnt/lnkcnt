@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { cn } from "../src/lib/utils";
+import { cn } from "@/src/lib/utils";
 
 describe("cn", () => {
     test("merges tailwind classes and keeps the last conflicting class", () => {
