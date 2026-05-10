@@ -44,7 +44,7 @@ vi.mock("@/src/db", () => ({
     },
 }));
 
-import { POST } from "../src/app/api/url/shorten/route";
+import { POST } from "@/src/app/api/url/shorten/route";
 
 function createRequest(body: unknown) {
     return {

@@ -1,5 +1,5 @@
-import { db } from "../src/db/index";
-import { tester } from "../src/db/schema";
+import { db } from "@/src/db/index";
+import { tester } from "@/src/db/schema";
 import { eq, sql } from "drizzle-orm";
 import { expect, test } from "vitest";
 

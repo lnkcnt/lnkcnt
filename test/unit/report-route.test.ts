@@ -26,7 +26,7 @@ vi.mock("@/src/db", () => ({
     },
 }));
 
-import { POST } from "../src/app/api/report/route";
+import { POST } from "@/src/app/api/report/route";
 import type { NextRequest } from "next/server";
 
 function createRequest(body: unknown) {

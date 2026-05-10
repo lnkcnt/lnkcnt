@@ -26,7 +26,7 @@ vi.mock("@/src/db", () => ({
     },
 }));
 
-import { GET } from "../src/app/api/url/manage/route";
+import { GET } from "@/src/app/api/url/manage/route";
 import type { NextRequest } from "next/server";
 
 function createRequest(query: Record<string, string>) {

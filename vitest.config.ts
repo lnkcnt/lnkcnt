@@ -9,4 +9,7 @@ export default defineConfig({
             "@": rootDir,
         },
     },
+    test: {
+        include: ["./test/unit/**"],
+    },
 });

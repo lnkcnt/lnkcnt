@@ -27,7 +27,7 @@ vi.mock("@/src/db", () => ({
     },
 }));
 
-import { POST } from "../src/app/api/url/delete/route";
+import { POST } from "@/src/app/api/url/delete/route";
 
 function createRequest(body: unknown) {
     return {
