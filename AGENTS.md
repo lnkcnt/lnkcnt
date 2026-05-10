@@ -28,7 +28,7 @@ This project is a URL shortener with URL click counter feature.
 - DO NOT USE PLAIN SQL. instead, use Drizzle ORM.
 - If possible, use shadcn or TailwindCSS.
 - Use ky instead of `fetch`.
-- Write JSDoc on functions.
+- Write JSDoc on functions and variables.
 
 ## Tips
 
