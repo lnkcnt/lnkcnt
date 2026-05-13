@@ -50,7 +50,7 @@ export async function createAdminAccount(formData: FormData): Promise<void> {
             styleText("red", "ERROR:"),
             "formData contains invalid value(s).",
         );
-        redirect("/admin/create?error=1");
+        redirect("/admin/create?error=invalid_form");
     }
 
     if (password !== repeatPassword) {
@@ -132,7 +132,7 @@ export default async function AdminCreationPage({
     if (isE2EExisting || (!isE2ENone && (await checkAdminExists()))) {
         console.warn(
             styleText("yellow", "WARN:"),
-            "Admin account creation detected.",
+            "Admin already exists; refusing admin creation page.",
         );
         notFound();
     }

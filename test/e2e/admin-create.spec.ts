@@ -39,7 +39,7 @@ test.describe.serial("Admin creation flow", () => {
         await expect(page).toHaveURL(new RegExp(`${BASE}/admin`));
     });
 
-    test("shows the error when password is not match with repeatPassword", async ({
+    test("shows an error when password does not match repeat password", async ({
         page,
     }) => {
         const response = await page.goto(E2E_NONE_URL);
