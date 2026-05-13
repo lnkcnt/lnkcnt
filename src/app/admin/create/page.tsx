@@ -16,6 +16,7 @@ import { db } from "@/src/db";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { styleText } from "node:util";
+import ErrorMessage from "./ErrorMessage";
 
 /**
  * Create an admin account when the secret code matches DATABASE_PASSWORD.
@@ -136,6 +137,7 @@ export default async function AdminCreationPage({
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
+                    <ErrorMessage />
                     <form action={createAdminAccount} className="space-y-4">
                         {isE2ENone ? (
                             <input name="e2eTest" type="hidden" value="1" />
