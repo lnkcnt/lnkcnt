@@ -18,7 +18,7 @@ function getErrorMessage(errorKey?: string | null) {
     //     return "Failed to create account. The email may already exist.";
     // }
     if (errorKey === "invalid_form") {
-        return "Please provide email, password and repeat password, and secret code.";
+        return "Please provide an email, password, repeat password, and secret code.";
     } else if (errorKey === "password_not_match") {
         return "Password and repeat password do not match.";
     } else if (errorKey) {
