@@ -8,9 +8,6 @@ import { useSearchParams } from "next/navigation";
  * @returns Human-readable error message.
  */
 function getErrorMessage(errorKey?: string | null) {
-    // if (errorKey === "invalid_form") {
-    //     return "Please provide email, password, and secret code.";
-    // }
     // if (errorKey === "server_secret_not_set") {
     //     return "Server is missing DATABASE_PASSWORD configuration.";
     // }
@@ -20,8 +17,10 @@ function getErrorMessage(errorKey?: string | null) {
     // if (errorKey === "signup_failed") {
     //     return "Failed to create account. The email may already exist.";
     // }
-    if (errorKey === "password_not_match") {
-        return "Password and Repeat password do not match.";
+    if (errorKey === "invalid_form") {
+        return "Please provide email, password + repeat, and secret code.";
+    } else if (errorKey === "password_not_match") {
+        return "Password and repeat password do not match.";
     } else if (errorKey) {
         return "Failed.";
     } else {
