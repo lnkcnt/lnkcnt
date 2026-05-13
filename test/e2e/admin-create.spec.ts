@@ -28,6 +28,7 @@ test.describe.serial("Admin creation flow", () => {
 
         await page.fill("#email", `admin-e2e+${Date.now()}@example.test`);
         await page.fill("#password", "Password123!");
+        await page.fill("#repeat-password", "Password123!");
         await page.fill("#secretCode", ADMIN_SECRET);
 
         await Promise.all([
@@ -52,6 +53,7 @@ test.describe.serial("Admin creation flow", () => {
 
         await page.fill("#email", `admin-e2e-bad+${Date.now()}@example.test`);
         await page.fill("#password", "Password123!");
+        await page.fill("#repeat-password", "Password123!");
         await page.fill("#secretCode", "wrong-secret");
 
         await Promise.all([

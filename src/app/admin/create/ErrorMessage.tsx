@@ -21,7 +21,7 @@ function getErrorMessage(errorKey?: string | null) {
     //     return "Failed to create account. The email may already exist.";
     // }
     if (errorKey === "password_not_match") {
-        return "Password and Repeat Password does not match.";
+        return "Password and Repeat password do not match.";
     } else if (errorKey) {
         return "Failed.";
     } else {
@@ -30,9 +30,8 @@ function getErrorMessage(errorKey?: string | null) {
 }
 
 /**
- * Admin account creation page.
- * @param props - Page props from Next.js.
- * @returns Admin account creation form.
+ * Returns error box component based on errorKey.
+ * @returns Error box component with error message.
  */
 export default function ErrorMessage() {
     const searchParams = useSearchParams();

@@ -43,11 +43,12 @@ export async function createAdminAccount(formData: FormData): Promise<void> {
     if (
         typeof email !== "string" ||
         typeof password !== "string" ||
-        typeof secretCode !== "string"
+        typeof secretCode !== "string" ||
+        typeof repeatPassword !== "string"
     ) {
         console.error(
             styleText("red", "ERROR:"),
-            "formData is containing invalid value(s).",
+            "formData contains invalid value(s).",
         );
         redirect("/admin/create?error=1");
     }
@@ -57,7 +58,7 @@ export async function createAdminAccount(formData: FormData): Promise<void> {
             styleText("red", "ERROR:"),
             "password !== repeatPassword",
         );
-        redirect("/admin/create?e2e=none&error=password_not_match");
+        redirect("/admin/create?error=password_not_match");
     }
 
     /** Secret value configured in environment variable for account creation authorization. */
