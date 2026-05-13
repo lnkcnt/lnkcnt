@@ -53,12 +53,12 @@ test.describe.serial("Admin creation flow", () => {
         await page.fill("#secretCode", ADMIN_SECRET);
 
         await Promise.all([
-            page.waitForURL("**/admin"),
+            page.waitForURL("**/admin/create?error=password_not_match"),
             page.click("text=Create Account"),
         ]);
 
         await expect(page).toHaveURL(
-            new RegExp(`${BASE}/admin/create?error=password_not_match`),
+            /\/admin\/create\?error=password_not_match$/,
         );
     });
 
