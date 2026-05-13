@@ -16,6 +16,7 @@ import { db } from "@/src/db";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { styleText } from "node:util";
+import ErrorMessage from "./ErrorMessage";
 
 /**
  * Create an admin account when the secret code matches DATABASE_PASSWORD.
@@ -36,18 +37,28 @@ export async function createAdminAccount(formData: FormData): Promise<void> {
     const email = formData.get("email");
     /** Submitted password value from the account creation form. */
     const password = formData.get("password");
+    const repeatPassword = formData.get("repeat-password");
     /** Submitted secret code value from the account creation form. */
     const secretCode = formData.get("secretCode");
     if (
         typeof email !== "string" ||
         typeof password !== "string" ||
-        typeof secretCode !== "string"
+        typeof secretCode !== "string" ||
+        typeof repeatPassword !== "string"
     ) {
         console.error(
             styleText("red", "ERROR:"),
             "formData contains invalid value(s).",
         );
-        redirect("/admin/create?error=1");
+        redirect("/admin/create?error=invalid_form");
+    }
+
+    if (password !== repeatPassword) {
+        console.error(
+            styleText("red", "ERROR:"),
+            "password !== repeatPassword",
+        );
+        redirect("/admin/create?error=password_not_match");
     }
 
     /** Secret value configured in environment variable for account creation authorization. */
@@ -65,7 +76,7 @@ export async function createAdminAccount(formData: FormData): Promise<void> {
         if (isE2ETest) {
             console.log(
                 styleText("blue", "INFO:"),
-                "Incorrect secretCode is entered in E2E test.",
+                "Incorrect secretCode was entered in E2E test.",
             );
         } else {
             console.error(
@@ -93,7 +104,7 @@ export async function createAdminAccount(formData: FormData): Promise<void> {
             });
         }
     } catch (e) {
-        console.error(`ERROR: ${e}`);
+        console.error(styleText("red", "ERROR: "), e);
         redirect("/admin/create?error=1");
     }
 
@@ -119,6 +130,10 @@ export default async function AdminCreationPage({
         process.env.NODE_ENV === "development" ? e2eMode === "existing" : false;
 
     if (isE2EExisting || (!isE2ENone && (await checkAdminExists()))) {
+        // console.warn(
+        //     styleText("yellow", "WARN:"),
+        //     "Admin already exists; refusing admin creation page.",
+        // );
         notFound();
     }
 
@@ -132,6 +147,7 @@ export default async function AdminCreationPage({
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
+                    <ErrorMessage />
                     <form action={createAdminAccount} className="space-y-4">
                         {isE2ENone ? (
                             <input name="e2eTest" type="hidden" value="1" />
@@ -152,6 +168,18 @@ export default async function AdminCreationPage({
                             <Input
                                 id="password"
                                 name="password"
+                                type="password"
+                                autoComplete="new-password"
+                                required
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="repeat-password">
+                                Repeat password
+                            </Label>
+                            <Input
+                                id="repeat-password"
+                                name="repeat-password"
                                 type="password"
                                 autoComplete="new-password"
                                 required

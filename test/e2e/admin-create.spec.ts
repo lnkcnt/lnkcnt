@@ -28,6 +28,7 @@ test.describe.serial("Admin creation flow", () => {
 
         await page.fill("#email", `admin-e2e+${Date.now()}@example.test`);
         await page.fill("#password", "Password123!");
+        await page.fill("#repeat-password", "Password123!");
         await page.fill("#secretCode", ADMIN_SECRET);
 
         await Promise.all([
@@ -36,6 +37,32 @@ test.describe.serial("Admin creation flow", () => {
         ]);
 
         await expect(page).toHaveURL(new RegExp(`${BASE}/admin`));
+    });
+
+    test("shows an error when password does not match repeat password", async ({
+        page,
+    }) => {
+        const response = await page.goto(E2E_NONE_URL);
+        expect(response?.status()).toBe(200);
+
+        await expect(page.getByText("Create Admin Account")).toBeVisible();
+
+        await page.fill("#email", `admin-e2e+${Date.now()}@example.test`);
+        await page.fill("#password", "Password123!");
+        await page.fill("#repeat-password", "Password456??");
+        await page.fill("#secretCode", ADMIN_SECRET);
+
+        await Promise.all([
+            page.waitForURL("**/admin/create?error=password_not_match"),
+            page.click("text=Create Account"),
+        ]);
+
+        await expect(page).toHaveURL(
+            /\/admin\/create\?error=password_not_match$/,
+        );
+        await expect(
+            page.getByText("Password and repeat password do not match."),
+        ).toBeVisible();
     });
 
     test("returns 404 when an admin already exists", async ({ page }) => {
@@ -52,6 +79,7 @@ test.describe.serial("Admin creation flow", () => {
 
         await page.fill("#email", `admin-e2e-bad+${Date.now()}@example.test`);
         await page.fill("#password", "Password123!");
+        await page.fill("#repeat-password", "Password123!");
         await page.fill("#secretCode", "wrong-secret");
 
         await Promise.all([
