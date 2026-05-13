@@ -37,6 +37,7 @@ export async function createAdminAccount(formData: FormData): Promise<void> {
     const email = formData.get("email");
     /** Submitted password value from the account creation form. */
     const password = formData.get("password");
+    const repeatPassword = formData.get("repeat-password");
     /** Submitted secret code value from the account creation form. */
     const secretCode = formData.get("secretCode");
     if (
@@ -49,6 +50,14 @@ export async function createAdminAccount(formData: FormData): Promise<void> {
             "formData is containing invalid value(s).",
         );
         redirect("/admin/create?error=1");
+    }
+
+    if (password !== repeatPassword) {
+        console.error(
+            styleText("red", "ERROR:"),
+            "password !== repeatPassword",
+        );
+        redirect("/admin/create?e2e=none&error=password_not_match");
     }
 
     /** Secret value configured in environment variable for account creation authorization. */
@@ -158,6 +167,18 @@ export default async function AdminCreationPage({
                             <Input
                                 id="password"
                                 name="password"
+                                type="password"
+                                autoComplete="new-password"
+                                required
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="repeat-password">
+                                Repeat password
+                            </Label>
+                            <Input
+                                id="repeat-password"
+                                name="repeat-password"
                                 type="password"
                                 autoComplete="new-password"
                                 required
