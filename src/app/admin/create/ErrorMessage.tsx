@@ -20,7 +20,9 @@ function getErrorMessage(errorKey?: string | null) {
     // if (errorKey === "signup_failed") {
     //     return "Failed to create account. The email may already exist.";
     // }
-    if (errorKey) {
+    if (errorKey === "password_not_match") {
+        return "Password and Repeat Password does not match.";
+    } else if (errorKey) {
         return "Failed.";
     } else {
         return null;
