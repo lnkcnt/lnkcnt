@@ -8,15 +8,6 @@ import { useSearchParams } from "next/navigation";
  * @returns Human-readable error message.
  */
 function getErrorMessage(errorKey?: string | null) {
-    // if (errorKey === "server_secret_not_set") {
-    //     return "Server is missing DATABASE_PASSWORD configuration.";
-    // }
-    // if (errorKey === "invalid_secret") {
-    //     return "Secret code does not match.";
-    // }
-    // if (errorKey === "signup_failed") {
-    //     return "Failed to create account. The email may already exist.";
-    // }
     if (errorKey === "invalid_form") {
         return "Please provide an email, password, repeat password, and secret code.";
     } else if (errorKey === "password_not_match") {

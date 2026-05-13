@@ -60,6 +60,9 @@ test.describe.serial("Admin creation flow", () => {
         await expect(page).toHaveURL(
             /\/admin\/create\?error=password_not_match$/,
         );
+        await expect(
+            page.getByText("Password and repeat password do not match."),
+        ).toBeVisible();
     });
 
     test("returns 404 when an admin already exists", async ({ page }) => {
