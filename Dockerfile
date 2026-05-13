@@ -13,7 +13,9 @@ FROM node:${NODE_VERSION} AS dependencies
 WORKDIR /app
 
 # Copy package-related files first to leverage Docker's caching mechanism
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* pnpm-workspace.yaml ./
+
+RUN npm install -g corepack
 
 # Install project dependencies with frozen lockfile for reproducible builds
 RUN --mount=type=cache,target=/root/.npm \
@@ -24,7 +26,7 @@ RUN --mount=type=cache,target=/root/.npm \
     elif [ -f yarn.lock ]; then \
     corepack enable yarn && yarn install --frozen-lockfile --production=false; \
     elif [ -f pnpm-lock.yaml ]; then \
-    corepack enable pnpm && pnpm install --frozen-lockfile; \
+    corepack enable pnpm && pnpm ci; \
     else \
     echo "No lockfile found." && exit 1; \
     fi
@@ -45,11 +47,14 @@ COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 
 ENV NODE_ENV=production
+ENV CI=true
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED=1
+
+RUN npm install -g corepack
 
 # Build Next.js application
 # If you want to speed up Docker rebuilds, you can cache the build artifacts
