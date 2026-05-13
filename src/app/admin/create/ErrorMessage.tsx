@@ -34,7 +34,7 @@ function getErrorMessage(errorKey?: string | null) {
  * @param props - Page props from Next.js.
  * @returns Admin account creation form.
  */
-export default function CreateAdminAccountPage() {
+export default function ErrorMessage() {
     const searchParams = useSearchParams();
     const errorKey = searchParams.get("error");
 
