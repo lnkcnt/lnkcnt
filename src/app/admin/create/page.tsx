@@ -45,7 +45,7 @@ export async function createAdminAccount(formData: FormData): Promise<void> {
     ) {
         console.error(
             styleText("red", "ERROR:"),
-            "formData contains invalid value(s).",
+            "formData is containing invalid value(s).",
         );
         redirect("/admin/create?error=1");
     }
@@ -65,7 +65,7 @@ export async function createAdminAccount(formData: FormData): Promise<void> {
         if (isE2ETest) {
             console.log(
                 styleText("blue", "INFO:"),
-                "Incorrect secretCode is entered in E2E test.",
+                "Incorrect secretCode was entered in E2E test.",
             );
         } else {
             console.error(
@@ -93,7 +93,7 @@ export async function createAdminAccount(formData: FormData): Promise<void> {
             });
         }
     } catch (e) {
-        console.error(`ERROR: ${e}`);
+        console.error(styleText("red", "ERROR: "), e);
         redirect("/admin/create?error=1");
     }
 
@@ -119,6 +119,10 @@ export default async function AdminCreationPage({
         process.env.NODE_ENV === "development" ? e2eMode === "existing" : false;
 
     if (isE2EExisting || (!isE2ENone && (await checkAdminExists()))) {
+        console.warn(
+            styleText("yellow", "WARN:"),
+            "Admin account creation detected.",
+        );
         notFound();
     }
 
