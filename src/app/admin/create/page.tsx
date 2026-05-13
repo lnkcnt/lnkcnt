@@ -130,10 +130,10 @@ export default async function AdminCreationPage({
         process.env.NODE_ENV === "development" ? e2eMode === "existing" : false;
 
     if (isE2EExisting || (!isE2ENone && (await checkAdminExists()))) {
-        console.warn(
-            styleText("yellow", "WARN:"),
-            "Admin already exists; refusing admin creation page.",
-        );
+        // console.warn(
+        //     styleText("yellow", "WARN:"),
+        //     "Admin already exists; refusing admin creation page.",
+        // );
         notFound();
     }
 
