@@ -19,7 +19,7 @@ vi.mock("@/src/db", () => ({
             values: vi.fn((values: unknown) => {
                 reportState.insertedValues.push(values);
                 return {
-                    $returningId: vi.fn(async () => reportState.returningRows),
+                    returning: vi.fn(async () => reportState.returningRows),
                 };
             }),
         })),
