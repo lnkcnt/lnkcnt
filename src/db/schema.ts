@@ -1,84 +1,75 @@
 import { sql } from "drizzle-orm";
-import {
-    mysqlTable,
-    index,
-    varchar,
-    datetime,
-    int,
-    unique,
-    longtext,
-    tinyint,
-} from "drizzle-orm/mysql-core";
+import { index, int, unique, text, sqliteTable } from "drizzle-orm/sqlite-core";
 
-export const linkClickCount = mysqlTable(
+export const linkClickCount = sqliteTable(
     "linkClickCount",
     {
-        clickId: int().autoincrement().primaryKey(),
-        id: varchar({ length: 32 })
+        clickId: int().primaryKey({ autoIncrement: true }),
+        id: text({ length: 32 })
             .notNull()
             .references(() => links.id, {
                 onDelete: "cascade",
                 onUpdate: "cascade",
             }),
-        date: datetime({ mode: "date" }).notNull(),
+        date: text().notNull(),
     },
-    (table) => [index("id").on(table.id)],
+    (table) => [index("linkClickCount_id_index").on(table.id)],
 );
 
-export const links = mysqlTable("links", {
-    id: varchar({ length: 32 }).primaryKey(),
-    redirectUrl: varchar("redirect_url", { length: 128 }).notNull(),
+export const links = sqliteTable("links", {
+    id: text({ length: 32 }).primaryKey(),
+    redirectUrl: text("redirect_url", { length: 128 }).notNull(),
 });
 
-export const tester = mysqlTable("tester", {
-    num: int().autoincrement().primaryKey(),
-    flag: tinyint().default(1).notNull(),
+export const tester = sqliteTable("tester", {
+    num: int().primaryKey({ autoIncrement: true }),
+    flag: int().default(1).notNull(),
 });
 
-export const trustedURL = mysqlTable("trustedURL", {
-    id: int().autoincrement().primaryKey(),
-    url: varchar({ length: 64 }).notNull(),
+export const trustedURL = sqliteTable("trustedURL", {
+    id: int().primaryKey({ autoIncrement: true }),
+    url: text({ length: 64 }).notNull(),
 });
 
-export const urlBlacklist = mysqlTable(
+export const urlBlacklist = sqliteTable(
     "urlBlacklist",
     {
-        blacklistId: int().autoincrement().primaryKey(),
-        pattern: varchar({ length: 255 }).notNull(),
-        note: varchar({ length: 255 }).default(sql`NULL`),
-        createdAt: datetime({ mode: "date" })
-            .default(sql`CURRENT_TIMESTAMP()`)
+        blacklistId: int().primaryKey({ autoIncrement: true }),
+        pattern: text({ length: 255 }).notNull(),
+        note: text({ length: 255 }),
+        createdAt: text()
+            .default(sql`(CURRENT_TIMESTAMP)`)
             .notNull(),
     },
-    (table) => [unique("uniq_pattern").on(table.pattern)],
+    (table) => [unique("urlBlacklist_pattern_uk").on(table.pattern)],
 );
 
-export const urlManagePage = mysqlTable(
+export const urlManagePage = sqliteTable(
     "urlManagePage",
     {
-        managePage: varchar({ length: 32 }).primaryKey(),
-        id: varchar({ length: 32 })
+        managePage: text({ length: 32 }).primaryKey(),
+        id: text({ length: 32 })
             .notNull()
             .references(() => links.id, {
                 onDelete: "cascade",
                 onUpdate: "cascade",
             }),
     },
-    (table) => [index("id").on(table.id)],
+    (table) => [index("urlManagePage_id_index").on(table.id)],
 );
 
-export const urlReport = mysqlTable(
+export const urlReport = sqliteTable(
     "urlReport",
     {
-        reportId: int().autoincrement().primaryKey(),
-        id: varchar({ length: 32 })
+        reportId: int().primaryKey({ autoIncrement: true }),
+        id: text({ length: 32 })
             .notNull()
             .references(() => links.id),
-        reason: varchar({ length: 50 }).notNull(),
-        message: longtext().notNull(),
-        createdAt: datetime({ mode: "date" })
-            .default(sql`CURRENT_TIMESTAMP()`)
+        reason: text({ length: 50 }).notNull(),
+        message: text().notNull(),
+        createdAt: text()
+            .default(sql`(CURRENT_TIMESTAMP)`)
             .notNull(),
     },
-    (table) => [index("id").on(table.id)],
+    (table) => [index("urlReport_id_index").on(table.id)],
 );

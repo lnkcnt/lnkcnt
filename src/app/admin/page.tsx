@@ -95,7 +95,7 @@ async function getReports(): Promise<ReportItem[]> {
             id: report.id,
             reason: report.reason,
             message: report.message,
-            createdAt: report.createdAt.toISOString(),
+            createdAt: report.createdAt,
             redirectUrl: report.redirect_url,
         }));
     } catch (error) {
@@ -148,7 +148,7 @@ async function getBlacklistEntries(): Promise<BlacklistItem[]> {
             blacklistId: entry.blacklistId,
             pattern: entry.pattern,
             note: entry.note,
-            createdAt: entry.createdAt.toISOString(),
+            createdAt: entry.createdAt,
         }));
     } catch (error) {
         console.error("Failed to fetch blacklist entries:", error);
@@ -195,10 +195,7 @@ async function blockURL(
     try {
         await db
             .insert(urlBlacklist)
-            .values({ pattern: trimmedPattern, note: trimmedNote || null })
-            .onDuplicateKeyUpdate({
-                set: { note: trimmedNote || null },
-            });
+            .values({ pattern: trimmedPattern, note: trimmedNote || null });
 
         const entry = (
             await db
@@ -215,7 +212,7 @@ async function blockURL(
             blacklistId: entry.blacklistId,
             pattern: entry.pattern,
             note: entry.note,
-            createdAt: entry.createdAt.toISOString(),
+            createdAt: entry.createdAt,
         };
     } catch (error) {
         console.error("Failed to add pattern to blocklist:", error);
