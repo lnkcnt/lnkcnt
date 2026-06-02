@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
                 reason: formValidation.data.reason,
                 message: formValidation.data.message,
             })
-            .$returningId();
+            .returning();
 
         const report = insertResult[0]?.reportId;
 

@@ -50,3 +50,6 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# SQLite database file
+/db.db

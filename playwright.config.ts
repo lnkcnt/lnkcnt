@@ -72,7 +72,7 @@ export default defineConfig({
 
     /* Run your local dev server before starting the tests */
     webServer: {
-        command: "podman compose -f ./compose.db.yml up -d && pnpm dev",
+        command: "pnpm dev",
         url: "http://localhost:3000",
         reuseExistingServer: !process.env.CI,
     },
