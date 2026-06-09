@@ -2,6 +2,6 @@
 
 # database definition and permission assignment
 
-mariadb -u root -p"${MARIADB_ROOT_PASSWORD}" -e \
-    "CREATE DATABASE \`${DATABASE_NAME}\`;
-    GRANT CREATE VIEW, DELETE, INDEX, INSERT, SELECT, SHOW VIEW, UPDATE ON \`${DATABASE_NAME}\`.* TO \`${DATABASE_USER}\`@'%';"
+export PGPASSWORD=${POSTGRES_PASSWORD}
+psql -U postgres -c "CREATE SCHEMA lnkcnt;"
+psql -U postgres -c "GRANT SELECT, INSERT, UPDATE, DELETE, REFERENCES ON ALL TABLES IN SCHEMA lnkcnt TO ${USER_NAME};"

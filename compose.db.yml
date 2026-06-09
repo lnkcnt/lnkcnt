@@ -1,9 +1,27 @@
+volumes:
+  postgres:
+networks:
+  db:
+
 services:
+  postgres:
+    image: postgres
+    ports:
+      - 5432:5432
+    restart: unless-stopped
+    volumes:
+      - ./sql_init:/docker-entrypoint-initdb.d
+      - postgres:/var/lib/postgresql
+    env_file:
+      - .env
+    networks:
+      - db
   adminer:
     image: adminer
+    restart: unless-stopped
     ports:
       - 8080:8080
     environment:
       - ADMINER_DESIGN='pepa-linha'
-    volumes:
-      - ./sqlite.db:/db/sqlite.db
+    networks:
+      - db
