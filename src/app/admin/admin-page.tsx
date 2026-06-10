@@ -41,7 +41,7 @@ interface ReportItem {
     id: string;
     reason: string;
     message: string;
-    createdAt: string;
+    createdAt: Date;
     redirectUrl: string;
 }
 
@@ -55,7 +55,7 @@ interface BlacklistItem {
     blacklistId: number;
     pattern: string;
     note: string | null;
-    createdAt: string;
+    createdAt: Date;
 }
 
 interface ActionFeedback {

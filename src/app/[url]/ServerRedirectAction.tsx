@@ -116,7 +116,6 @@ export async function resolveRedirectUrl(
         try {
             await db.insert(linkClickCount).values({
                 id: idValidation.data.id,
-                date: Temporal.Now.plainDateTimeISO().toString(),
             });
         } catch (e) {
             // Click logging failure should not block redirect.
