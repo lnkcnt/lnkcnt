@@ -22,13 +22,18 @@ This project is a URL shortener with URL click counter feature.
 ## RULES
 
 - **YOU SHOULDN'T DELETE A FILE WITHOUT USER'S EXPLICIT PERMISSION!**
-- **YOU SHOULDN'T USE GIT'S FORCE PUSH AND HARD RESET FEATURE!**
 - After each code change, run `pnpm lint`.
 - Use TypeScript(`.ts`/`.tsx`). DO NOT USE PLAIN JAVASCRIPT!
-- DO NOT USE PLAIN SQL. instead, use Drizzle ORM.
+    - And, do not use `any`. Always use proper type.
+- DO NOT USE PLAIN SQL. Use Drizzle ORM.
 - If possible, use shadcn or TailwindCSS.
 - Use ky instead of `fetch`.
 - Write JSDoc on functions and variables.
+
+### Git rules
+
+- **YOU SHOULDN'T USE GIT'S FORCE PUSH AND HARD RESET FEATURE!**
+- Before feature implementation, create and switch git branch to `ai/<feature-name>`.
 
 ## Tips
 
