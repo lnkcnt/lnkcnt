@@ -1,82 +1,179 @@
-"use client";
+"use server";
+import { notFound } from "next/navigation";
+import RedirectionWarning from "./RedirectionWarning";
 
-import { use, useEffect, useState } from "react";
-import { notFound, useRouter } from "next/navigation";
-import { resolveRedirectUrl } from "./ServerRedirectAction";
-import { TriangleAlert } from "lucide-react";
-import { Button } from "@/src/components/ui/button";
+import { db } from "@/src/db";
+import {
+    linkClickCount,
+    links,
+    trustedURL,
+    urlBlacklist,
+} from "@/src/db/schema";
+import { eq } from "drizzle-orm";
+import z from "zod";
 
-interface RedirectionProps {
-    params: Promise<{ url: string }>;
+interface ResolveRedirectUrlResult {
+    redirectUrl: string | null;
+    isTrusted?: boolean;
 }
 
 /**
- * Client-side redirection page
+ * Check if URL is in blacklist (DB)
+ * @param url - URL to check against blacklist
+ * @returns true if URL is blacklisted, false otherwise
+ */
+async function isBlacklisted(url: string): Promise<boolean> {
+    const entries = await db
+        .select({ pattern: urlBlacklist.pattern })
+        .from(urlBlacklist);
+
+    if (!entries.length) return false;
+
+    let urlObj: URL;
+    try {
+        urlObj = new URL(url);
+    } catch {
+        return true;
+    }
+
+    const domain = urlObj.hostname.toLowerCase();
+    const targetUrl = url.toLowerCase();
+
+    return entries.some(({ pattern }) => {
+        const normalizedPattern = pattern.trim().toLowerCase();
+        if (!normalizedPattern) return false;
+        return (
+            domain.includes(normalizedPattern) ||
+            targetUrl.includes(normalizedPattern)
+        );
+    });
+}
+
+/**
+ * Check URL is trusted.
+ * @param url URL to check.
+ * @returns true if URL is in trusted, otherwise false.
+ */
+async function isTrusted(url: string): Promise<boolean> {
+    try {
+        const baseUrl = new URL(url).hostname;
+
+        const entries = await db
+            .select({ url: trustedURL.url })
+            .from(trustedURL)
+            .where(eq(trustedURL.url, baseUrl));
+
+        if (entries.length >= 1) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (e) {
+        console.error(`An error occurred when checking trust: ${e}`);
+        return false;
+    }
+}
+
+/**
+ * Resolve a short URL to a final redirect URL on server side
+ * @param shortId - Short URL id
+ * @returns {ResolveRedirectUrlResult} redirectUrl: provided when valid and allowed, otherwise null / isTrusted: true when redirectUrl is trusted, otherwise false
+ */
+export async function resolveRedirectUrl(
+    shortId: string,
+): Promise<ResolveRedirectUrlResult> {
+    try {
+        const idValidator = z.object({ id: z.nanoid() });
+
+        const idValidation = idValidator.safeParse({ id: shortId });
+        if (!idValidation.success) {
+            return { redirectUrl: null };
+        }
+
+        const query = (
+            await db
+                .selectDistinct({
+                    redirect_url: links.redirectUrl,
+                })
+                .from(links)
+                .where(eq(links.id, idValidation.data.id))
+                .limit(1)
+        ).at(0);
+        if (!query) {
+            return { redirectUrl: null };
+        }
+        const finalURL = query.redirect_url;
+
+        const urlValidator = z.object({ url: z.httpUrl() });
+        const urlValidationResult = urlValidator.safeParse({ url: finalURL });
+
+        if (!urlValidationResult.success) {
+            return { redirectUrl: null };
+        }
+
+        if (await isBlacklisted(finalURL)) {
+            return { redirectUrl: null };
+        }
+
+        try {
+            await db.insert(linkClickCount).values({
+                id: idValidation.data.id,
+            });
+        } catch (e) {
+            // Click logging failure should not block redirect.
+            console.error(
+                "===== ERROR =====",
+                "\nFailed to log click.",
+                e,
+                "\n=================",
+            );
+        }
+
+        const isUrlTrusted = await isTrusted(finalURL);
+
+        return {
+            redirectUrl: finalURL,
+            isTrusted: isUrlTrusted,
+        };
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
+/**
+ * Server-side redirection page
  * @param params - Dynamic route params promise
  * @returns Loading UI while resolving the redirect target on server
  */
-export default function Redirection({ params }: RedirectionProps) {
-    const { url } = use(params);
-    const [isNotFound, setIsNotFound] = useState<boolean>(false);
-    const [isTrusted, setIsTrusted] = useState<boolean>(false);
-    const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [redirectUrl, setRedirectUrl] = useState<string>("");
-    const [warningCount, setWarningCount] = useState<number>(5);
-    const router = useRouter();
+export default async function Redirection({
+    params,
+}: {
+    params: Promise<{ url: string }>;
+}) {
+    const url = (await params).url;
+    let isNotFound = false;
+    let isTrusted = false;
+    let isLoading = true;
+    let redirectUrl = "";
 
-    useEffect(() => {
-        let isMounted = true;
+    try {
+        const result = await resolveRedirectUrl(url);
 
-        /**
-         * Resolves and redirects to target URL
-         */
-        const resolveURL = async (): Promise<void> => {
-            try {
-                const result = await resolveRedirectUrl(url);
-                if (!isMounted) return;
-
-                if (!result.redirectUrl) {
-                    setIsNotFound(true);
-                    return;
-                }
-
-                if (result.isTrusted) {
-                    setIsTrusted(true);
-                }
-
-                setRedirectUrl(result.redirectUrl);
-                setIsLoading(false);
-            } catch {
-                if (!isMounted) return;
-                setIsNotFound(true);
-            }
-        };
-
-        resolveURL();
-
-        return () => {
-            isMounted = false;
-        };
-    }, [url]);
-
-    useEffect(() => {
-        if (isTrusted) {
-            router.push(redirectUrl);
+        if (!result.redirectUrl) {
+            isNotFound = true;
+            return;
         }
-    }, [isTrusted, redirectUrl, router]);
 
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setWarningCount((warningCount) => warningCount - 1);
-            if (warningCount < 0) {
-                clearInterval(timer);
-            }
-        }, 1000);
+        if (result.isTrusted) {
+            isTrusted = true;
+        }
 
-        return () => {
-            clearInterval(timer);
-        };
-    }, [warningCount]);
+        redirectUrl = result.redirectUrl;
+        isLoading = false;
+    } catch {
+        isNotFound = true;
+    }
 
     if (isNotFound) {
         notFound();
@@ -90,42 +187,10 @@ export default function Redirection({ params }: RedirectionProps) {
         );
     } else {
         return (
-            <div className="flex flex-col items-center justify-start gap-5 p-10 text-center max-sm:items-stretch">
-                <div className="amber-50 flex flex-row items-center justify-center gap-5 text-amber-800 dark:text-amber-400">
-                    <TriangleAlert className="h-8 w-8" />
-                    <p className="text-4xl font-bold">WARNING</p>
-                </div>
-                <p>
-                    This page may not be safe.
-                    <br />
-                    Please double-check the URL before move.
-                </p>
-                <Button
-                    variant="ghost"
-                    className="text-red-600"
-                    onClick={() => router.push(`/report/${url}`)}
-                >
-                    <TriangleAlert />
-                    Report URL
-                </Button>
-                <code className="rounded border border-gray-300 bg-gray-100 p-2 text-xs text-black sm:text-sm">
-                    {redirectUrl}
-                </code>
-                <div className="flex flex-row items-center justify-center gap-3 max-sm:flex-col max-sm:items-stretch">
-                    <Button
-                        disabled={
-                            warningCount !== null ? warningCount >= 0 : false
-                        }
-                        id="main-content"
-                        onClick={() => router.push(redirectUrl)}
-                    >
-                        {warningCount >= 0 ? warningCount : "Continue"}
-                    </Button>
-                    <Button variant="secondary" onClick={() => router.back()}>
-                        Go Back
-                    </Button>
-                </div>
-            </div>
+            <RedirectionWarning
+                redirectUrl={redirectUrl}
+                isTrusted={isTrusted}
+            />
         );
     }
 }
