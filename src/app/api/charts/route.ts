@@ -82,8 +82,8 @@ export async function GET(request: NextRequest) {
         .where(
             and(
                 eq(linkClickCount.id, id),
-                gte(linkClickCount.date, startDate.toISOString()),
-                lte(linkClickCount.date, endDate.toISOString()),
+                gte(linkClickCount.date, startDate),
+                lte(linkClickCount.date, endDate),
             ),
         )
         .orderBy(linkClickCount.date);

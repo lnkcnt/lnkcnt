@@ -4,8 +4,10 @@ import { defineConfig } from "drizzle-kit";
 export default defineConfig({
     out: "./drizzle",
     schema: ["./src/db/schema.ts", "./auth-schema.ts"],
-    dialect: "sqlite",
+    dialect: "postgresql",
     dbCredentials: {
-        url: process.env.DB_FILE_NAME!,
+        url: `postgres://postgres:${process.env.POSTGRES_PASSWORD}@${process.env.DB_HOSTNAME ?? "localhost"}:5432/lnkcnt`,
     },
+    verbose: true,
+    strict: true,
 });
