@@ -50,7 +50,9 @@ export async function createAdminAccount(formData: FormData): Promise<void> {
             styleText("red", "ERROR:"),
             "formData contains invalid value(s).",
         );
-        redirect("/admin/create?error=invalid_form");
+        redirect(
+            `/admin/create?error=invalid_form${isE2ETest ? "&e2e=none" : ""}`,
+        );
     }
 
     if (password !== repeatPassword) {
@@ -58,7 +60,10 @@ export async function createAdminAccount(formData: FormData): Promise<void> {
             styleText("red", "ERROR:"),
             "password !== repeatPassword",
         );
-        redirect("/admin/create?error=password_not_match");
+
+        redirect(
+            `/admin/create?error=password_not_match${isE2ETest ? "&e2e=none" : ""}`,
+        );
     }
 
     /** Secret value configured in environment variable for account creation authorization. */
@@ -69,7 +74,7 @@ export async function createAdminAccount(formData: FormData): Promise<void> {
             styleText("red", "ERROR:"),
             'ADMIN_CREATION_SECRET is not defined. Define this in ".env" file.',
         );
-        redirect("/admin/create?error=1");
+        redirect(`/admin/create?error=1${isE2ETest ? "&e2e=none" : ""}`);
     }
 
     if (secretCode !== databasePassword) {
@@ -84,7 +89,7 @@ export async function createAdminAccount(formData: FormData): Promise<void> {
                 "secretCode does not match in admin account creation.",
             );
         }
-        redirect("/admin/create?error=1");
+        redirect(`/admin/create?error=1${isE2ETest ? "&e2e=none" : ""}`);
     }
 
     /** Fallback name value required by Better Auth email sign-up endpoint. */
@@ -105,7 +110,7 @@ export async function createAdminAccount(formData: FormData): Promise<void> {
         }
     } catch (e) {
         console.error(styleText("red", "ERROR: "), e);
-        redirect("/admin/create?error=1");
+        redirect(`/admin/create?error=1${isE2ETest ? "&e2e=none" : ""}`);
     }
 
     redirect("/admin");

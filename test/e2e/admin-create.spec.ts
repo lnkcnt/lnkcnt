@@ -53,12 +53,14 @@ test.describe.serial("Admin creation flow", () => {
         await page.fill("#secretCode", ADMIN_SECRET);
 
         await Promise.all([
-            page.waitForURL("**/admin/create?error=password_not_match"),
+            page.waitForURL(
+                "**/admin/create?error=password_not_match&e2e=none",
+            ),
             page.click("text=Create Account"),
         ]);
 
         await expect(page).toHaveURL(
-            /\/admin\/create\?error=password_not_match$/,
+            /\/admin\/create\?error=password_not_match&e2e=none$/,
         );
         await expect(
             page.getByText("Password and repeat password do not match."),
@@ -83,10 +85,10 @@ test.describe.serial("Admin creation flow", () => {
         await page.fill("#secretCode", "wrong-secret");
 
         await Promise.all([
-            page.waitForURL("**/admin/create?error=1"),
+            page.waitForURL("**/admin/create?error=1&e2e=none"),
             page.click("text=Create Account"),
         ]);
 
-        await expect(page).toHaveURL(/\/admin\/create\?error=1$/);
+        await expect(page).toHaveURL(/\/admin\/create\?error=1&e2e=none$/);
     });
 });
