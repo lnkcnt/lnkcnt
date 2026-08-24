@@ -18,7 +18,6 @@ vi.mock("@/src/db", () => ({
 
 import { GET } from "@/src/app/api/charts/route";
 import type { NextRequest } from "next/server";
-import { success } from "zod";
 
 function createRequest(query: Record<string, string>) {
     const searchParams = new URLSearchParams(query);
