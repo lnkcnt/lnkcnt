@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { redirect, useParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
@@ -97,7 +97,8 @@ export default function ManageLink() {
         setDeleting(true);
         try {
             await DeleteURL(managePage);
-            window.location.href = "/";
+            // window.location.href = "/";
+            redirect("/");
         } catch (err) {
             setError(err instanceof Error ? err.message : "삭제 중 오류 발생");
         } finally {
