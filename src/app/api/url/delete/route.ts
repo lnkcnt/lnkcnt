@@ -6,6 +6,11 @@ import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
 
+type DeleteResponse = {
+    success: boolean;
+    message: string;
+};
+
 /**
  * Delete a shortened URL by management page token.
  *
@@ -20,13 +25,16 @@ import z from "zod";
  * @param request Incoming Next.js request containing JSON body.
  * @returns JSON response describing deletion result.
  */
-export async function POST(request: NextRequest) {
+export async function POST(
+    request: NextRequest,
+): Promise<NextResponse<DeleteResponse>> {
     let body;
     try {
         body = await request.json();
     } catch {
         return NextResponse.json(
             {
+                success: false,
                 message: "Invalid JSON body",
             },
             { status: 400 },
@@ -43,6 +51,7 @@ export async function POST(request: NextRequest) {
         if (!idValidation.success) {
             return NextResponse.json(
                 {
+                    success: false,
                     message: "Invalid ID",
                 },
                 { status: 400 },
@@ -59,6 +68,7 @@ export async function POST(request: NextRequest) {
         if (!managePage) {
             return NextResponse.json(
                 {
+                    success: false,
                     message: "ID not found",
                 },
                 { status: 404 },
@@ -73,7 +83,7 @@ export async function POST(request: NextRequest) {
         });
     } catch {
         return NextResponse.json(
-            { message: `Internal server error` },
+            { success: false, message: "Internal server error" },
             { status: 500 },
         );
     }

@@ -3,6 +3,15 @@ import { linkClickCount } from "@/src/db/schema";
 import { and, eq, gte, lte } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
+type ChartsResponse = {
+    success: boolean;
+    message: string;
+    data?: {
+        date: string;
+        sum: number;
+    }[];
+};
+
 /**
  * Return daily click aggregates for a link within a date range.
  *
@@ -19,7 +28,9 @@ import { NextRequest, NextResponse } from "next/server";
  * @param request Incoming Next.js request containing chart query parameters.
  * @returns JSON response with aggregated click data.
  */
-export async function GET(request: NextRequest) {
+export async function GET(
+    request: NextRequest,
+): Promise<NextResponse<ChartsResponse>> {
     const searchParams = request.nextUrl.searchParams;
     const startYear = searchParams.get("startYear");
     const startMonth = searchParams.get("startMonth");
@@ -30,10 +41,13 @@ export async function GET(request: NextRequest) {
     let startDate: Date;
 
     if (!id) {
-        return NextResponse.json({
-            message: "Bad Request: id required",
-            status: 400,
-        });
+        return NextResponse.json(
+            {
+                success: false,
+                message: "Bad Request: id required",
+            },
+            { status: 400 },
+        );
     }
 
     if (startYear && startMonth) {
@@ -44,10 +58,13 @@ export async function GET(request: NextRequest) {
             1,
         );
     } else {
-        return NextResponse.json({
-            message: "Bad Request: startYear and startMonth is required",
-            status: 400,
-        });
+        return NextResponse.json(
+            {
+                success: false,
+                message: "Bad Request: startYear and startMonth is required",
+            },
+            { status: 400 },
+        );
     }
 
     let endDate: Date;
@@ -108,6 +125,8 @@ export async function GET(request: NextRequest) {
         .sort((a, b) => a.date.localeCompare(b.date));
     // 정리된 데이터를 NextResponse로 반환
     return NextResponse.json({
+        success: true,
+        message: "Successful.",
         data: data,
     });
 }

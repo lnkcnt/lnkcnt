@@ -9,9 +9,18 @@ type URLBanData = {
     banned: boolean;
     note?: string | null;
 };
-
 type URLRequest = {
     url: string;
+};
+type ShortenResponse = {
+    success: boolean;
+    message: string;
+    generatedId?: string;
+    managePage?: string;
+    errors?: {
+        errors: string[];
+        properties: { url?: string[] };
+    };
 };
 
 /**
@@ -62,7 +71,9 @@ async function isBlacklisted(url: string): Promise<URLBanData> {
  * @param request Incoming Next.js request with JSON body.
  * @returns JSON response describing creation result or validation errors.
  */
-export async function POST(request: NextRequest) {
+export async function POST(
+    request: NextRequest,
+): Promise<NextResponse<ShortenResponse>> {
     const URLSchema = z.object({
         url: z.httpUrl(),
     });
@@ -73,6 +84,7 @@ export async function POST(request: NextRequest) {
     } catch {
         return NextResponse.json(
             {
+                success: false,
                 message: "Invalid JSON body",
                 errors: { errors: ["Invalid request body"], properties: {} },
             },
@@ -86,6 +98,7 @@ export async function POST(request: NextRequest) {
         const flatErrors = z.flattenError(validatedFields.error);
         return NextResponse.json(
             {
+                success: false,
                 message: "URL is invalid",
                 errors: {
                     errors: flatErrors.formErrors,
@@ -100,6 +113,7 @@ export async function POST(request: NextRequest) {
     if (banData.banned) {
         return NextResponse.json(
             {
+                success: false,
                 message: "This URL is not allowed",
                 errors: {
                     errors: [banData.note ?? "No reason specified"],

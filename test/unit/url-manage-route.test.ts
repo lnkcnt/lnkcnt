@@ -49,14 +49,16 @@ describe("GET /api/url/manage", () => {
     test("returns bad request payload when id is missing", async () => {
         const response = await GET(createRequest({}) as never);
         const payload = (await response.json()) as {
+            success: boolean;
             message: string;
-            status: number;
         };
 
-        expect(payload).toEqual({
-            message: "Bad Request: id required",
-            status: 400,
-        });
+        // expect(payload).toEqual({
+        //     message: "Bad Request: id required",
+        // });
+        expect(response.status).toBe(400);
+        expect(payload.success).toBe(false);
+        expect(payload.message).toBe("Bad Request: id required");
     });
 
     test("returns 404 when manage page is not found", async () => {
@@ -65,10 +67,14 @@ describe("GET /api/url/manage", () => {
         const response = await GET(
             createRequest({ id: "manage-page" }) as never,
         );
-        const payload = (await response.json()) as { error: string };
+        const payload = (await response.json()) as {
+            success: boolean;
+            message: string;
+        };
 
         expect(response.status).toBe(404);
-        expect(payload.error).toBe("Link not found");
+        expect(payload.success).toBe(false);
+        expect(payload.message).toBe("Link not found");
     });
 
     test("returns 404 when link data is missing", async () => {
@@ -80,10 +86,14 @@ describe("GET /api/url/manage", () => {
         const response = await GET(
             createRequest({ id: "manage-page" }) as never,
         );
-        const payload = (await response.json()) as { error: string };
+        const payload = (await response.json()) as {
+            success: boolean;
+            message: string;
+        };
 
         expect(response.status).toBe(404);
-        expect(payload.error).toBe("Link data not found");
+        expect(payload.success).toBe(false);
+        expect(payload.message).toBe("Link data not found");
     });
 
     test("returns link data and click details", async () => {
@@ -117,9 +127,13 @@ describe("GET /api/url/manage", () => {
         const response = await GET(
             createRequest({ id: "manage-page" }) as never,
         );
-        const payload = (await response.json()) as { error: string };
+        const payload = (await response.json()) as {
+            success: boolean;
+            message: string;
+        };
 
         expect(response.status).toBe(500);
-        expect(payload.error).toBe("Internal server error");
+        expect(payload.success).toBe(false);
+        expect(payload.message).toBe("Internal server error");
     });
 });

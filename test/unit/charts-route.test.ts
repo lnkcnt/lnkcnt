@@ -18,6 +18,7 @@ vi.mock("@/src/db", () => ({
 
 import { GET } from "@/src/app/api/charts/route";
 import type { NextRequest } from "next/server";
+import { success } from "zod";
 
 function createRequest(query: Record<string, string>) {
     const searchParams = new URLSearchParams(query);
@@ -39,27 +40,27 @@ describe("GET /api/charts", () => {
             createRequest({ startYear: "2026", startMonth: "0" }) as never,
         );
         const payload = (await response.json()) as {
+            success: boolean;
             message: string;
-            status: number;
         };
 
-        expect(payload).toEqual({
-            message: "Bad Request: id required",
-            status: 400,
-        });
+        expect(response.status).toBe(400);
+        expect(payload.success).toBe(false);
+        expect(payload.message).toBe("Bad Request: id required");
     });
 
     test("returns bad request payload when startYear or startMonth is missing", async () => {
         const response = await GET(createRequest({ id: "abc123" }) as never);
         const payload = (await response.json()) as {
+            success: boolean;
             message: string;
-            status: number;
         };
 
-        expect(payload).toEqual({
-            message: "Bad Request: startYear and startMonth is required",
-            status: 400,
-        });
+        expect(response.status).toBe(400);
+        expect(payload.success).toBe(false);
+        expect(payload.message).toBe(
+            "Bad Request: startYear and startMonth is required",
+        );
     });
 
     test("aggregates clicks by day", async () => {

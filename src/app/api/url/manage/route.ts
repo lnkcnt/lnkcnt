@@ -3,6 +3,17 @@ import { linkClickCount, links, urlManagePage } from "@/src/db/schema";
 import { count, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
+type ManageResponse = {
+    success: boolean;
+    message: string;
+    id?: string;
+    redirect_url?: string;
+    click_count?: number;
+    clicks?: {
+        date: Date;
+    }[];
+};
+
 /**
  * Fetch link details and click history by management page token.
  *
@@ -16,16 +27,21 @@ import { NextRequest, NextResponse } from "next/server";
  * @param request Incoming Next.js request containing query parameters.
  * @returns JSON response with link information or an error payload.
  */
-export async function GET(request: NextRequest) {
+export async function GET(
+    request: NextRequest,
+): Promise<NextResponse<ManageResponse>> {
     try {
         const searchParams = request.nextUrl.searchParams;
         const id = searchParams.get("id");
 
         if (!id) {
-            return NextResponse.json({
-                message: "Bad Request: id required",
-                status: 400,
-            });
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "Bad Request: id required",
+                },
+                { status: 400 },
+            );
         }
 
         // Find the management page entry by managePage field
@@ -38,7 +54,7 @@ export async function GET(request: NextRequest) {
 
         if (!managePage) {
             return NextResponse.json(
-                { error: "Link not found" },
+                { success: false, message: "Link not found" },
                 { status: 404 },
             );
         }
@@ -49,7 +65,7 @@ export async function GET(request: NextRequest) {
 
         if (!linkData) {
             return NextResponse.json(
-                { error: "Link data not found" },
+                { success: false, message: "Link data not found" },
                 { status: 404 },
             );
         }
@@ -69,6 +85,8 @@ export async function GET(request: NextRequest) {
             .where(eq(linkClickCount.id, managePage.id));
 
         return NextResponse.json({
+            success: true,
+            message: "Request successful.",
             id: linkData.id,
             redirect_url: linkData.redirectUrl,
             click_count: clickCount?.count ?? 0,
@@ -76,7 +94,10 @@ export async function GET(request: NextRequest) {
         });
     } catch {
         return NextResponse.json(
-            { error: "Internal server error" },
+            {
+                success: false,
+                message: "Internal server error",
+            },
             { status: 500 },
         );
     }
