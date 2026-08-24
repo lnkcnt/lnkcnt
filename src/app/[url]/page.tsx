@@ -6,7 +6,7 @@ import { db } from "@/src/db";
 import {
     linkClickCount,
     links,
-    trustedURL,
+    trustedUrl,
     urlBlacklist,
 } from "@/src/db/schema";
 import { eq } from "drizzle-orm";
@@ -59,9 +59,9 @@ async function isTrusted(url: string): Promise<boolean> {
         const baseUrl = new URL(url).hostname;
 
         const entries = await db
-            .select({ url: trustedURL.url })
-            .from(trustedURL)
-            .where(eq(trustedURL.url, baseUrl));
+            .select({ url: trustedUrl.url })
+            .from(trustedUrl)
+            .where(eq(trustedUrl.url, baseUrl));
 
         if (entries.length >= 1) {
             return true;
