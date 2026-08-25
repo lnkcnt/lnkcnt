@@ -108,17 +108,29 @@ export default function Content() {
         setIsPending(true);
         setState(initialState);
 
-        const res = await ky
-            .post("/api/url/shorten", {
-                body: JSON.stringify({ url: url }),
-                headers: { "Content-Type": "application/json" },
-                throwHttpErrors: false,
-            })
-            .json<FormState>();
+        try {
+            const res = await ky
+                .post("/api/url/shorten", {
+                    body: JSON.stringify({ url: url }),
+                    headers: { "Content-Type": "application/json" },
+                    throwHttpErrors: false,
+                })
+                .json<FormState>();
 
-        setState(res);
-        form.reset();
-        setIsPending(false);
+            setState(res);
+        } catch {
+            setState({
+                success: false,
+                message: "Internal Server Error",
+                errors: {
+                    errors: ["Internal Server Error"],
+                    properties: {},
+                },
+            } as FormState);
+        } finally {
+            form.reset();
+            setIsPending(false);
+        }
     }
 
     return (
