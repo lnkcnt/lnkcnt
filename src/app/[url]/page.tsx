@@ -2,7 +2,7 @@
 import { notFound } from "next/navigation";
 import RedirectionWarning from "./RedirectionWarning";
 
-import { db, valkeyConfig } from "@/src/db";
+import { db } from "@/src/db";
 import {
     linkClickCount,
     links,
@@ -11,7 +11,8 @@ import {
 } from "@/src/db/schema";
 import { eq } from "drizzle-orm";
 import z from "zod";
-import { Decoder, GlideClient } from "@valkey/valkey-glide";
+import { Decoder } from "@valkey/valkey-glide";
+import { getValkey } from "@/src/lib/valkey";
 
 interface ResolveRedirectUrlResult {
     redirectUrl: string | null;
@@ -93,16 +94,27 @@ export async function resolveRedirectUrl(
         }
 
         let finalURL: string = "";
+        let existsInValkey: boolean = false;
 
-        const valkey = await GlideClient.createClient(valkeyConfig);
-        const valkeyResponse = await valkey.get(idValidation.data.id, {
-            decoder: Decoder.String,
-        });
-        const existsInValkey: boolean = valkeyResponse ? true : false;
-
-        if (!process.env.DISABLE_VALKEY && existsInValkey) {
-            finalURL = valkeyResponse as string;
+        if (process.env.DISABLE_VALKEY) {
+            existsInValkey = false;
         } else {
+            try {
+                const valkey = await getValkey();
+                const valkeyResponse = await valkey.get(idValidation.data.id, {
+                    decoder: Decoder.String,
+                });
+                existsInValkey = valkeyResponse ? true : false;
+
+                if (existsInValkey) {
+                    finalURL = valkeyResponse as string;
+                }
+            } catch {
+                existsInValkey = false;
+            }
+        }
+
+        if (!existsInValkey) {
             const query = (
                 await db
                     .selectDistinct({
@@ -124,10 +136,6 @@ export async function resolveRedirectUrl(
             return { redirectUrl: null };
         }
 
-        if (!existsInValkey) {
-            valkey.set(idValidation.data.id, urlValidationResult.data.url);
-        }
-
         const isUrlBlacklisted = await isBlacklisted(
             urlValidationResult.data.url,
         );
@@ -143,13 +151,17 @@ export async function resolveRedirectUrl(
             })
             .catch((e) => {
                 // Click logging failure should not block redirect.
-                console.error(
-                    "===== ERROR =====",
-                    "\nFailed to log click.",
-                    e,
-                    "\n=================",
-                );
+                console.error("ERROR: ", "Failed to log click.");
+                console.error(e);
             });
+
+        try {
+            const valkey = await getValkey();
+            valkey.set(idValidation.data.id, urlValidationResult.data.url);
+        } catch (e) {
+            console.warn("WARN: ", "Cannot connect to Valkey.");
+            console.warn(e);
+        }
 
         return {
             redirectUrl: urlValidationResult.data.url,
