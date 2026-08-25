@@ -2,7 +2,7 @@
 import { notFound } from "next/navigation";
 import RedirectionWarning from "./RedirectionWarning";
 
-import { db } from "@/src/db";
+import { db, valkeyConfig } from "@/src/db";
 import {
     linkClickCount,
     links,
@@ -11,6 +11,7 @@ import {
 } from "@/src/db/schema";
 import { eq } from "drizzle-orm";
 import z from "zod";
+import { Decoder, GlideClient } from "@valkey/valkey-glide";
 
 interface ResolveRedirectUrlResult {
     redirectUrl: string | null;
@@ -84,55 +85,74 @@ export async function resolveRedirectUrl(
 ): Promise<ResolveRedirectUrlResult> {
     try {
         const idValidator = z.object({ id: z.nanoid() });
+        const urlValidator = z.object({ url: z.httpUrl() });
 
         const idValidation = idValidator.safeParse({ id: shortId });
         if (!idValidation.success) {
             return { redirectUrl: null };
         }
 
-        const query = (
-            await db
-                .selectDistinct({
-                    redirect_url: links.redirectUrl,
-                })
-                .from(links)
-                .where(eq(links.id, idValidation.data.id))
-                .limit(1)
-        ).at(0);
-        if (!query) {
-            return { redirectUrl: null };
+        let finalURL: string = "";
+
+        const valkey = await GlideClient.createClient(valkeyConfig);
+        const valkeyResponse = await valkey.get(idValidation.data.id, {
+            decoder: Decoder.String,
+        });
+        const existsInValkey: boolean = valkeyResponse ? true : false;
+
+        if (!process.env.DISABLE_VALKEY && existsInValkey) {
+            finalURL = valkeyResponse as string;
+        } else {
+            const query = (
+                await db
+                    .selectDistinct({
+                        redirect_url: links.redirectUrl,
+                    })
+                    .from(links)
+                    .where(eq(links.id, idValidation.data.id))
+                    .limit(1)
+            ).at(0);
+
+            if (!query) {
+                return { redirectUrl: null };
+            }
+            finalURL = query.redirect_url;
         }
-        const finalURL = query.redirect_url;
 
-        const urlValidator = z.object({ url: z.httpUrl() });
         const urlValidationResult = urlValidator.safeParse({ url: finalURL });
-
         if (!urlValidationResult.success) {
             return { redirectUrl: null };
         }
 
-        if (await isBlacklisted(finalURL)) {
+        if (!existsInValkey) {
+            valkey.set(idValidation.data.id, urlValidationResult.data.url);
+        }
+
+        const isUrlBlacklisted = await isBlacklisted(
+            urlValidationResult.data.url,
+        );
+        const isUrlTrusted = await isTrusted(urlValidationResult.data.url);
+
+        if (isUrlBlacklisted) {
             return { redirectUrl: null };
         }
 
-        try {
-            await db.insert(linkClickCount).values({
+        db.insert(linkClickCount)
+            .values({
                 id: idValidation.data.id,
+            })
+            .catch((e) => {
+                // Click logging failure should not block redirect.
+                console.error(
+                    "===== ERROR =====",
+                    "\nFailed to log click.",
+                    e,
+                    "\n=================",
+                );
             });
-        } catch (e) {
-            // Click logging failure should not block redirect.
-            console.error(
-                "===== ERROR =====",
-                "\nFailed to log click.",
-                e,
-                "\n=================",
-            );
-        }
-
-        const isUrlTrusted = await isTrusted(finalURL);
 
         return {
-            redirectUrl: finalURL,
+            redirectUrl: urlValidationResult.data.url,
             isTrusted: isUrlTrusted,
         };
     } catch (error) {

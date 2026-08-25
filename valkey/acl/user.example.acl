@@ -1,0 +1,2 @@
+# rename this file to 'user.acl'
+user username on allcommands allkeys allchannels alldbs >password
