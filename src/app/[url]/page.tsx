@@ -1,5 +1,5 @@
 "use server";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import RedirectionWarning from "./RedirectionWarning";
 
 import { db } from "@/src/db";
@@ -212,11 +212,7 @@ export default async function Redirection({
     }
 
     if (isTrusted || isLoading) {
-        return (
-            <main className="flex min-h-screen items-center justify-center">
-                <p className="text-muted-foreground text-sm">Redirecting...</p>
-            </main>
-        );
+        redirect(redirectUrl);
     } else {
         return (
             <RedirectionWarning
