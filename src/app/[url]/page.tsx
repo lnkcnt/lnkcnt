@@ -87,17 +87,31 @@ async function isBlacklisted(url: string): Promise<boolean> {
  */
 async function isTrusted(url: string): Promise<boolean> {
     try {
+        const valkey = await getValkey();
         const baseUrl = new URL(url).hostname;
+        let existsInValkey = false;
+        const valkeyResponse = await valkey.get("cache:trust", {
+            decoder: Decoder.String,
+        });
 
-        const entries = await db
-            .select({ url: trustedUrl.url })
-            .from(trustedUrl)
-            .where(eq(trustedUrl.url, baseUrl));
-
-        if (entries.length >= 1) {
-            return true;
+        if (valkeyResponse) {
+            const entry: { url: string }[] = JSON.parse(
+                valkeyResponse.toString(),
+            );
+            existsInValkey = entry.some((value) => value.url === baseUrl);
         } else {
-            return false;
+            existsInValkey = false;
+        }
+
+        if (existsInValkey) {
+            return existsInValkey;
+        } else {
+            const entries = await db
+                .select({ url: trustedUrl.url })
+                .from(trustedUrl);
+            valkey.set("cache:trust", JSON.stringify(entries));
+
+            return entries.some((value) => value.url === baseUrl);
         }
     } catch (e) {
         console.error(`An error occurred when checking trust: ${e}`);
