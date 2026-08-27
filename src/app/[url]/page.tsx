@@ -26,12 +26,9 @@ interface ResolveRedirectUrlResult {
  * @returns true if URL is blacklisted, false otherwise
  */
 async function isBlacklisted(url: string): Promise<boolean> {
-    const entries = await db
-        .select({ pattern: urlBlacklist.pattern })
-        .from(urlBlacklist);
-
-    if (!entries.length) return false;
-
+    const valkey = await getValkey();
+    const valkeyRequest = await valkey.get(`cache:blacklist`);
+    let existsInValkey = false;
     let urlObj: URL;
     try {
         urlObj = new URL(url);
@@ -42,14 +39,45 @@ async function isBlacklisted(url: string): Promise<boolean> {
     const domain = urlObj.hostname.toLowerCase();
     const targetUrl = url.toLowerCase();
 
-    return entries.some(({ pattern }) => {
-        const normalizedPattern = pattern.trim().toLowerCase();
-        if (!normalizedPattern) return false;
-        return (
-            domain.includes(normalizedPattern) ||
-            targetUrl.includes(normalizedPattern)
+    if (valkeyRequest) {
+        const valkeyResponse: { pattern: string }[] = JSON.parse(
+            valkeyRequest.toString(),
         );
-    });
+
+        existsInValkey = valkeyResponse.some(({ pattern }) => {
+            const normalizedPattern = pattern.trim().toLowerCase();
+            if (!normalizedPattern) return false;
+            return (
+                domain.includes(normalizedPattern) ||
+                targetUrl.includes(normalizedPattern)
+            );
+        });
+    } else {
+        existsInValkey = false;
+    }
+
+    if (existsInValkey) {
+        return existsInValkey;
+    } else {
+        const entries = await db
+            .select({ pattern: urlBlacklist.pattern })
+            .from(urlBlacklist);
+
+        if (!entries.length) return false;
+
+        getValkey().then((valkey) => {
+            valkey.set("cache:blacklist", JSON.stringify(entries));
+        });
+
+        return entries.some(({ pattern }) => {
+            const normalizedPattern = pattern.trim().toLowerCase();
+            if (!normalizedPattern) return false;
+            return (
+                domain.includes(normalizedPattern) ||
+                targetUrl.includes(normalizedPattern)
+            );
+        });
+    }
 }
 
 /**
@@ -103,7 +131,7 @@ export async function resolveRedirectUrl(
             try {
                 const valkey = await getValkey();
                 const valkeyResponse = await valkey.get(
-                    `cache:${idValidation.data.id}`,
+                    `cache:url:${idValidation.data.id}`,
                     {
                         decoder: Decoder.String,
                     },
@@ -162,7 +190,7 @@ export async function resolveRedirectUrl(
         try {
             const valkey = await getValkey();
             valkey.set(
-                `cache:${idValidation.data.id}`,
+                `cache:url:${idValidation.data.id}`,
                 urlValidationResult.data.url,
             );
         } catch (e) {
