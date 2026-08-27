@@ -191,7 +191,11 @@ export default async function Redirection({
     params: Promise<{ url: string }>;
 }) {
     if (await isRateLimited()) {
-        return <>Too Many Requests. Try again tomorrow.</>;
+        return (
+            <div className="flex flex-1 items-center justify-center text-4xl font-bold">
+                Too Many Requests. Try again later.
+            </div>
+        );
     }
 
     const url = (await params).url;
