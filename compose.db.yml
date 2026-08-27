@@ -23,7 +23,6 @@ services:
       - 6379:6379
     restart: unless-stopped
     volumes:
-      - valkey:/data
       - ./valkey/:/usr/local/etc/valkey/
     networks:
       - db
