@@ -2,6 +2,7 @@
 
 import { db } from "@/src/db";
 import { links, urlManagePage } from "@/src/db/schema";
+import { isRateLimited } from "@/src/lib/rate";
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
@@ -28,6 +29,16 @@ type DeleteResponse = {
 export async function POST(
     request: NextRequest,
 ): Promise<NextResponse<DeleteResponse>> {
+    if (await isRateLimited()) {
+        return NextResponse.json(
+            {
+                success: false,
+                message: "Too Many Requests. Try again tomorrow.",
+            },
+            { status: 429 },
+        );
+    }
+
     let body;
     try {
         body = await request.json();

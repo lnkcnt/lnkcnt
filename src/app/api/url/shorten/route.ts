@@ -3,6 +3,7 @@ import { nanoid } from "nanoid";
 import * as z from "zod";
 import { db } from "@/src/db";
 import { links, urlBlacklist, urlManagePage } from "@/src/db/schema";
+import { isRateLimited } from "@/src/lib/rate";
 
 /** Blacklist check result */
 type URLBanData = {
@@ -74,6 +75,16 @@ async function isBlacklisted(url: string): Promise<URLBanData> {
 export async function POST(
     request: NextRequest,
 ): Promise<NextResponse<ShortenResponse>> {
+    if (await isRateLimited()) {
+        return NextResponse.json(
+            {
+                success: false,
+                message: "Too Many Requests. Try again tomorrow.",
+            },
+            { status: 429 },
+        );
+    }
+
     const URLSchema = z.object({
         url: z.httpUrl(),
     });

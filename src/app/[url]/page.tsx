@@ -13,6 +13,7 @@ import { eq } from "drizzle-orm";
 import z from "zod";
 import { Decoder } from "@valkey/valkey-glide";
 import { getValkey } from "@/src/lib/valkey";
+import { isRateLimited } from "@/src/lib/rate";
 
 interface ResolveRedirectUrlResult {
     redirectUrl: string | null;
@@ -101,9 +102,12 @@ export async function resolveRedirectUrl(
         } else {
             try {
                 const valkey = await getValkey();
-                const valkeyResponse = await valkey.get(idValidation.data.id, {
-                    decoder: Decoder.String,
-                });
+                const valkeyResponse = await valkey.get(
+                    `cache:${idValidation.data.id}`,
+                    {
+                        decoder: Decoder.String,
+                    },
+                );
                 existsInValkey = valkeyResponse ? true : false;
 
                 if (existsInValkey) {
@@ -157,7 +161,10 @@ export async function resolveRedirectUrl(
 
         try {
             const valkey = await getValkey();
-            valkey.set(idValidation.data.id, urlValidationResult.data.url);
+            valkey.set(
+                `cache:${idValidation.data.id}`,
+                urlValidationResult.data.url,
+            );
         } catch (e) {
             console.warn("WARN: ", "Cannot connect to Valkey.");
             console.warn(e);
@@ -183,6 +190,10 @@ export default async function Redirection({
 }: {
     params: Promise<{ url: string }>;
 }) {
+    if (await isRateLimited()) {
+        return <>Too Many Requests. Try again tomorrow.</>;
+    }
+
     const url = (await params).url;
     let isNotFound = false;
     let isTrusted = false;

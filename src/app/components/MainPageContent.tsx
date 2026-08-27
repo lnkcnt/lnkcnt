@@ -109,15 +109,24 @@ export default function Content() {
         setState(initialState);
 
         try {
-            const res = await ky
-                .post("/api/url/shorten", {
-                    body: JSON.stringify({ url: url }),
-                    headers: { "Content-Type": "application/json" },
-                    throwHttpErrors: false,
-                })
-                .json<FormState>();
-
-            setState(res);
+            const res = await ky.post("/api/url/shorten", {
+                body: JSON.stringify({ url: url }),
+                headers: { "Content-Type": "application/json" },
+                throwHttpErrors: false,
+            });
+            const body = await res.json<FormState>();
+            if (res.ok) {
+                setState(body);
+            } else {
+                setState({
+                    success: body.success,
+                    message: body.message,
+                    errors: {
+                        errors: [body.message],
+                        properties: {},
+                    },
+                });
+            }
         } catch {
             setState({
                 success: false,
@@ -127,6 +136,7 @@ export default function Content() {
                     properties: {},
                 },
             } as FormState);
+            setIsPending(false);
         } finally {
             form.reset();
             setIsPending(false);

@@ -1,5 +1,6 @@
 import { db } from "@/src/db";
 import { links, urlReport } from "@/src/db/schema";
+import { isRateLimited } from "@/src/lib/rate";
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
@@ -38,6 +39,15 @@ const formValidator = z.object({
  * @returns JSON response describing the result of report creation.
  */
 export async function POST(request: NextRequest) {
+    if (await isRateLimited()) {
+        return NextResponse.json(
+            {
+                success: false,
+                message: "Too Many Requests. Try again tomorrow.",
+            },
+            { status: 429 },
+        );
+    }
     try {
         const { id, reason, message } = await request.json();
 

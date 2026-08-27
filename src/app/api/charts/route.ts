@@ -1,5 +1,6 @@
 import { db } from "@/src/db";
 import { linkClickCount } from "@/src/db/schema";
+import { isRateLimited } from "@/src/lib/rate";
 import { and, eq, gte, lte } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -31,6 +32,16 @@ type ChartsResponse = {
 export async function GET(
     request: NextRequest,
 ): Promise<NextResponse<ChartsResponse>> {
+    if (await isRateLimited()) {
+        return NextResponse.json(
+            {
+                success: false,
+                message: "Too Many Requests. Try again tomorrow.",
+            },
+            { status: 429 },
+        );
+    }
+
     const searchParams = request.nextUrl.searchParams;
     const startYear = searchParams.get("startYear");
     const startMonth = searchParams.get("startMonth");
