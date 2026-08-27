@@ -62,12 +62,11 @@ async function isBlacklisted(url: string): Promise<boolean> {
         const entries = await db
             .select({ pattern: urlBlacklist.pattern })
             .from(urlBlacklist);
-
-        if (!entries.length) return false;
-
         getValkey().then((valkey) => {
             valkey.set("cache:blacklist", JSON.stringify(entries));
         });
+
+        if (!entries.length) return false;
 
         return entries.some(({ pattern }) => {
             const normalizedPattern = pattern.trim().toLowerCase();
@@ -130,6 +129,7 @@ export async function resolveRedirectUrl(
     try {
         const idValidator = z.object({ id: z.nanoid() });
         const urlValidator = z.object({ url: z.httpUrl() });
+        const valkey = await getValkey();
 
         const idValidation = idValidator.safeParse({ id: shortId });
         if (!idValidation.success) {
@@ -139,25 +139,20 @@ export async function resolveRedirectUrl(
         let finalURL: string = "";
         let existsInValkey: boolean = false;
 
-        if (process.env.DISABLE_VALKEY) {
-            existsInValkey = false;
-        } else {
-            try {
-                const valkey = await getValkey();
-                const valkeyResponse = await valkey.get(
-                    `cache:url:${idValidation.data.id}`,
-                    {
-                        decoder: Decoder.String,
-                    },
-                );
-                existsInValkey = valkeyResponse ? true : false;
+        try {
+            const valkeyResponse = await valkey.get(
+                `cache:url:${idValidation.data.id}`,
+                {
+                    decoder: Decoder.String,
+                },
+            );
+            existsInValkey = valkeyResponse ? true : false;
 
-                if (existsInValkey) {
-                    finalURL = valkeyResponse as string;
-                }
-            } catch {
-                existsInValkey = false;
+            if (existsInValkey) {
+                finalURL = valkeyResponse as string;
             }
+        } catch {
+            existsInValkey = false;
         }
 
         if (!existsInValkey) {
@@ -182,13 +177,20 @@ export async function resolveRedirectUrl(
             return { redirectUrl: null };
         }
 
-        const isUrlBlacklisted = await isBlacklisted(
-            urlValidationResult.data.url,
-        );
-        const isUrlTrusted = await isTrusted(urlValidationResult.data.url);
+        const [isUrlBlacklisted, isUrlTrusted] = await Promise.all([
+            isBlacklisted(urlValidationResult.data.url),
+            isTrusted(urlValidationResult.data.url),
+        ]);
 
         if (isUrlBlacklisted) {
             return { redirectUrl: null };
+        }
+
+        if (!existsInValkey) {
+            valkey.set(
+                `cache:url:${idValidation.data.id}`,
+                urlValidationResult.data.url,
+            );
         }
 
         db.insert(linkClickCount)
@@ -200,17 +202,6 @@ export async function resolveRedirectUrl(
                 console.error("ERROR: ", "Failed to log click.");
                 console.error(e);
             });
-
-        try {
-            const valkey = await getValkey();
-            valkey.set(
-                `cache:url:${idValidation.data.id}`,
-                urlValidationResult.data.url,
-            );
-        } catch (e) {
-            console.warn("WARN: ", "Cannot connect to Valkey.");
-            console.warn(e);
-        }
 
         return {
             redirectUrl: urlValidationResult.data.url,
