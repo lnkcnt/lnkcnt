@@ -2,7 +2,7 @@
 
 import { db } from "@/src/db";
 import { links, urlManagePage } from "@/src/db/schema";
-import { isRateLimited } from "@/src/lib/rate";
+import { isRateLimited, tooManyRequestsResponse } from "@/src/lib/rate";
 import { DeleteResponse } from "@/src/types";
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
@@ -26,13 +26,7 @@ export async function POST(
     request: NextRequest,
 ): Promise<NextResponse<DeleteResponse>> {
     if (await isRateLimited()) {
-        return NextResponse.json(
-            {
-                success: false,
-                message: "Too Many Requests. Try again tomorrow.",
-            },
-            { status: 429 },
-        );
+        return tooManyRequestsResponse;
     }
 
     let body;

@@ -3,7 +3,7 @@ import { nanoid } from "nanoid";
 import * as z from "zod";
 import { db } from "@/src/db";
 import { links, urlBlacklist, urlManagePage } from "@/src/db/schema";
-import { isRateLimited } from "@/src/lib/rate";
+import { isRateLimited, tooManyRequestsResponse } from "@/src/lib/rate";
 import { ShortenResponse } from "@/src/types";
 
 /** Blacklist check result */
@@ -67,13 +67,7 @@ export async function POST(
     request: NextRequest,
 ): Promise<NextResponse<ShortenResponse>> {
     if (await isRateLimited()) {
-        return NextResponse.json(
-            {
-                success: false,
-                message: "Too Many Requests. Try again tomorrow.",
-            },
-            { status: 429 },
-        );
+        return tooManyRequestsResponse;
     }
 
     const URLSchema = z.object({

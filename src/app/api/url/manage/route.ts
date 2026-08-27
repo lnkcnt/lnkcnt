@@ -1,6 +1,6 @@
 import { db } from "@/src/db";
 import { linkClickCount, links, urlManagePage } from "@/src/db/schema";
-import { isRateLimited } from "@/src/lib/rate";
+import { isRateLimited, tooManyRequestsResponse } from "@/src/lib/rate";
 import { ManageResponse } from "@/src/types";
 import { count, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
@@ -22,13 +22,7 @@ export async function GET(
     request: NextRequest,
 ): Promise<NextResponse<ManageResponse>> {
     if (await isRateLimited()) {
-        return NextResponse.json(
-            {
-                success: false,
-                message: "Too Many Requests. Try again tomorrow.",
-            },
-            { status: 429 },
-        );
+        return tooManyRequestsResponse;
     }
 
     try {
