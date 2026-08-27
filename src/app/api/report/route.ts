@@ -1,6 +1,7 @@
 import { db } from "@/src/db";
 import { links, urlReport } from "@/src/db/schema";
 import { isRateLimited } from "@/src/lib/rate";
+import { ReportResponse } from "@/src/types";
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
@@ -38,12 +39,15 @@ const formValidator = z.object({
  * @param request Incoming Next.js request containing report payload.
  * @returns JSON response describing the result of report creation.
  */
-export async function POST(request: NextRequest) {
+export async function POST(
+    request: NextRequest,
+): Promise<NextResponse<ReportResponse>> {
     if (await isRateLimited()) {
         return NextResponse.json(
             {
                 success: false,
                 message: "Too Many Requests. Try again tomorrow.",
+                reportId: undefined,
             },
             { status: 429 },
         );
@@ -54,7 +58,7 @@ export async function POST(request: NextRequest) {
         // 필수 필드 검증
         if (!id || !reason || !message) {
             return NextResponse.json(
-                { success: false, error: "Missing required fields" },
+                { success: false, message: "Missing required fields" },
                 { status: 400 },
             );
         }
@@ -67,7 +71,7 @@ export async function POST(request: NextRequest) {
         });
         if (!formValidation.success) {
             return NextResponse.json(
-                { success: false, error: "Invalid values" },
+                { success: false, message: "Invalid values" },
                 { status: 400 },
             );
         }
@@ -83,7 +87,7 @@ export async function POST(request: NextRequest) {
 
         if (!link) {
             return NextResponse.json(
-                { success: false, error: "Link not found" },
+                { success: false, message: "Link not found" },
                 { status: 404 },
             );
         }
@@ -106,13 +110,14 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
             success: true,
+            message: "Successfully reported.",
             reportId: report,
         });
     } catch {
         return NextResponse.json(
             {
                 success: false,
-                error: "Internal server error",
+                message: "Internal server error",
             },
             { status: 500 },
         );

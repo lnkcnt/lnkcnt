@@ -1,17 +1,9 @@
 import { db } from "@/src/db";
 import { linkClickCount } from "@/src/db/schema";
 import { isRateLimited } from "@/src/lib/rate";
+import { ChartsResponse } from "@/src/types";
 import { and, eq, gte, lte } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
-
-type ChartsResponse = {
-    success: boolean;
-    message: string;
-    data?: {
-        date: string;
-        sum: number;
-    }[];
-};
 
 /**
  * Return daily click aggregates for a link within a date range.

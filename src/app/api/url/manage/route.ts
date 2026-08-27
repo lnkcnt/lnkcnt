@@ -1,19 +1,9 @@
 import { db } from "@/src/db";
 import { linkClickCount, links, urlManagePage } from "@/src/db/schema";
 import { isRateLimited } from "@/src/lib/rate";
+import { ManageResponse } from "@/src/types";
 import { count, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
-
-type ManageResponse = {
-    success: boolean;
-    message: string;
-    id?: string;
-    redirect_url?: string;
-    click_count?: number;
-    clicks?: {
-        date: Date;
-    }[];
-};
 
 /**
  * Fetch link details and click history by management page token.

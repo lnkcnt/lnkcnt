@@ -4,6 +4,7 @@ import * as z from "zod";
 import { db } from "@/src/db";
 import { links, urlBlacklist, urlManagePage } from "@/src/db/schema";
 import { isRateLimited } from "@/src/lib/rate";
+import { ShortenResponse } from "@/src/types";
 
 /** Blacklist check result */
 type URLBanData = {
@@ -12,16 +13,6 @@ type URLBanData = {
 };
 type URLRequest = {
     url: string;
-};
-type ShortenResponse = {
-    success: boolean;
-    message: string;
-    generatedId?: string;
-    managePage?: string;
-    errors?: {
-        errors: string[];
-        properties: { url?: string[] };
-    };
 };
 
 /**

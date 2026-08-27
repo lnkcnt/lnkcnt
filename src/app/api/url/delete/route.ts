@@ -3,14 +3,10 @@
 import { db } from "@/src/db";
 import { links, urlManagePage } from "@/src/db/schema";
 import { isRateLimited } from "@/src/lib/rate";
+import { DeleteResponse } from "@/src/types";
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
-
-type DeleteResponse = {
-    success: boolean;
-    message: string;
-};
 
 /**
  * Delete a shortened URL by management page token.

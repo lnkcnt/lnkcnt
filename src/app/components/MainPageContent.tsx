@@ -7,6 +7,7 @@ import React, { useState } from "react";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import ky from "ky";
 import { Field, FieldLabel } from "@/src/components/ui/field";
+import { ShortenResponse } from "@/src/types";
 
 /**
  * Copy button component for copying text to clipboard
@@ -68,32 +69,14 @@ function CopyButton({ text }: { text: string }) {
 }
 
 /**
- * Form state type
- */
-type FormState = {
-    message: string;
-    success?: boolean;
-    generatedId?: string;
-    managePage?: string;
-    errors?: {
-        errors: string[];
-        properties: {
-            url?: {
-                errors: string[];
-            };
-        };
-    };
-};
-
-/**
  * Mainpage's content component.
  * @returns JSX.Element containing div.
  */
 export default function Content() {
     /** Initial state for the form */
-    const initialState: FormState = { message: "" };
+    const initialState: ShortenResponse = { success: false, message: "" };
 
-    const [state, setState] = useState<FormState>(initialState);
+    const [state, setState] = useState<ShortenResponse>(initialState);
     const [isPending, setIsPending] = useState(false);
 
     /**
@@ -114,7 +97,7 @@ export default function Content() {
                 headers: { "Content-Type": "application/json" },
                 throwHttpErrors: false,
             });
-            const body = await res.json<FormState>();
+            const body = await res.json<ShortenResponse>();
             if (res.ok) {
                 setState(body);
             } else {
@@ -135,7 +118,7 @@ export default function Content() {
                     errors: ["Internal Server Error"],
                     properties: {},
                 },
-            } as FormState);
+            } as ShortenResponse);
             setIsPending(false);
         } finally {
             form.reset();
@@ -179,7 +162,7 @@ export default function Content() {
                 <Alert variant="destructive" className="mt-5 w-full max-w-md">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>{state.message}</AlertTitle>
-                    {state.errors.errors.length > 0 && (
+                    {/* {state.errors.errors.length > 0 && (
                         <AlertDescription>
                             <div className="mt-2 space-y-2">
                                 <ul className="list-inside list-disc space-y-1 text-sm">
@@ -198,7 +181,7 @@ export default function Content() {
                                 )}
                             </div>
                         </AlertDescription>
-                    )}
+                    )} */}
                 </Alert>
             )}
 
