@@ -74,7 +74,7 @@ function CopyButton({ text }: { text: string }) {
  */
 export default function Content() {
     /** Initial state for the form */
-    const initialState: ShortenResponse = { success: false, message: "" };
+    const initialState: ShortenResponse = { success: true, message: "" };
 
     const [state, setState] = useState<ShortenResponse>(initialState);
     const [isPending, setIsPending] = useState(false);
@@ -104,20 +104,12 @@ export default function Content() {
                 setState({
                     success: body.success,
                     message: body.message,
-                    errors: {
-                        errors: [body.message],
-                        properties: {},
-                    },
                 });
             }
         } catch {
             setState({
                 success: false,
                 message: "Internal Server Error",
-                errors: {
-                    errors: ["Internal Server Error"],
-                    properties: {},
-                },
             } as ShortenResponse);
             setIsPending(false);
         } finally {
@@ -158,7 +150,7 @@ export default function Content() {
             </form>
 
             {/* Error Messages */}
-            {state.errors && (
+            {!state.success && !isPending && (
                 <Alert variant="destructive" className="mt-5 w-full max-w-md">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>{state.message}</AlertTitle>

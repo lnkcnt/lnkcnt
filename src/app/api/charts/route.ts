@@ -25,7 +25,7 @@ export async function GET(
     request: NextRequest,
 ): Promise<NextResponse<ChartsResponse>> {
     if (await isRateLimited()) {
-        return tooManyRequestsResponse;
+        return tooManyRequestsResponse();
     }
 
     const searchParams = request.nextUrl.searchParams;

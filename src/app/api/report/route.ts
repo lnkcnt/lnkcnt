@@ -43,7 +43,7 @@ export async function POST(
     request: NextRequest,
 ): Promise<NextResponse<ReportResponse>> {
     if (await isRateLimited()) {
-        return tooManyRequestsResponse;
+        return tooManyRequestsResponse();
     }
     try {
         const { id, reason, message } = await request.json();

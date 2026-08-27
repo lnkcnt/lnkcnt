@@ -26,7 +26,7 @@ export async function POST(
     request: NextRequest,
 ): Promise<NextResponse<DeleteResponse>> {
     if (await isRateLimited()) {
-        return tooManyRequestsResponse;
+        return tooManyRequestsResponse();
     }
 
     let body;

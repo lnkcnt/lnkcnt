@@ -67,7 +67,7 @@ export async function POST(
     request: NextRequest,
 ): Promise<NextResponse<ShortenResponse>> {
     if (await isRateLimited()) {
-        return tooManyRequestsResponse;
+        return tooManyRequestsResponse();
     }
 
     const URLSchema = z.object({

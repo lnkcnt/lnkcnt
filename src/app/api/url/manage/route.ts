@@ -22,7 +22,7 @@ export async function GET(
     request: NextRequest,
 ): Promise<NextResponse<ManageResponse>> {
     if (await isRateLimited()) {
-        return tooManyRequestsResponse;
+        return tooManyRequestsResponse();
     }
 
     try {
