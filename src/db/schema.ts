@@ -88,6 +88,8 @@ export const urlReport = pgTable(
             columns: [table.id],
             foreignColumns: [links.id],
             name: "urlReport_id_links_id_fk",
-        }),
+        })
+            .onUpdate("cascade")
+            .onDelete("set null"),
     ],
 );
