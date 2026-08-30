@@ -125,18 +125,37 @@ export async function POST(
     const generatedId = nanoid();
     const managePage = nanoid(32);
 
-    await db
-        .insert(links)
-        .values({ id: generatedId, redirectUrl: validatedFields.data.url });
-    await db.insert(urlManagePage).values({ id: generatedId, managePage });
+    const [linksResult, managePageResult] = await Promise.allSettled([
+        db.insert(links).values({
+            id: generatedId,
+            redirectUrl: validatedFields.data.url,
+        }),
+        db.insert(urlManagePage).values({ id: generatedId, managePage }),
+        valkey.set(`cache:url:${generatedId}`, validatedFields.data.url),
+    ]);
 
-    return NextResponse.json(
-        {
-            message: "URL generated successfully.",
-            success: true,
-            generatedId,
-            managePage,
-        },
-        { status: 201 },
-    );
+    if (
+        linksResult.status === "fulfilled" &&
+        managePageResult.status === "fulfilled"
+    ) {
+        return NextResponse.json(
+            {
+                message: "URL generated successfully.",
+                success: true,
+                generatedId,
+                managePage,
+            },
+            { status: 201 },
+        );
+    } else {
+        return NextResponse.json(
+            {
+                message: "",
+                success: true,
+                generatedId,
+                managePage,
+            },
+            { status: 201 },
+        );
+    }
 }
