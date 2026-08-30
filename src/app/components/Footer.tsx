@@ -3,16 +3,14 @@ import Link from "next/link";
 
 export default async function Footer() {
     return (
-        <div className="flex h-full items-center justify-center px-4">
-            <div className="text-center text-xs sm:text-sm dark:text-white">
-                Contact:&nbsp;
-                <Link
-                    href={"mailto:admin@" + (await headers()).get("host")}
-                    className="break-all"
-                >
-                    admin@{(await headers()).get("host")}
-                </Link>
-            </div>
-        </div>
+        <footer className="flex h-full items-center justify-center bg-gray-200 px-4 py-3 text-center text-xs sm:text-sm dark:bg-gray-700 dark:text-white">
+            <p>Contact:&nbsp;</p>
+            <Link
+                href={"mailto:admin@" + (await headers()).get("host")}
+                className="break-all"
+            >
+                admin@{(await headers()).get("host")}
+            </Link>
+        </footer>
     );
 }

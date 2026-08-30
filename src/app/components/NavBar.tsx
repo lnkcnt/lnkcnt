@@ -9,7 +9,7 @@ import SkipToContent from "./SkipToContent";
 
 export default function NavBar() {
     return (
-        <>
+        <nav>
             <SkipToContent />
             <NavigationMenu>
                 <NavigationMenuList className="flex w-screen flex-row justify-start p-2 shadow sm:p-3">
@@ -26,6 +26,6 @@ export default function NavBar() {
                     </NavigationMenuItem>
                 </NavigationMenuList>
             </NavigationMenu>
-        </>
+        </nav>
     );
 }
