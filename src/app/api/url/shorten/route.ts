@@ -5,6 +5,7 @@ import { db } from "@/src/db";
 import { links, urlBlacklist, urlManagePage } from "@/src/db/schema";
 import { isRateLimited, tooManyRequestsResponse } from "@/src/lib/rate";
 import { ShortenResponse } from "@/src/types";
+import { getValkey } from "@/src/lib/valkey";
 
 /** Blacklist check result */
 type URLBanData = {
@@ -120,6 +121,7 @@ export async function POST(
         );
     }
 
+    const valkey = await getValkey();
     const generatedId = nanoid();
     const managePage = nanoid(32);
 
