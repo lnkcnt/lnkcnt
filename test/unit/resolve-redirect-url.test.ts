@@ -119,7 +119,14 @@ describe("resolveRedirectUrl", () => {
 
     test("returns null when URL matches blacklist pattern", async () => {
         state.linksRows = [{ redirect_url: "https://bad.example/path" }];
-        mockValkey.get.mockResolvedValue("https://bad.example/path");
+        // mockValkey.get.mockResolvedValue("https://bad.example/path");
+        mockValkey.get.mockImplementation(async (key) => {
+            if (key === "cache:blacklist") {
+                return JSON.stringify([{ pattern: "bad.example" }]);
+            } else {
+                return null;
+            }
+        });
         state.blacklistRows = [{ pattern: "bad.example", note: "Blocked" }];
 
         const result = await resolveRedirectUrl("a".repeat(21));
@@ -131,6 +138,8 @@ describe("resolveRedirectUrl", () => {
         mockValkey.get.mockImplementation(async (key) => {
             if (key === `cache:url:${"a".repeat(21)}`) {
                 return "https://good.example/articles/1";
+            } else if (key === "cache:trust") {
+                return '[{"url": "good.example"}]';
             }
 
             return null;
