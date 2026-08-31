@@ -1,5 +1,3 @@
-import "server-only";
-
 import { GlideClient } from "@valkey/valkey-glide";
 
 const clientPromise = GlideClient.createClient({

@@ -27,7 +27,21 @@ vi.mock("@/src/db", () => ({
     },
 }));
 
+vi.mock("@/src/lib/rate", () => ({
+    isRateLimited: () => false,
+    tooManyRequestsResponse: () =>
+        NextResponse.json(
+            {
+                success: false,
+                message: "Too Many Requests. Try again later.",
+                reportId: undefined,
+            },
+            { status: 429 },
+        ),
+}));
+
 import { POST } from "@/src/app/api/url/delete/route";
+import { NextResponse } from "next/server";
 
 function createRequest(body: unknown) {
     return {

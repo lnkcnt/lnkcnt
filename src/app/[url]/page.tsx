@@ -27,7 +27,9 @@ interface ResolveRedirectUrlResult {
  */
 async function isBlacklisted(url: string): Promise<boolean> {
     const valkey = await getValkey();
-    const valkeyRequest = await valkey.get(`cache:blacklist`);
+    const valkeyResponse = await valkey.get(`cache:blacklist`, {
+        decoder: Decoder.String,
+    });
     let existsInValkey = false;
     let urlObj: URL;
     try {
@@ -39,20 +41,25 @@ async function isBlacklisted(url: string): Promise<boolean> {
     const domain = urlObj.hostname.toLowerCase();
     const targetUrl = url.toLowerCase();
 
-    if (valkeyRequest) {
-        const valkeyResponse: { pattern: string }[] = JSON.parse(
-            valkeyRequest.toString(),
-        );
-
-        existsInValkey = valkeyResponse.some(({ pattern }) => {
-            const normalizedPattern = pattern.trim().toLowerCase();
-            if (!normalizedPattern) return false;
-            return (
-                domain.includes(normalizedPattern) ||
-                targetUrl.includes(normalizedPattern)
+    try {
+        if (valkeyResponse) {
+            const entry: { pattern: string }[] = JSON.parse(
+                valkeyResponse.toString(),
             );
-        });
-    } else {
+
+            existsInValkey = entry.some(({ pattern }) => {
+                const normalizedPattern = pattern.trim().toLowerCase();
+                if (!normalizedPattern) return false;
+                return (
+                    domain.includes(normalizedPattern) ||
+                    targetUrl.includes(normalizedPattern)
+                );
+            });
+        } else {
+            existsInValkey = false;
+        }
+    } catch (e) {
+        console.error(e);
         existsInValkey = false;
     }
 

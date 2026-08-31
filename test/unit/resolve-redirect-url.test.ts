@@ -37,8 +37,12 @@ vi.mock("@/src/db", () => ({
                 })),
             })),
         })),
-        select: vi.fn(() => ({
+        select: vi.fn((selection: { pattern?: unknown; url?: unknown }) => ({
             from: vi.fn(() => {
+                if (selection.url !== undefined) {
+                    return Promise.resolve(state.trustedRows);
+                }
+
                 // Return a thenable that resolves to blacklistRows when awaited,
                 // but also expose a .where(...).limit(...) chain for trustedURL queries.
                 type ThenableResult = {
@@ -124,7 +128,13 @@ describe("resolveRedirectUrl", () => {
 
     test("returns redirectUrl and isTrusted, and logs a click", async () => {
         state.linksRows = [{ redirect_url: "https://good.example/articles/1" }];
-        mockValkey.get.mockResolvedValue("https://good.example/articles/1");
+        mockValkey.get.mockImplementation(async (key) => {
+            if (key === `cache:url:${"a".repeat(21)}`) {
+                return "https://good.example/articles/1";
+            }
+
+            return null;
+        });
         state.blacklistRows = [];
         state.trustedRows = [{ url: "good.example" }];
 
