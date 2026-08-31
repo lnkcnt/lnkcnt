@@ -119,7 +119,6 @@ describe("resolveRedirectUrl", () => {
 
     test("returns null when URL matches blacklist pattern", async () => {
         state.linksRows = [{ redirect_url: "https://bad.example/path" }];
-        // mockValkey.get.mockResolvedValue("https://bad.example/path");
         mockValkey.get.mockImplementation(async (key) => {
             if (key === "cache:blacklist") {
                 return JSON.stringify([{ pattern: "bad.example" }]);
