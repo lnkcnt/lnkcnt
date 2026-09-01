@@ -1,9 +1,25 @@
+import { POST } from "@/src/app/api/report/route";
+import { ReportResponse } from "@/src/types";
+import { NextResponse, type NextRequest } from "next/server";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 const reportState = vi.hoisted(() => ({
     linkRows: [] as Array<{ id: string }>,
     returningRows: [] as Array<{ reportId: number }>,
     insertedValues: [] as unknown[],
+}));
+
+vi.mock("@/src/lib/rate", () => ({
+    isRateLimited: () => false,
+    tooManyRequestsResponse: () =>
+        NextResponse.json(
+            {
+                success: false,
+                message: "Too Many Requests. Try again later.",
+                reportId: undefined,
+            },
+            { status: 429 },
+        ),
 }));
 
 vi.mock("@/src/db", () => ({
@@ -26,9 +42,6 @@ vi.mock("@/src/db", () => ({
     },
 }));
 
-import { POST } from "@/src/app/api/report/route";
-import type { NextRequest } from "next/server";
-
 function createRequest(body: unknown) {
     return {
         json: async () => body,
@@ -45,10 +58,10 @@ describe("POST /api/report", () => {
 
     test("returns 400 when required fields are missing", async () => {
         const response = await POST(createRequest({ id: "id-only" }) as never);
-        const payload = (await response.json()) as { error: string };
+        const payload = (await response.json()) as ReportResponse;
 
         expect(response.status).toBe(400);
-        expect(payload.error).toBe("Missing required fields");
+        expect(payload.message).toBe("Missing required fields");
     });
 
     test("returns 400 when validation fails", async () => {
@@ -59,10 +72,10 @@ describe("POST /api/report", () => {
                 message: "message",
             }) as never,
         );
-        const payload = (await response.json()) as { error: string };
+        const payload = (await response.json()) as ReportResponse;
 
         expect(response.status).toBe(400);
-        expect(payload.error).toBe("Invalid values");
+        expect(payload.message).toBe("Invalid values");
     });
 
     test("returns 404 when the target link does not exist", async () => {
@@ -73,10 +86,10 @@ describe("POST /api/report", () => {
                 message: "report message",
             }) as never,
         );
-        const payload = (await response.json()) as { error: string };
+        const payload = (await response.json()) as ReportResponse;
 
         expect(response.status).toBe(404);
-        expect(payload.error).toBe("Link not found");
+        expect(payload.message).toBe("Link not found");
     });
 
     test("creates a report when payload is valid", async () => {
@@ -90,13 +103,14 @@ describe("POST /api/report", () => {
                 message: "report message",
             }) as never,
         );
-        const payload = (await response.json()) as {
-            success: boolean;
-            reportId: number;
-        };
+        const payload = (await response.json()) as ReportResponse;
 
         expect(response.status).toBe(200);
-        expect(payload).toEqual({ success: true, reportId: 11 });
+        expect(payload).toEqual({
+            success: true,
+            reportId: 11,
+            message: "Successfully reported.",
+        });
         expect(reportState.insertedValues).toContainEqual({
             id: "V1StGXR8_Z5jdHi6B-myT",
             reason: "spam",
@@ -110,9 +124,9 @@ describe("POST /api/report", () => {
                 throw new SyntaxError();
             },
         } as never);
-        const payload = (await response.json()) as { error: string };
+        const payload = (await response.json()) as ReportResponse;
 
         expect(response.status).toBe(500);
-        expect(payload.error).toBe("Internal server error");
+        expect(payload.message).toBe("Internal server error");
     });
 });

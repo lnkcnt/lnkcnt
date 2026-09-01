@@ -28,6 +28,29 @@ vi.mock("nanoid", () => ({
     }),
 }));
 
+const { mockValkey } = vi.hoisted(() => ({
+    mockValkey: {
+        set: vi.fn(async () => "OK" as const),
+    },
+}));
+
+vi.mock("@/src/lib/valkey", () => ({
+    getValkey: vi.fn(() => Promise.resolve(mockValkey)),
+}));
+
+vi.mock("@/src/lib/rate", () => ({
+    isRateLimited: () => false,
+    tooManyRequestsResponse: () =>
+        NextResponse.json(
+            {
+                success: false,
+                message: "Too Many Requests. Try again later.",
+                reportId: undefined,
+            },
+            { status: 429 },
+        ),
+}));
+
 vi.mock("@/src/db", () => ({
     db: {
         select: vi.fn(() => ({
@@ -45,6 +68,7 @@ vi.mock("@/src/db", () => ({
 }));
 
 import { POST } from "@/src/app/api/url/shorten/route";
+import { NextResponse } from "next/server";
 
 function createRequest(body: unknown) {
     return {

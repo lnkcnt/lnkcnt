@@ -3,6 +3,9 @@ import { nanoid } from "nanoid";
 import * as z from "zod";
 import { db } from "@/src/db";
 import { links, urlBlacklist, urlManagePage } from "@/src/db/schema";
+import { isRateLimited, tooManyRequestsResponse } from "@/src/lib/rate";
+import { ShortenResponse } from "@/src/types";
+import { getValkey } from "@/src/lib/valkey";
 
 /** Blacklist check result */
 type URLBanData = {
@@ -11,16 +14,6 @@ type URLBanData = {
 };
 type URLRequest = {
     url: string;
-};
-type ShortenResponse = {
-    success: boolean;
-    message: string;
-    generatedId?: string;
-    managePage?: string;
-    errors?: {
-        errors: string[];
-        properties: { url?: string[] };
-    };
 };
 
 /**
@@ -74,6 +67,10 @@ async function isBlacklisted(url: string): Promise<URLBanData> {
 export async function POST(
     request: NextRequest,
 ): Promise<NextResponse<ShortenResponse>> {
+    if (await isRateLimited()) {
+        return tooManyRequestsResponse();
+    }
+
     const URLSchema = z.object({
         url: z.httpUrl(),
     });
@@ -124,21 +121,39 @@ export async function POST(
         );
     }
 
+    const valkey = await getValkey();
     const generatedId = nanoid();
     const managePage = nanoid(32);
 
-    await db
-        .insert(links)
-        .values({ id: generatedId, redirectUrl: validatedFields.data.url });
-    await db.insert(urlManagePage).values({ id: generatedId, managePage });
+    const [linksResult, managePageResult] = await Promise.allSettled([
+        db.insert(links).values({
+            id: generatedId,
+            redirectUrl: validatedFields.data.url,
+        }),
+        db.insert(urlManagePage).values({ id: generatedId, managePage }),
+    ]);
 
-    return NextResponse.json(
-        {
-            message: "URL generated successfully.",
-            success: true,
-            generatedId,
-            managePage,
-        },
-        { status: 201 },
-    );
+    if (
+        linksResult.status === "fulfilled" &&
+        managePageResult.status === "fulfilled"
+    ) {
+        valkey.set(`cache:url:${generatedId}`, validatedFields.data.url);
+        return NextResponse.json(
+            {
+                message: "URL generated successfully.",
+                success: true,
+                generatedId,
+                managePage,
+            },
+            { status: 201 },
+        );
+    } else {
+        return NextResponse.json(
+            {
+                message: "Internal Server Error",
+                success: false,
+            },
+            { status: 500 },
+        );
+    }
 }

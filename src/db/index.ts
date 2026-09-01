@@ -10,5 +10,7 @@ function getConnectionString() {
 }
 
 export const db = drizzle({
-    connection: { connectionString: getConnectionString() },
+    connection: {
+        connectionString: getConnectionString(),
+    },
 });

@@ -42,6 +42,7 @@ CREATE TABLE "urlReport" (
 --> statement-breakpoint
 CREATE TABLE "account" (
 	"id" text PRIMARY KEY NOT NULL,
+	"issuer" text NOT NULL,
 	"account_id" text NOT NULL,
 	"provider_id" text NOT NULL,
 	"user_id" text NOT NULL,
@@ -93,9 +94,10 @@ ALTER TABLE "urlManagePage" ADD CONSTRAINT "urlManagePage_id_links_id_fk" FOREIG
 ALTER TABLE "urlReport" ADD CONSTRAINT "urlReport_id_links_id_fk" FOREIGN KEY ("id") REFERENCES "public"."links"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-CREATE INDEX "linkClickCount_id_index" ON "linkClickCount" USING btree ("id");--> statement-breakpoint
-CREATE INDEX "urlManagePage_id_index" ON "urlManagePage" USING btree ("id");--> statement-breakpoint
-CREATE INDEX "urlReport_id_index" ON "urlReport" USING btree ("id");--> statement-breakpoint
+CREATE INDEX "linkClickCount_id_index" ON "linkClickCount" USING btree ("id" text_ops);--> statement-breakpoint
+CREATE INDEX "urlManagePage_id_index" ON "urlManagePage" USING btree ("id" text_ops);--> statement-breakpoint
+CREATE INDEX "urlReport_id_index" ON "urlReport" USING btree ("id" text_ops);--> statement-breakpoint
+CREATE UNIQUE INDEX "account_issuer_accountId_uidx" ON "account" USING btree ("issuer","account_id");--> statement-breakpoint
 CREATE INDEX "account_userId_idx" ON "account" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "session_userId_idx" ON "session" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "verification_identifier_idx" ON "verification" USING btree ("identifier");

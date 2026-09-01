@@ -1,18 +1,9 @@
 import { db } from "@/src/db";
 import { linkClickCount, links, urlManagePage } from "@/src/db/schema";
+import { isRateLimited, tooManyRequestsResponse } from "@/src/lib/rate";
+import { ManageResponse } from "@/src/types";
 import { count, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
-
-type ManageResponse = {
-    success: boolean;
-    message: string;
-    id?: string;
-    redirect_url?: string;
-    click_count?: number;
-    clicks?: {
-        date: Date;
-    }[];
-};
 
 /**
  * Fetch link details and click history by management page token.
@@ -30,6 +21,10 @@ type ManageResponse = {
 export async function GET(
     request: NextRequest,
 ): Promise<NextResponse<ManageResponse>> {
+    if (await isRateLimited()) {
+        return tooManyRequestsResponse();
+    }
+
     try {
         const searchParams = request.nextUrl.searchParams;
         const id = searchParams.get("id");

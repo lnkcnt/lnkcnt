@@ -6,6 +6,19 @@ const manageState = vi.hoisted(() => ({
     throwOnSelect: false,
 }));
 
+vi.mock("@/src/lib/rate", () => ({
+    isRateLimited: () => false,
+    tooManyRequestsResponse: () =>
+        NextResponse.json(
+            {
+                success: false,
+                message: "Too Many Requests. Try again later.",
+                reportId: undefined,
+            },
+            { status: 429 },
+        ),
+}));
+
 vi.mock("@/src/db", () => ({
     db: {
         select: vi.fn(() => ({
@@ -27,7 +40,7 @@ vi.mock("@/src/db", () => ({
 }));
 
 import { GET } from "@/src/app/api/url/manage/route";
-import type { NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 
 function createRequest(query: Record<string, string>) {
     const searchParams = new URLSearchParams(query);

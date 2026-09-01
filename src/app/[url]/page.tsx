@@ -1,5 +1,5 @@
 "use server";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import RedirectionWarning from "./RedirectionWarning";
 
 import { db } from "@/src/db";
@@ -11,6 +11,9 @@ import {
 } from "@/src/db/schema";
 import { eq } from "drizzle-orm";
 import z from "zod";
+import { Decoder } from "@valkey/valkey-glide";
+import { getValkey } from "@/src/lib/valkey";
+import { isRateLimited } from "@/src/lib/rate";
 
 interface ResolveRedirectUrlResult {
     redirectUrl: string | null;
@@ -23,12 +26,11 @@ interface ResolveRedirectUrlResult {
  * @returns true if URL is blacklisted, false otherwise
  */
 async function isBlacklisted(url: string): Promise<boolean> {
-    const entries = await db
-        .select({ pattern: urlBlacklist.pattern })
-        .from(urlBlacklist);
-
-    if (!entries.length) return false;
-
+    const valkey = await getValkey();
+    const valkeyResponse = await valkey.get(`cache:blacklist`, {
+        decoder: Decoder.String,
+    });
+    let existsInValkey = false;
     let urlObj: URL;
     try {
         urlObj = new URL(url);
@@ -39,14 +41,49 @@ async function isBlacklisted(url: string): Promise<boolean> {
     const domain = urlObj.hostname.toLowerCase();
     const targetUrl = url.toLowerCase();
 
-    return entries.some(({ pattern }) => {
-        const normalizedPattern = pattern.trim().toLowerCase();
-        if (!normalizedPattern) return false;
-        return (
-            domain.includes(normalizedPattern) ||
-            targetUrl.includes(normalizedPattern)
-        );
-    });
+    try {
+        if (valkeyResponse) {
+            const entry: { pattern: string }[] = JSON.parse(
+                valkeyResponse.toString(),
+            );
+
+            existsInValkey = entry.some(({ pattern }) => {
+                const normalizedPattern = pattern.trim().toLowerCase();
+                if (!normalizedPattern) return false;
+                return (
+                    domain.includes(normalizedPattern) ||
+                    targetUrl.includes(normalizedPattern)
+                );
+            });
+        } else {
+            existsInValkey = false;
+        }
+    } catch (e) {
+        console.error(e);
+        existsInValkey = false;
+    }
+
+    if (existsInValkey) {
+        return existsInValkey;
+    } else {
+        const entries = await db
+            .select({ pattern: urlBlacklist.pattern })
+            .from(urlBlacklist);
+        getValkey().then((valkey) => {
+            valkey.set("cache:blacklist", JSON.stringify(entries));
+        });
+
+        if (!entries.length) return false;
+
+        return entries.some(({ pattern }) => {
+            const normalizedPattern = pattern.trim().toLowerCase();
+            if (!normalizedPattern) return false;
+            return (
+                domain.includes(normalizedPattern) ||
+                targetUrl.includes(normalizedPattern)
+            );
+        });
+    }
 }
 
 /**
@@ -56,17 +93,31 @@ async function isBlacklisted(url: string): Promise<boolean> {
  */
 async function isTrusted(url: string): Promise<boolean> {
     try {
+        const valkey = await getValkey();
         const baseUrl = new URL(url).hostname;
+        let existsInValkey = false;
+        const valkeyResponse = await valkey.get("cache:trust", {
+            decoder: Decoder.String,
+        });
 
-        const entries = await db
-            .select({ url: trustedUrl.url })
-            .from(trustedUrl)
-            .where(eq(trustedUrl.url, baseUrl));
-
-        if (entries.length >= 1) {
-            return true;
+        if (valkeyResponse) {
+            const entry: { url: string }[] = JSON.parse(
+                valkeyResponse.toString(),
+            );
+            existsInValkey = entry.some((value) => value.url === baseUrl);
         } else {
-            return false;
+            existsInValkey = false;
+        }
+
+        if (existsInValkey) {
+            return existsInValkey;
+        } else {
+            const entries = await db
+                .select({ url: trustedUrl.url })
+                .from(trustedUrl);
+            valkey.set("cache:trust", JSON.stringify(entries));
+
+            return entries.some((value) => value.url === baseUrl);
         }
     } catch (e) {
         console.error(`An error occurred when checking trust: ${e}`);
@@ -84,55 +135,83 @@ export async function resolveRedirectUrl(
 ): Promise<ResolveRedirectUrlResult> {
     try {
         const idValidator = z.object({ id: z.nanoid() });
+        const urlValidator = z.object({ url: z.httpUrl() });
+        const valkey = await getValkey();
 
         const idValidation = idValidator.safeParse({ id: shortId });
         if (!idValidation.success) {
             return { redirectUrl: null };
         }
 
-        const query = (
-            await db
-                .selectDistinct({
-                    redirect_url: links.redirectUrl,
-                })
-                .from(links)
-                .where(eq(links.id, idValidation.data.id))
-                .limit(1)
-        ).at(0);
-        if (!query) {
-            return { redirectUrl: null };
+        let finalURL: string = "";
+        let existsInValkey: boolean = false;
+
+        try {
+            const valkeyResponse = await valkey.get(
+                `cache:url:${idValidation.data.id}`,
+                {
+                    decoder: Decoder.String,
+                },
+            );
+            existsInValkey = valkeyResponse ? true : false;
+
+            if (existsInValkey) {
+                finalURL = valkeyResponse as string;
+            }
+        } catch {
+            existsInValkey = false;
         }
-        const finalURL = query.redirect_url;
 
-        const urlValidator = z.object({ url: z.httpUrl() });
+        if (!existsInValkey) {
+            const query = (
+                await db
+                    .selectDistinct({
+                        redirect_url: links.redirectUrl,
+                    })
+                    .from(links)
+                    .where(eq(links.id, idValidation.data.id))
+                    .limit(1)
+            ).at(0);
+
+            if (!query) {
+                return { redirectUrl: null };
+            }
+            finalURL = query.redirect_url;
+        }
+
         const urlValidationResult = urlValidator.safeParse({ url: finalURL });
-
         if (!urlValidationResult.success) {
             return { redirectUrl: null };
         }
 
-        if (await isBlacklisted(finalURL)) {
+        const [isUrlBlacklisted, isUrlTrusted] = await Promise.all([
+            isBlacklisted(urlValidationResult.data.url),
+            isTrusted(urlValidationResult.data.url),
+        ]);
+
+        if (isUrlBlacklisted) {
             return { redirectUrl: null };
         }
 
-        try {
-            await db.insert(linkClickCount).values({
-                id: idValidation.data.id,
-            });
-        } catch (e) {
-            // Click logging failure should not block redirect.
-            console.error(
-                "===== ERROR =====",
-                "\nFailed to log click.",
-                e,
-                "\n=================",
+        if (!existsInValkey) {
+            valkey.set(
+                `cache:url:${idValidation.data.id}`,
+                urlValidationResult.data.url,
             );
         }
 
-        const isUrlTrusted = await isTrusted(finalURL);
+        db.insert(linkClickCount)
+            .values({
+                id: idValidation.data.id,
+            })
+            .catch((e) => {
+                // Click logging failure should not block redirect.
+                console.error("ERROR: ", "Failed to log click.");
+                console.error(e);
+            });
 
         return {
-            redirectUrl: finalURL,
+            redirectUrl: urlValidationResult.data.url,
             isTrusted: isUrlTrusted,
         };
     } catch (error) {
@@ -151,6 +230,14 @@ export default async function Redirection({
 }: {
     params: Promise<{ url: string }>;
 }) {
+    if (await isRateLimited()) {
+        return (
+            <div className="flex flex-1 items-center justify-center text-4xl font-bold">
+                Too Many Requests. Try again later.
+            </div>
+        );
+    }
+
     const url = (await params).url;
     let isNotFound = false;
     let isTrusted = false;
@@ -180,11 +267,7 @@ export default async function Redirection({
     }
 
     if (isTrusted || isLoading) {
-        return (
-            <main className="flex min-h-screen items-center justify-center">
-                <p className="text-muted-foreground text-sm">Redirecting...</p>
-            </main>
-        );
+        redirect(redirectUrl);
     } else {
         return (
             <RedirectionWarning

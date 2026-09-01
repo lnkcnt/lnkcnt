@@ -16,18 +16,16 @@ export default function RedirectionWarning({
     const [warningCount, setWarningCount] = useState<number>(5);
     const { url } = useParams();
 
-    useEffect(() => {
-        if (isTrusted) {
-            router.push(redirectUrl);
-        }
-    }, [isTrusted, redirectUrl, router]);
+    if (isTrusted) {
+        router.push(redirectUrl);
+    }
 
     useEffect(() => {
+        if (warningCount < 0) {
+            return;
+        }
         const timer = setInterval(() => {
-            setWarningCount((warningCount) => warningCount - 1);
-            if (warningCount < 0) {
-                clearInterval(timer);
-            }
+            setWarningCount((prev) => prev - 1);
         }, 1000);
 
         return () => {
@@ -57,18 +55,21 @@ export default function RedirectionWarning({
             <code className="rounded border border-gray-300 bg-gray-100 p-2 text-xs text-black sm:text-sm">
                 {redirectUrl}
             </code>
-            <div className="flex flex-row items-center justify-center gap-3 max-sm:flex-col max-sm:items-stretch">
+            <form
+                autoComplete="off"
+                className="flex flex-row items-center justify-center gap-3 max-sm:flex-col max-sm:items-stretch"
+            >
                 <Button
-                    disabled={warningCount >= 0}
+                    disabled={warningCount > 0}
                     id="main-content"
                     onClick={() => router.push(redirectUrl)}
                 >
-                    {warningCount >= 0 ? warningCount : "Continue"}
+                    {warningCount > 0 ? warningCount : "Continue"}
                 </Button>
                 <Button variant="secondary" onClick={() => router.back()}>
                     Go Back
                 </Button>
-            </div>
+            </form>
         </div>
     );
 }
