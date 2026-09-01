@@ -131,7 +131,6 @@ export async function POST(
             redirectUrl: validatedFields.data.url,
         }),
         db.insert(urlManagePage).values({ id: generatedId, managePage }),
-        valkey.set(`cache:url:${generatedId}`, validatedFields.data.url),
     ]);
 
     if (
