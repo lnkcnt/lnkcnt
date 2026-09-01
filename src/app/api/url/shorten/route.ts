@@ -137,6 +137,7 @@ export async function POST(
         linksResult.status === "fulfilled" &&
         managePageResult.status === "fulfilled"
     ) {
+        valkey.set(`cache:url:${generatedId}`, validatedFields.data.url);
         return NextResponse.json(
             {
                 message: "URL generated successfully.",
@@ -149,12 +150,10 @@ export async function POST(
     } else {
         return NextResponse.json(
             {
-                message: "",
-                success: true,
-                generatedId,
-                managePage,
+                message: "Internal Server Error",
+                success: false,
             },
-            { status: 201 },
+            { status: 500 },
         );
     }
 }
