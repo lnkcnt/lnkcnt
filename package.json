@@ -72,5 +72,12 @@
         "sharp",
         "unrs-resolver"
     ],
-    "browserslist": "> 1%"
+    "browserslist": "> 1%",
+    "devEngines": {
+        "runtime": {
+            "name": "node",
+            "version": "26.8.1",
+            "onFail": "download"
+        }
+    }
 }
