@@ -6,12 +6,12 @@
 # This Dockerfile uses Node.js 24.13.0-slim, which was the latest LTS version at the time of writing.
 # To ensure security and compatibility, regularly update the NODE_VERSION ARG to the latest LTS version.
 ARG PNPM_VERSION=12
+ARG NODE_VERSION=26-slim
 
 FROM ghcr.io/pnpm/pnpm:${PNPM_VERSION} AS dependencies
 
 # Set working directory
 WORKDIR /app
-ENV CI=true
 
 # Copy package-related files first to leverage Docker's caching mechanism
 COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* .npmrc* ./
@@ -28,7 +28,6 @@ FROM ghcr.io/pnpm/pnpm:${PNPM_VERSION} AS builder
 
 # Set working directory
 WORKDIR /app
-ENV CI=true
 
 # Copy project dependencies from dependencies stage
 COPY --from=dependencies /app/node_modules ./node_modules
@@ -55,14 +54,10 @@ RUN pnpm build
 # Stage 3: Run Next.js application
 # ============================================
 
-FROM ghcr.io/pnpm/pnpm:${PNPM_VERSION} AS runner
-
-RUN groupadd --gid 1000 node \
-    && useradd --uid 1000 --gid node --shell /bin/bash --create-home node
+FROM node:${NODE_VERSION} AS runner
 
 # Set working directory
 WORKDIR /app
-ENV CI=true
 
 # Set production environment variables
 ENV NODE_ENV=production
