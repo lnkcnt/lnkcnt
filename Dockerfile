@@ -5,40 +5,30 @@
 # IMPORTANT: Node.js Version Maintenance
 # This Dockerfile uses Node.js 24.13.0-slim, which was the latest LTS version at the time of writing.
 # To ensure security and compatibility, regularly update the NODE_VERSION ARG to the latest LTS version.
-ARG NODE_VERSION=26-slim
+ARG PNPM_VERSION=12
 
-FROM node:${NODE_VERSION} AS dependencies
+FROM ghcr.io/pnpm/pnpm:${PNPM_VERSION} AS dependencies
 
 # Set working directory
 WORKDIR /app
+ENV CI=true
 
 # Copy package-related files first to leverage Docker's caching mechanism
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* pnpm-workspace.yaml ./
-
-RUN npm install -g corepack
+COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* .npmrc* ./
 
 # Install project dependencies with frozen lockfile for reproducible builds
-RUN --mount=type=cache,target=/root/.npm \
-    --mount=type=cache,target=/usr/local/share/.cache/yarn \
-    --mount=type=cache,target=/root/.local/share/pnpm/store \
-    if [ -f package-lock.json ]; then \
-    npm ci --no-audit --no-fund; \
-    elif [ -f yarn.lock ]; then \
-    corepack enable yarn && yarn install --frozen-lockfile --production=false; \
-    elif [ -f pnpm-lock.yaml ]; then \
-    corepack enable pnpm && pnpm ci; \
-    else \
-    echo "No lockfile found." && exit 1; \
-    fi
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+    pnpm ci
 
 # ============================================
 # Stage 2: Build Next.js application in standalone mode
 # ============================================
 
-FROM node:${NODE_VERSION} AS builder
+FROM ghcr.io/pnpm/pnpm:${PNPM_VERSION} AS builder
 
 # Set working directory
 WORKDIR /app
+ENV CI=true
 
 # Copy project dependencies from dependencies stage
 COPY --from=dependencies /app/node_modules ./node_modules
@@ -47,14 +37,11 @@ COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 
 ENV NODE_ENV=production
-ENV CI=true
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED=1
-
-RUN npm install -g corepack
 
 # Build Next.js application
 # If you want to speed up Docker rebuilds, you can cache the build artifacts
@@ -62,24 +49,20 @@ RUN npm install -g corepack
 # This caches the .next/cache directory across builds, but it also prevents
 # .next/cache/fetch-cache from being included in the final image, meaning
 # cached fetch responses from the build won't be available at runtime.
-RUN if [ -f package-lock.json ]; then \
-    npm run build; \
-    elif [ -f yarn.lock ]; then \
-    corepack enable yarn && yarn build; \
-    elif [ -f pnpm-lock.yaml ]; then \
-    corepack enable pnpm && pnpm build; \
-    else \
-    echo "No lockfile found." && exit 1; \
-    fi
+RUN pnpm build
 
 # ============================================
 # Stage 3: Run Next.js application
 # ============================================
 
-FROM node:${NODE_VERSION} AS runner
+FROM ghcr.io/pnpm/pnpm:${PNPM_VERSION} AS runner
+
+RUN groupadd --gid 1000 node \
+    && useradd --uid 1000 --gid node --shell /bin/bash --create-home node
 
 # Set working directory
 WORKDIR /app
+ENV CI=true
 
 # Set production environment variables
 ENV NODE_ENV=production
