@@ -17,7 +17,7 @@
     },
     "dependencies": {
         "@better-auth/drizzle-adapter": "^1.7.2",
-        "@libsql/client": "^0.17.4",
+        "@libsql/client": "^0.18.0",
         "@node-rs/argon2": "^2.2.0",
         "@teispace/next-themes": "^3.0.0",
         "@valkey/valkey-glide": "^2.5.1",
