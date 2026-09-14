@@ -2,11 +2,7 @@
 # Stage 1: Dependencies Installation Stage
 # ============================================
 
-# IMPORTANT: Node.js Version Maintenance
-# This Dockerfile uses Node.js 24.13.0-slim, which was the latest LTS version at the time of writing.
-# To ensure security and compatibility, regularly update the NODE_VERSION ARG to the latest LTS version.
 ARG PNPM_VERSION=12
-ARG NODE_VERSION=26-slim
 
 FROM ghcr.io/pnpm/pnpm:${PNPM_VERSION} AS dependencies
 
@@ -55,6 +51,7 @@ RUN pnpm build
 # ============================================
 
 FROM node:${NODE_VERSION} AS runner
+ARG NODE_VERSION=26-slim
 
 # Set working directory
 WORKDIR /app
@@ -73,8 +70,7 @@ ENV HOSTNAME="0.0.0.0"
 COPY --from=builder --chown=node:node /app/public ./public
 
 # Set the correct permission for prerender cache
-RUN mkdir .next
-RUN chown node:node .next
+RUN mkdir .next && chown node:node .next
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
