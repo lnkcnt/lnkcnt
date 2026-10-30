@@ -1,5 +1,5 @@
 import { db } from "@/src/db";
-import { linkClickCount } from "@/src/db/schema";
+import { linkClickCount, urlManagePage } from "@/src/db/schema";
 import { isRateLimited, tooManyRequestsResponse } from "@/src/lib/rate";
 import { ChartsResponse } from "@/src/types";
 import { and, eq, gte, lte } from "drizzle-orm";
@@ -10,7 +10,7 @@ import { NextRequest, NextResponse } from "next/server";
  *
  * Route: `GET /api/charts`
  * Query parameters:
- * - `id` (required): shortened link id
+ * - `id` (required): management id
  * - `startYear` and `startMonth` (required): start period
  * - `endYear` and `endMonth` (optional): end period
  *
@@ -51,7 +51,7 @@ export async function GET(
         // 시작일과 종료일 계산
         startDate = new Date(
             Number.parseInt(startYear),
-            Number.parseInt(startMonth),
+            Number.parseInt(startMonth) - 1,
             1,
         );
     } else {
@@ -93,9 +93,10 @@ export async function GET(
     const clicks = await db
         .select({ date: linkClickCount.date })
         .from(linkClickCount)
+        .innerJoin(urlManagePage, eq(linkClickCount.id, urlManagePage.id))
         .where(
             and(
-                eq(linkClickCount.id, id),
+                eq(urlManagePage.managePage, id),
                 gte(linkClickCount.date, startDate),
                 lte(linkClickCount.date, endDate),
             ),
@@ -124,6 +125,6 @@ export async function GET(
     return NextResponse.json({
         success: true,
         message: "Successful.",
-        data: data,
+        data,
     });
 }
