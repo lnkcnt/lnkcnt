@@ -23,29 +23,18 @@ This project is a URL shortener with URL click counter feature.
 
 - **YOU SHOULDN'T DELETE A FILE WITHOUT USER'S EXPLICIT PERMISSION!**
 - After each code change, run `pnpm lint`.
-- Use TypeScript(`.ts`/`.tsx`). DO NOT USE PLAIN JAVASCRIPT!
-    - And, do not use `any`. Always use proper type.
-- DO NOT USE PLAIN SQL. Use Drizzle ORM.
-- If possible, use shadcn or TailwindCSS.
-- Use ky instead of `fetch`.
-- Write JSDoc on functions and variables.
-
-### Git rules
-
 - **YOU SHOULDN'T USE GIT'S FORCE PUSH AND HARD RESET FEATURE!**
-- Before feature implementation, create and switch git branch to `ai/<feature-name>`.
 
-## Tips
+## Skills
 
-- This project uses pnpm. you can replace `npm` to `pnpm`, `npx` to `pnpx`.
-- `shadcn-ui` is deprecated. use `shadcn` instead.
-- This project includes SKILLS. Refer to SKILLS for recent and accurate information.
-- This project needs PostgreSQL server to run.
-    - You can start with `podman compose -f ./compose.db.yml up -d`.
+This project includes project skills in `.claude/skills/` (linked to `.agents/skills/`). Load the matching skill before doing that kind of work.
 
-### Helpful commands
-
-- `pnpm dev`: runs project in development(debug) mode.
-- `pnpm fmt`: runs prettier to format code.
-- `pnpm lint`: runs eslint to check potential issues.
-- `pnpm test --run`: runs vitest to run unit tests.
+| Skill | Load when |
+| --- | --- |
+| `lnkcnt-typescript` | Writing or editing TypeScript code |
+| `lnkcnt-database` | Database schema, queries, PostgreSQL setup |
+| `lnkcnt-http` | Writing HTTP requests |
+| `lnkcnt-ui` | Building UI components or styling |
+| `lnkcnt-testing` | Writing or running tests |
+| `lnkcnt-dev-commands` | Running, formatting, linting, or setting up the project |
+| `lnkcnt-git` | Git work, creating branches, starting a feature |
