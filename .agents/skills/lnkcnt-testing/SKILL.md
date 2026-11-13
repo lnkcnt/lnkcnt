@@ -5,4 +5,4 @@ description: Testing commands for the lnkcnt project (vitest). Use when writing,
 
 # lnkcnt testing
 
-- Run unit tests with vitest: `pnpm test --run`
+- Run unit tests with vitest: `pnpm test:unit --run`
