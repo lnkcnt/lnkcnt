@@ -10,5 +10,6 @@ description: Package manager and run/format/lint commands for the lnkcnt project
   - `pnpm dev`: runs project in development (debug) mode.
   - `pnpm fmt`: runs prettier to format code.
   - `pnpm lint`: runs eslint to check potential issues.
-  - `pnpm test --run`: runs vitest to run unit tests (see `lnkcnt-testing`).
+  - `pnpm test:unit --run`: runs vitest to run unit tests (see `lnkcnt-testing`).
+  - `pnpm test:e2e`: runs playwright to run end-to-end tests (see `lnkcnt-testing`).
 - The database must be running before `pnpm dev` (see `lnkcnt-database`).
